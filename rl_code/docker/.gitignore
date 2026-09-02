@@ -1,0 +1,8 @@
+# TensorBoard training logs
+dqn_cartpole_tensorboard/
+
+# Saved reinforcement-learning models and checkpoints
+*.zip
+*.pt
+*.pth
+*.ckpt

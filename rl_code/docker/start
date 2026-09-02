@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+IMAGE_NAME="romrobotics/rl-env:cuda12_torch2_3_0"
+X11_SOCKET_DIR="/tmp/.X11-unix"
+
+xhost +si:localuser:root >/dev/null
+trap 'xhost -si:localuser:root >/dev/null' EXIT
+
+docker run -it --gpus all \
+  -e DISPLAY=$DISPLAY \
+  -p 6006:6006 \
+  -v "$X11_SOCKET_DIR:$X11_SOCKET_DIR:rw" \
+  -v "/$(pwd)":/workspace \
+  "$IMAGE_NAME" bash
