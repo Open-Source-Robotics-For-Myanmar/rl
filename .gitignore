@@ -1,0 +1,16 @@
+# VS Code workspace settings (at any directory depth)
+.vscode/
+
+# Stable-Baselines3 saved models
+*.zip
+
+# CleanRL / PyTorch saved models and checkpoints
+*.cleanrl_model
+*.pt
+*.pth
+*.ckpt
+
+# TensorBoard logs (including the conventional CleanRL output directory)
+events.out.tfevents.*
+*tensorboard*/
+runs/
