@@ -1,6 +1,9 @@
 # TensorBoard training logs
 dqn_cartpole_tensorboard/
 
+# Python bytecode caches
+__pycache__/
+
 # Saved reinforcement-learning models and checkpoints
 *.zip
 *.pt
