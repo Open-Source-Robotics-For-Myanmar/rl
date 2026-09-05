@@ -114,9 +114,10 @@ flowchart TD
     classDef process fill:#d1c4e9,stroke:#4527a0,stroke-width:2px,color:#000
     classDef decision fill:#fff9c4,stroke:#f9a825,stroke-width:2px,color:#000
     classDef update fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
-    classDef end fill:#f8bbd0,stroke:#ad1457,stroke-width:2px,color:#000
+    classDef finish fill:#f8bbd0,stroke:#ad1457,stroke-width:2px,color:#000
 
-    class START,END start
+    class START start
+    class END finish
     class SYNC,ROLLOUT,BOOT,ZERO,RETURN,ADV,LOSS,GRAD process
     class DONE,CHECK decision
     class UPDATE update
