@@ -13,6 +13,12 @@ from torch.distributions import Categorical
 from torch.utils.tensorboard import SummaryWriter
 
 
+TOTAL_TIMESTEPS = 300_000  # training loop ကို total ဘယ်နှစ် environment step run မလဲ
+NUM_STEPS = 20
+LEARNING_RATE = 7e-4
+GAMMA = 0.99
+GAE_LAMBDA = 0.95
+
 # policy(actor) နဲ့ value(critic) head နှှစ်ခုကို shared layer တစ်ခုတည်းက ထုတ်ပေးတဲ့ actor-critic network
 class ActorCriticNetwork(nn.Module):
 	def __init__(self, env: gym.Env) -> None:
@@ -59,16 +65,13 @@ def make_env() -> gym.Env:
 	return gym.wrappers.RecordEpisodeStatistics(gym.make("CartPole-v1"))
 
 
-TOTAL_TIMESTEPS = 300_000  # training loop ကို total ဘယ်နှစ် environment step run မလဲ
-
-
 # command-line arguments (num-steps, learning rate, gamma, gae-lambda, entropy/value coef, seed) တွေကို parse လုပ်တယ်
 def parse_args() -> argparse.Namespace:
 	parser = argparse.ArgumentParser(description="Train CleanRL-style actor-critic with GAE on CartPole.")
-	parser.add_argument("--num-steps", type=int, default=20)
-	parser.add_argument("--learning-rate", type=float, default=7e-4)
-	parser.add_argument("--gamma", type=float, default=0.99)
-	parser.add_argument("--gae-lambda", type=float, default=0.95)
+	parser.add_argument("--num-steps", type=int, default=NUM_STEPS)
+	parser.add_argument("--learning-rate", type=float, default=LEARNING_RATE)
+	parser.add_argument("--gamma", type=float, default=GAMMA)
+	parser.add_argument("--gae-lambda", type=float, default=GAE_LAMBDA)
 	parser.add_argument("--entropy-coef", type=float, default=0.01)
 	parser.add_argument("--value-loss-coef", type=float, default=0.5)
 	parser.add_argument("--max-grad-norm", type=float, default=0.5)
