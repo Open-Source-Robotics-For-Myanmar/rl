@@ -1,0 +1,71 @@
+# VPG — REINFORCE with Baseline (CleanRL-style) on CartPole
+
+## Policy Network Architecture
+
+```mermaid
+flowchart LR
+    A["Observation<br/>(state_size)"] --> B["Linear(state_size → 120)"]
+    B --> C["ReLU"]
+    C --> D["Linear(120 → 84)"]
+    D --> E["ReLU"]
+    E --> F["Linear(84 → action_count)"]
+    F --> G["Logits"]
+    G --> H["Categorical Distribution"]
+    H --> I["Sampled Action"]
+    H --> J["log_prob(action)"]
+```
+
+## Baseline (Value) Network Architecture
+
+```mermaid
+flowchart LR
+    A["Observation<br/>(state_size)"] --> B["Linear(state_size → 120)"]
+    B --> C["ReLU"]
+    C --> D["Linear(120 → 84)"]
+    D --> E["ReLU"]
+    E --> F["Linear(84 → 1)"]
+    F --> G["V(s)  — state value estimate"]
+```
+
+## Algorithm Structure (System Diagram, with Baseline)
+
+```mermaid
+flowchart TD
+    PN["Policy Network<br/>π_θ(a|s)"]
+    BN["Baseline Network<br/>V_φ(s)"]
+    ENV["Environment"]
+    TRAJ["Episode Trajectory<br/>Γ = {S₀,A₀,R₁,...,S_T₋₁,A_T₋₁,R_T}"]
+
+    ENV -- "S" --> PN
+    ENV -- "S" --> BN
+    PN -- "A" --> ENV
+    PN -- "A" --> TRAJ
+    ENV -- "S, R" --> TRAJ
+    TRAJ -- "G (discounted return)" --> BN
+    BN -- "Advantage = G − V(s)" --> PN
+```
+
+Baseline Network (`ValueNetwork`) ဟာ state တစ်ခုစီရဲ့ expected return $V(s)$ ကို ခန့်မှန်းပြီး၊ actual return $G$ နဲ့ ကွာခြားချက် (**advantage** $A = G - V(s)$) ကို policy loss မှာ သုံးခြင်းဖြင့် plain REINFORCE ထက် gradient variance ကို လျှော့ချပေးပါတယ်။
+
+## Training Algorithm Flow
+
+```mermaid
+flowchart TD
+    A["Episode စတင် (env.reset)"] --> B["Policy Network ကနေ action sample ယူပြီး<br/>log_prob + entropy သိမ်းထား"]
+    B --> C["env.step(action) → observation, reward, done"]
+    C --> D{"Episode ပြီးပြီလား? (done)"}
+    D -- No --> B
+    D -- Yes --> E["Rewards အားလုံးကနေ<br/>discounted_returns() တွက်ချက်"]
+    E --> F["Baseline Network ကို observations အားလုံး ထည့်ပြီး<br/>V(s) ခန့်မှန်း"]
+    F --> G["advantage = return − V(s).detach()<br/>(optional: normalize)"]
+    G --> H["policy_loss = −(log_probs · advantage).sum() − entropy_bonus"]
+    G --> I["value_loss = MSE(V(s), return)"]
+    H --> J["Policy optimizer.step()"]
+    I --> K["Value optimizer.step()"]
+    J --> A
+    K --> A
+```
+
+## Concepts: Logits, Log_probs, Categorical, Discrete vs Continuous
+
+REINFORCE ရဲ့ logits/log_probs/Categorical distribution/discrete-vs-continuous action space သဘောတရားတွေအတွက် [04_reinforce/README.md](../04_reinforce/README.md#concepts-logits-log_probs-categorical-discrete-vs-continuous) ကို ကြည့်ပါ — VPG မှာလည်း အတူတူပါပဲ၊ ကွာသည်က Baseline Network ပါလာခြင်းသာ ဖြစ်ပါတယ်။
