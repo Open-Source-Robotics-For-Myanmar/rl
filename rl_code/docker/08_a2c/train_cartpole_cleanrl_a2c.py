@@ -13,6 +13,10 @@ from torch.distributions import Categorical
 from torch.utils.tensorboard import SummaryWriter
 
 TOTAL_TIMESTEPS = 500_000  # training loop ကို total ဘယ်နှစ် environment step run မလဲ
+NUM_STEPS = 20
+LEARNING_RATE = 7e-4
+GAMMA = 0.99
+GAE_LAMBDA = 0.95
 
 
 # policy(actor) နဲ့ value(critic) head နှှစ်ခုကို shared layer တစ်ခုတည်းက ထုတ်ပေးတဲ့ actor-critic network
@@ -45,10 +49,10 @@ def parse_args() -> argparse.Namespace:
 		description="Train CleanRL-style synchronous A2C (parallel envs + GAE) on CartPole."
 	)
 	parser.add_argument("--num-envs", type=int, default=8)
-	parser.add_argument("--num-steps", type=int, default=20)
-	parser.add_argument("--learning-rate", type=float, default=7e-4)
-	parser.add_argument("--gamma", type=float, default=0.99)
-	parser.add_argument("--gae-lambda", type=float, default=0.95)
+	parser.add_argument("--num-steps", type=int, default=NUM_STEPS)
+	parser.add_argument("--learning-rate", type=float, default=LEARNING_RATE)
+	parser.add_argument("--gamma", type=float, default=GAMMA)
+	parser.add_argument("--gae-lambda", type=float, default=GAE_LAMBDA)
 	parser.add_argument("--entropy-coef", type=float, default=0.01)
 	parser.add_argument("--value-loss-coef", type=float, default=0.5)
 	parser.add_argument("--max-grad-norm", type=float, default=0.5)
