@@ -31,7 +31,7 @@ $$
 CartPole observation မှာ state value ၄ ခုရှိပြီး action ၂ ခု ရှိပါတယ်။ Actor နဲ့ critic က hidden representation ကို share လုပ်ထားတဲ့ network တစ်ခုတည်းကို အသုံးပြုပါတယ်။
 
 ```mermaid
-flowchart LR
+graph LR
     OBS["Observation<br/>4 values"] --> SHARED["Shared layer<br/>Linear 4 → 128<br/>ReLU"]
     SHARED --> POLICY["Policy head<br/>Linear 128 → 2"]
     POLICY --> LOGITS["Action logits"]
@@ -40,15 +40,6 @@ flowchart LR
     SHARED --> VALUE["Value head<br/>Linear 128 → 1"]
     VALUE --> VS["V(s)"]
 
-    classDef inputStyle fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
-    classDef sharedStyle fill:#d1c4e9,stroke:#4527a0,stroke-width:2px,color:#000
-    classDef actorStyle fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
-    classDef criticStyle fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
-
-    class OBS inputStyle
-    class SHARED sharedStyle
-    class POLICY,LOGITS,DIST,ACTION actorStyle
-    class VALUE,VS criticStyle
 ```
 
 ### Network Components
@@ -61,32 +52,21 @@ flowchart LR
 ## Rollout and GAE Flow
 
 ```mermaid
-flowchart TD
+graph TD
     START["Rollout စတင်"] --> STEP["Online network ဖြင့် action sample<br/>log_prob, value, entropy သိမ်း"]
     STEP --> ENV["Environment step<br/>reward, next state, done"]
     ENV --> MORE{"num_steps ပြည့်ပြီလား?"}
-    MORE -->|"မပြည့်သေး"| STEP
-    MORE -->|"ပြည့်ပြီ"| BOOT["နောက်ဆုံး observation မှ<br/>bootstrap value V(s_T) တွက်"]
+    MORE -->|မပြည့်သေး| STEP
+    MORE -->|ပြည့်ပြီ| BOOT["နောက်ဆုံး observation မှ<br/>bootstrap value V(s_T) တွက်"]
     BOOT --> DELTA["TD residual δ_t တွက်"]
     DELTA --> GAE["Reverse recursion ဖြင့်<br/>GAE advantage A_t တွက်"]
     GAE --> TARGET["returns = advantage + value"]
     TARGET --> LOSS["Policy loss + value loss<br/>− entropy bonus"]
     LOSS --> UPDATE["Adam optimizer update"]
     UPDATE --> CHECK{"TOTAL_TIMESTEPS ပြည့်ပြီလား?"}
-    CHECK -->|"မပြည့်သေး"| START
-    CHECK -->|"ပြည့်ပြီ"| FINISH["Training ပြီး"]
+    CHECK -->|မပြည့်သေး| START
+    CHECK -->|ပြည့်ပြီ| FINISH["Training ပြီး"]
 
-    classDef startStyle fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
-    classDef processStyle fill:#d1c4e9,stroke:#4527a0,stroke-width:2px,color:#000
-    classDef decisionStyle fill:#fff9c4,stroke:#f9a825,stroke-width:2px,color:#000
-    classDef updateStyle fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
-    classDef finishStyle fill:#f8bbd0,stroke:#ad1457,stroke-width:2px,color:#000
-
-    class START,FINISH startStyle
-    class STEP,ENV,BOOT,DELTA,GAE,TARGET,LOSS processStyle
-    class MORE,CHECK decisionStyle
-    class UPDATE updateStyle
-    class FINISH finishStyle
 ```
 
 Episode တစ်ခုဟာ rollout အတွင်း ပြီးသွားရင် `done` mask ကြောင့် TD residual နဲ့ GAE recursion က episode boundary ကို ဖြတ်သွားမှာ မဟုတ်ပါ။ Rollout က episode မပြီးခင် ရပ်သွားရင် နောက်ဆုံး observation ရဲ့ value ကို bootstrap လုပ်ပါတယ်။
