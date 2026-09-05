@@ -13,6 +13,20 @@ flowchart LR
     G --> H["Categorical Distribution"]
     H --> I["Sampled Action"]
     H --> J["log_prob(action)"]
+
+    classDef inputStyle fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    classDef layerStyle fill:#d1c4e9,stroke:#4527a0,stroke-width:2px,color:#000
+    classDef actStyle fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    classDef outStyle fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    classDef distStyle fill:#fff9c4,stroke:#f9a825,stroke-width:2px,color:#000
+    classDef actionStyle fill:#f8bbd0,stroke:#ad1457,stroke-width:2px,color:#000
+
+    class A inputStyle
+    class B,D,F layerStyle
+    class C,E actStyle
+    class G outStyle
+    class H distStyle
+    class I,J actionStyle
 ```
 
 ## Baseline (Value) Network Architecture
@@ -25,6 +39,16 @@ flowchart LR
     D --> E["ReLU"]
     E --> F["Linear(84 → 1)"]
     F --> G["V(s)  — state value estimate"]
+
+    classDef inputStyle fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    classDef layerStyle fill:#d1c4e9,stroke:#4527a0,stroke-width:2px,color:#000
+    classDef actStyle fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    classDef outStyle fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+
+    class A inputStyle
+    class B,D,F layerStyle
+    class C,E actStyle
+    class G outStyle
 ```
 
 ## Algorithm Structure (System Diagram, with Baseline)
@@ -43,6 +67,16 @@ flowchart TD
     ENV -- "S, R" --> TRAJ
     TRAJ -- "G (discounted return)" --> BN
     BN -- "Advantage = G − V(s)" --> PN
+
+    classDef policyStyle fill:#d1c4e9,stroke:#4527a0,stroke-width:2px,color:#000
+    classDef baselineStyle fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    classDef envStyle fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    classDef trajStyle fill:#fff9c4,stroke:#f9a825,stroke-width:2px,color:#000
+
+    class PN policyStyle
+    class BN baselineStyle
+    class ENV envStyle
+    class TRAJ trajStyle
 ```
 
 Baseline Network (`ValueNetwork`) ဟာ state တစ်ခုစီရဲ့ expected return $V(s)$ ကို ခန့်မှန်းပြီး၊ actual return $G$ နဲ့ ကွာခြားချက် (**advantage** $A = G - V(s)$) ကို policy loss မှာ သုံးခြင်းဖြင့် plain REINFORCE ထက် gradient variance ကို လျှော့ချပေးပါတယ်။
@@ -64,7 +98,17 @@ flowchart TD
     I --> K["Value optimizer.step()"]
     J --> A
     K --> A
-```
+    classDef startStyle fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    classDef processStyle fill:#d1c4e9,stroke:#4527a0,stroke-width:2px,color:#000
+    classDef decisionStyle fill:#fff9c4,stroke:#f9a825,stroke-width:2px,color:#000
+    classDef valueStyle fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    classDef finalStyle fill:#f8bbd0,stroke:#ad1457,stroke-width:2px,color:#000
+
+    class A startStyle
+    class B,C,E processStyle
+    class D decisionStyle
+    class F,G,I valueStyle
+    class H,J,K finalStyle```
 
 ## Concepts: Logits, Log_probs, Categorical, Discrete vs Continuous
 

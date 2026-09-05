@@ -13,6 +13,20 @@ flowchart LR
     G --> H["Categorical Distribution"]
     H --> I["Sampled Action"]
     H --> J["log_prob(action)"]
+
+    classDef inputStyle fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    classDef layerStyle fill:#d1c4e9,stroke:#4527a0,stroke-width:2px,color:#000
+    classDef actStyle fill:#ffe0b2,stroke:#e65100,stroke-width:2px,color:#000
+    classDef outStyle fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    classDef distStyle fill:#fff9c4,stroke:#f9a825,stroke-width:2px,color:#000
+    classDef actionStyle fill:#f8bbd0,stroke:#ad1457,stroke-width:2px,color:#000
+
+    class A inputStyle
+    class B,D,F layerStyle
+    class C,E actStyle
+    class G outStyle
+    class H distStyle
+    class I,J actionStyle
 ```
 
 ## Algorithm Structure (System Diagram, no Baseline)
@@ -28,6 +42,14 @@ flowchart TD
     PN -- "A" --> TRAJ
     ENV -- "S, R" --> TRAJ
     TRAJ -- "G (discounted return)" --> PN
+
+    classDef policyStyle fill:#d1c4e9,stroke:#4527a0,stroke-width:2px,color:#000
+    classDef envStyle fill:#c8e6c9,stroke:#2e7d32,stroke-width:2px,color:#000
+    classDef trajStyle fill:#fff9c4,stroke:#f9a825,stroke-width:2px,color:#000
+
+    class PN policyStyle
+    class ENV envStyle
+    class TRAJ trajStyle
 ```
 
 Plain REINFORCE မှာ **Policy Network တစ်ခုတည်း**ပဲ ရှိပြီး၊ trajectory ကနေ တွက်ချက်ထားတဲ့ return $G$ ကို ဒါဆိုတိုက်ရိုက် policy loss မှာ သုံးပါတယ် (baseline network မပါ)။
@@ -45,6 +67,16 @@ flowchart TD
     F --> G["policy_loss = -(log_probs * returns).sum()"]
     G --> H["Backpropagation + optimizer.step()<br/>(Policy Network weights update)"]
     H --> A
+
+    classDef startStyle fill:#bbdefb,stroke:#1565c0,stroke-width:2px,color:#000
+    classDef processStyle fill:#d1c4e9,stroke:#4527a0,stroke-width:2px,color:#000
+    classDef decisionStyle fill:#fff9c4,stroke:#f9a825,stroke-width:2px,color:#000
+    classDef finalStyle fill:#f8bbd0,stroke:#ad1457,stroke-width:2px,color:#000
+
+    class A startStyle
+    class B,C,E,F,G processStyle
+    class D decisionStyle
+    class H finalStyle
 ```
 
 ## Concepts: Logits, Log_probs, Categorical, Discrete vs Continuous
