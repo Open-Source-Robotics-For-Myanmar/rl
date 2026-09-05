@@ -108,7 +108,8 @@ flowchart TD
     class B,C,E processStyle
     class D decisionStyle
     class F,G,I valueStyle
-    class H,J,K finalStyle```
+    class H,J,K finalStyle
+```
 
 ## Concepts: Logits, Log_probs, Categorical, Discrete vs Continuous
 
