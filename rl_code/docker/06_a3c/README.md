@@ -151,7 +151,7 @@ A3C implementation မှာ **target network မရှိပါ**။
 
 ## Hyperparameters
 
-Default values တွေက `train_cartpole_cleanrl_a3c.py` ထဲက argument parser အတိုင်း ဖြစ်ပါတယ်။
+Default values တွေကို `train_cartpole_cleanrl_a3c.py` ရဲ့ အပေါ်ဆုံး global configuration section မှာ သတ်မှတ်ထားပါတယ်။ Hyperparameter ပြောင်းလိုရင် အဲဒီ variable တွေကို တိုက်ရိုက်ပြင်ပါ။ Command-line arguments မသုံးထားပါ။
 
 | Hyperparameter | Default | အဓိပ္ပါယ် |
 |---|---:|---|
@@ -175,15 +175,7 @@ cd docker/06_a3c
 python3 train_cartpole_cleanrl_a3c.py
 ```
 
-ဥပမာ worker အရေအတွက်နဲ့ rollout length ပြောင်းရန်:
-
-```bash
-python3 train_cartpole_cleanrl_a3c.py \
-    --num-workers 4 \
-    --n-steps 20 \
-    --learning-rate 1e-4 \
-    --gamma 0.99
-```
+Worker အရေအတွက်၊ rollout length၊ learning rate သို့မဟုတ် gamma ပြောင်းလိုရင် `train_cartpole_cleanrl_a3c.py` ထဲက `NUM_WORKERS`, `N_STEPS`, `LEARNING_RATE`, `GAMMA` global variables တွေကို ပြင်ပြီး အပေါ်က command နဲ့ run ပါ။
 
 Training ပြီးရင် model ကို `rom_cleanrl_a3c_cartpole.cleanrl_model` အဖြစ် သိမ်းပါတယ်။ TensorBoard logs တွေကို `cleanrl_a3c_cartpole_tensorboard/` ထဲမှာ ရေးပါတယ်။
 
