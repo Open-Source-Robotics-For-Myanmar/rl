@@ -14,8 +14,10 @@ WORKDIR /workspace
 
 # Install RL libraries (Gymnasium + SB3)
 RUN pip install --no-cache-dir \
-    gymnasium[classic-control,atari,mujoco]==0.29.1 \
+    gymnasium[classic-control,atari,mujoco,box2d]==0.29.1 \
     mujoco==2.3.7 \
     stable-baselines3==2.3.2 \
     tensorboard \
-    moviepy
+    moviepy \
+    pybullet==3.2.6 \
+    pybullet_envs_gymnasium==0.5.0
