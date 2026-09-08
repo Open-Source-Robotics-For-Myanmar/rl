@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-IMAGE_NAME="romrobotics/rl-env:cuda12_torch2_3_0"
+#IMAGE_NAME="romrobotics/rl-env:cuda12_torch2_3_0"
+#IMAGE_NAME="romrobotics/rl-env:cuda12_torch2_3_0_mujoco" # for 10_td3
+IMAGE_NAME="romrobotics/rl-env:cuda12_torch2_3_0_bullet" # for 11_sac, ppo
 X11_SOCKET_DIR="/tmp/.X11-unix"
 
 xhost +si:localuser:root >/dev/null

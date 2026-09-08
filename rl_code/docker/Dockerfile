@@ -2,7 +2,12 @@ FROM pytorch/pytorch:2.3.0-cuda12.1-cudnn8-runtime
 
 # System dependencies for Rendering and Gymnasium
 ENV DEBIAN_FRONTEND=noninteractive
+ARG PIP_DEFAULT_TIMEOUT=300
+ARG PIP_RETRIES=10
+ENV PIP_DEFAULT_TIMEOUT=${PIP_DEFAULT_TIMEOUT} \
+    PIP_RETRIES=${PIP_RETRIES}
 RUN apt-get update && apt-get install -y \
+    build-essential \
     ffmpeg \
     freeglut3-dev \
     swig \
