@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+
+# MuJoCo (Hopper-v4/HalfCheetah-v4/Ant-v4) image အတွက် tag အသစ်
+IMAGE_NAME="romrobotics/rl-env:cuda12_torch2_3_0_mujoco_v4"
+X11_SOCKET_DIR="/tmp/.X11-unix"
+
+# GUI render (human render mode) ကို container အတွင်းက host display အပြတ်တင်ပြတ်လုပ်သုံးပါ
+xhost +si:localuser:root >/dev/null
+trap 'xhost -si:localuser:root >/dev/null' EXIT
+
+# လက်ရှိ workspace ကို container အတွင်း mount လုပ်ပြီး GPU ကိုပဲ ပက်သုံးပါ
+docker run -it --gpus all \
+  -e DISPLAY=$DISPLAY \
+  -p 6006:6006 \
+  -v "$X11_SOCKET_DIR:$X11_SOCKET_DIR:rw" \
+  -v "/$(pwd)":/workspace \
+  "$IMAGE_NAME" bash
