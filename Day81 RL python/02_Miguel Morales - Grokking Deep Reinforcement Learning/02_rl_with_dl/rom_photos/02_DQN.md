@@ -5,7 +5,7 @@ Full DQN ရဲ့ data flow ကို diagram ၂ ခုနဲ့ ဖော်�
 ## Diagram 1 — Basic Overview (Behavior Loop + Learning Loop)
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph TD
     subgraph Phase1 [Data Gathering - epsilon greedy Behavior Loop]
         Env[Environment] -->|Reward r_t and Next State s_t plus 1| Agent[Agent]
@@ -60,7 +60,7 @@ graph TD
 ## Diagram 2 — Detailed Full Atari Pipeline (Preprocessing → CNN → Hard Target Update)
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph TD
     subgraph Phase0 [Raw Pixel Preprocessing]
         Raw[Raw Atari Frame x_t, 210x160 RGB] --> Pre[Preprocess: grayscale, downsample 84x84, stack last 4 frames]
@@ -155,7 +155,7 @@ graph TD
 **မှန်ပါတယ်, ဒါပေမယ့် NFQ နဲ့ မတူတာက "ပြီးတော့" ဆိုတဲ့ timing ကို episode/outer-loop အစား **fixed step counter `C`** နဲ့ တိတိကျကျ သတ်မှတ်ထားတာပါ။**
 
 ```mermaid
-%%{init: {'theme': 'base'}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'lineColor': '#218bff', 'signalColor': '#218bff', 'actorLineColor': '#218bff', 'loopLineColor': '#218bff'}}}%%
 sequenceDiagram
     participant Onl as Online Q Network theta
     participant Tgt as Target Q Network theta_minus

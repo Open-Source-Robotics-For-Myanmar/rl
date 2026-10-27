@@ -5,7 +5,7 @@ NFQ algorithm ရဲ့ data flow ကို diagram ၂ ခုနဲ့ ဖေ�
 ## Diagram 1 — Basic Overview
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph TD
     subgraph Phase1 [Data Gathering]
         Env[Environment] -->|State and Reward| Agent[Agent]
@@ -53,7 +53,7 @@ graph TD
 ## Diagram 2 — Detailed Version (Current Q-Network vs. Target Generation)
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph TD
     subgraph Phase1 [Data Gathering]
         Env2[Environment] -->|State and Reward| Agent2[Agent]
@@ -121,7 +121,7 @@ graph TD
 **မှန်ပါတယ်, စဉ်းစားပုံအတိအကျ ဖြစ်ပါတယ်။** အဆင့်ဆင့် ဖြစ်စဉ်:
 
 ```mermaid
-%%{init: {'theme': 'base'}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'lineColor': '#218bff', 'signalColor': '#218bff', 'actorLineColor': '#218bff', 'loopLineColor': '#218bff'}}}%%
 sequenceDiagram
     participant Cur as Current Q Network theta
     participant Tgt as Target Q Network theta_minus

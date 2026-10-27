@@ -14,7 +14,7 @@ Standard Q-learning / DQN ရဲ့ target `y = r + γ · maxₐ' Q̂(s', a'; θ
 ## Diagram 1 — Paper Lineage (ဘယ်ကလာတာလဲ)
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph TD
     P1[Thrun and Schwartz, 1993 - identifies overestimation bias from max operator plus function approximation noise]
     P2[van Hasselt, 2010, NeurIPS - Double Q-learning: two independent tabular estimators Q_A and Q_B, each evaluates the other's greedy action]
@@ -43,7 +43,7 @@ graph TD
 ## Diagram 2 — Double DQN Full Algorithm Overview (Decoupled Selection and Evaluation)
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph TD
     subgraph Phase1 [Data Gathering - epsilon greedy Behavior Loop]
         Env[Environment] -->|Reward r_t and Next State s_t plus 1| Agent[Agent]
@@ -103,7 +103,7 @@ graph TD
 ## Diagram 3 — Side-by-Side: Standard DQN Target vs Double DQN Target (ဘယ်နေရာမှာ ကွာသွားလဲ)
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff'}}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph LR
     subgraph StandardDQN [Standard DQN Target - ONE network does BOTH jobs - bias prone]
         S1[Next State s'] --> TN1[Target Network theta minus]
@@ -170,7 +170,7 @@ graph LR
 **မှန်ပါတယ်, timing mechanism ကတော့ Full DQN နဲ့ အတူတူပါပဲ (hard copy, `C` steps) — Double DQN က ပြောင်းထားတာက "target `y` ကို ဘယ် network ၂ ခုနဲ့ ဘယ်လို တွက်လဲ" ဆိုတဲ့ **formula** ချည်းသာ ဖြစ်ပါတယ်။**
 
 ```mermaid
-%%{init: {'theme': 'base'}}%%
+%%{init: {'theme': 'base', 'themeVariables': { 'lineColor': '#218bff', 'signalColor': '#218bff', 'actorLineColor': '#218bff', 'loopLineColor': '#218bff'}}}%%
 sequenceDiagram
     participant Onl as Online Q Network theta
     participant Tgt as Target Q Network theta_minus
