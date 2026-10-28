@@ -21,7 +21,7 @@ graph TD
     P2[van Hasselt, 2010, NeurIPS - Double Q-learning: decouples selection and evaluation]
     P3[van Hasselt, Guez and Silver, 2016, AAAI - Double DQN: reuses Target Network as second estimator]
     P4[Schaul, Quan, Antonoglou and Silver, 2016, ICLR - Prioritized Experience Replay: samples high TD-error transitions more often]
-    P5[Wang, Schaul, Hessel, van Hasselt, Lanctot and de Freitas, 2015 slash 2016, ICML - Dueling Network: splits Q into V(s) plus A(s,a) streams, trained on top of DDQN target]
+    P5["Wang, Schaul, Hessel, van Hasselt, Lanctot and de Freitas, 2015 slash 2016, ICML - Dueling Network: splits Q into V(s) plus A(s,a) streams, trained on top of DDQN target"]
     P6[Hessel et al, 2018, AAAI - Rainbow: combines Dueling with Double DQN, PER, Multi-step, Distributional RL, Noisy Nets]
 
     P1 --> P5
