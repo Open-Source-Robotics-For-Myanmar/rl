@@ -209,6 +209,69 @@ graph TD
 
 > မှတ်ချက်: ဒီ diagram ဟာ [03_1_DOUBLE_DQN.md](</home/mr_robot/Desktop/Git/rl/Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/03_1_DOUBLE_DQN.md>) ရဲ့ **Diagram 2 (Decoupled Selection and Evaluation)** အတိုင်းတည်း ဖြစ်ပါတယ် — ကွာတာက `Online`/`Target` node တစ်ခုစီဟာ ယခင်က single Q-vector output network အစား, Diagram 2/3 ထဲက **`V(s) + A(s,a)` dueling aggregation module ပါတဲ့ network** ဖြစ်သွားတာပါ။ `Loss` ကနေ backprop ဖြစ်တော့, gradient ဟာ `V` stream နဲ့ `A` stream **နှစ်ခုစလုံးကို တစ်ပြိုင်နက် update** လုပ်ပါတယ် — stream နှစ်ခု သီးခြား loss function မရှိပါဘူး, shared single scalar loss ကနေပဲ backprop ဖြစ်ပါတယ်။
 
+## Diagram 5 — Polyak Averaging ဖြင့် Target Update (Optional Soft-update Alternative)
+
+Diagram 4 ရဲ့ **Online → Target bold blue arrow** က target parameters ကူးပေးတဲ့ လမ်းကြောင်းပါ။ အဲဒီနေရာမှာ hard copy အစား **soft update / Polyak averaging** ကို ရွေးသုံးနိုင်ပါတယ်။ အောက်က diagram ဟာ အဲဒီ alternative ကို သီးခြားပြထားတာဖြစ်ပြီး **original Dueling paper ရဲ့ hard-update setting ကို အစားထိုးဖော်ပြထားတာ မဟုတ်ပါဘူး**။
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+graph TD
+    Init["Initialize once: theta_target = theta_online"]
+    Init --> Online["Online Dueling Network: backbone + V head + A head"]
+    Init --> Target["Target Dueling Network: backbone + V head + A head; no gradients"]
+    Batch["Replay minibatch: s, a, r, s_next, terminal"] --> Current["Online on s: gather Q(s,a)"]
+    Online --> Current
+    Batch --> Select["Online on s_next: a_star = argmax Q(s_next,a)"]
+    Online --> Select
+    Batch --> Evaluate["Target on s_next: gather Q_target(s_next,a_star)"]
+    Target --> Evaluate
+    Select --> Evaluate
+    Evaluate --> Y["Detached DDQN target: y = r + gamma * (1 - terminal) * Q_target"]
+    Batch --> Y
+    Current --> Loss["MSE / Huber loss between y and Q(s,a)"]
+    Y --> Loss
+    Loss --> Optimizer["Optimizer step: update ONLINE parameters only"]
+    Optimizer --> Online
+
+    Online ==>|"After optimizer step, at each scheduled soft update"| Polyak["Polyak: theta_target_new = (1 - tau) * theta_target_old + tau * theta_online"]
+    Target -->|"Old target parameters; not a gradient path"| Polyak
+    Polyak ==>|"Write averaged parameters; no backprop"| Target
+
+    classDef online fill:#d4edda,stroke:#155724,color:#155724;
+    classDef target fill:#e2d9f3,stroke:#4b0082,color:#4b0082;
+    classDef update fill:#cce5ff,stroke:#004085,color:#004085;
+    classDef optimization fill:#f8d7da,stroke:#721c24,color:#721c24;
+    class Online,Current,Select online;
+    class Target,Evaluate,Y target;
+    class Init,Polyak update;
+    class Loss,Optimizer optimization;
+```
+
+### Hard Copy နဲ့ Polyak Averaging ဘာကွာသလဲ?
+
+| | Hard update — Diagram 4 / original paper | Soft update / Polyak — Diagram 5 / optional alternative |
+|---|---|---|
+| Formula | `θ⁻ ← θ` | `θ⁻ ← (1 − τ)θ⁻ + τθ` |
+| Timing | သတ်မှတ်ထားတဲ့ `C` steps တိုင်း copy | သတ်မှတ်ထားတဲ့ soft-update event တိုင်း average; ဥပမာ learner optimizer step တိုင်း |
+| Update ကြားက Target | Parameters မပြောင်းဘဲ ထားတယ် | Soft-update event ရောက်မှ နည်းနည်းစီ ပြောင်းတယ် |
+| Target ဆီ gradient စီးသလား? | မစီးပါဘူး | မစီးပါဘူး; averaging operation သာ လုပ်တယ် |
+| Dueling / DDQN logic | မပြောင်းပါဘူး | မပြောင်းပါဘူး; target-update rule ပဲ ပြောင်းတယ် |
+
+ဒီစာမှာ **`τ` ဟာ Online အသစ်ရဲ့ contribution** ဖြစ်ပါတယ်။ ဥပမာ `τ = 0.005` ဆိုရင် update တစ်ခါတိုင်း:
+
+```text
+Target_new = 0.995 × Target_old + 0.005 × Online_current
+```
+
+- Target အဟောင်း **99.5%**၊ optimizer update ပြီးတဲ့ Online လက်ရှိ **0.5%** ကို ရောယူတာပါ။ `0.005` ဟာ engineering example သာဖြစ်ပြီး original Dueling paper ရဲ့ hyperparameter မဟုတ်ပါဘူး။
+- Online / Target ကို အစမှာ တူညီအောင် copy လုပ်ပါ။ နောက်မှာ **Online optimizer step → scheduled Polyak update** ဆိုတဲ့ အစီအစဉ်ကို သုံးနိုင်ပါတယ်။
+- Averaging ကို **shared backbone၊ Value head၊ Advantage head အားလုံးရဲ့ corresponding parameters** ပေါ်မှာ လုပ်ပါတယ်။ Q-value outputs တွေကို ရောယူတာ မဟုတ်ပါဘူး။
+- **“Target frozen” ဆိုတာ gradient နဲ့ မသင်တာ** ကို ဆိုလိုပါတယ်။ Polyak averaging နဲ့ parameters ပြောင်းနိုင်ခြင်းနဲ့ မဆန့်ကျင်ပါဘူး။
+- `τ = 1` ဆိုရင် အဲဒီ update event မှာ full copy ဖြစ်တယ်။ ဒါပေမယ့် **every-step full copy** နဲ့ **every-C-steps hard copy** က schedule မတူလို့ အတူတူမဟုတ်ပါဘူး။ `τ = 0` ဆိုရင် Target မရွေ့တော့ပါဘူး။
+- အခြားစာတွေမှာ `θ⁻ ← ρ·θ⁻ + (1−ρ)·θ` လို့ ရေးတတ်ပါတယ်။ အဲဒီ convention မှာ **`ρ = 1−τ`** ဖြစ်လို့ coefficient အကြီး/အသေးကို မရောပါနဲ့။
+
+**ရွေးချယ်ရာမှာ:** ပုံမှန်အားဖြင့် hard update **သို့မဟုတ်** soft update တစ်မျိုးကို ရွေးပြီး schedule unit ကို learner updates လား၊ environment steps လား ရှင်းရှင်းသတ်မှတ်ပါ။ Polyak averaging က Target ကို ပိုဖြည်းဖြည်းရွေ့စေပေမယ့် hard update ထက် အမြဲပိုကောင်းမယ်လို့ မဆိုလိုပါဘူး။ PER ပါရင်လည်း ဒီ target-update လမ်းကြောင်းမှာပဲ သုံးနိုင်ပြီး replay sampling / IS weighting တို့ကို သီးခြားထိန်းထားပါတယ်။
+
 ## Full DQN vs Double DQN vs Dueling DDQN — ကွာခြားချက် အနှစ်ချုပ်
 
 | | Full DQN (Mnih et al., 2015) | Double DQN (van Hasselt et al., 2016) | Dueling DDQN (Wang et al., 2016) |

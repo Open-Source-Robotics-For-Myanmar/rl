@@ -4,7 +4,7 @@ Reinforcement Learning (RL) နှင့် Robotics ကို လေ့လာ�
 
 ## Markdown ဖိုင်စာရင်း
 
-လက်ရှိ repository ထဲရှိ Markdown ဖိုင် **၄၅ ဖိုင်** (ဤ README အပါအဝင်) ကို အုပ်စုခွဲပြီး ဖိုင်တစ်ခုချင်းစီ၏ အကြောင်းအရာအကျဉ်းနှင့် ဖော်ပြထားပါတယ်။ ဖိုင်အမည်ကို နှိပ်၍ သက်ဆိုင်ရာစာတမ်းကို ဖတ်နိုင်ပါတယ်။
+လက်ရှိ repository ထဲရှိ Markdown ဖိုင် **၄၆ ဖိုင်** (ဤ README အပါအဝင်) ကို အုပ်စုခွဲပြီး ဖိုင်တစ်ခုချင်းစီ၏ အကြောင်းအရာအကျဉ်းနှင့် ဖော်ပြထားပါတယ်။ ဖိုင်အမည်ကို နှိပ်၍ သက်ဆိုင်ရာစာတမ်းကို ဖတ်နိုင်ပါတယ်။
 
 ### ၁။ အဓိကလမ်းညွှန်များ (၂ ဖိုင်)
 
@@ -41,7 +41,7 @@ Grokking Deep Reinforcement Learning ၏ အခန်း ၁ မှ ၇ အထ�
 | [chapter_7_summarized.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/01_rl_without_dl/chapter_7_summarized.md>) | ပိုမိုထိရောက်သော learning အတွက် SARSA(lambda)၊ Watkins's Q(lambda)၊ model-based RL၊ Dyna-Q နှင့် trajectory sampling အကျဉ်းချုပ်။ |
 | [chapter_7_translated.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/01_rl_without_dl/chapter_7_translated.md>) | အခန်း ၇ ၏ ပန်းတိုင်များကို ပိုမိုထိရောက်စွာ ရရှိရန် အသုံးပြုသော RL နည်းလမ်းများကို အသေးစိတ် မြန်မာဘာသာပြန်ထားသော စာတမ်း။ |
 
-### ၄။ Deep Learning ပါဝင်သော RL နည်းလမ်းများ (၁၄ ဖိုင်)
+### ၄။ Deep Learning ပါဝင်သော RL နည်းလမ်းများ (၁၅ ဖိုင်)
 
 တည်နေရာ: [02_rl_with_dl](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/>)
 
@@ -59,10 +59,11 @@ Grokking Deep Reinforcement Learning ၏ အခန်း ၁ မှ ၇ အထ�
 | [chapter_11_translated.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/chapter_11_translated.md>) | အခန်း ၁၁ ၏ policy-gradient နှင့် actor-critic နည်းလမ်းများကို အသေးစိတ် မြန်မာဘာသာပြန်။ |
 | [chapter_12_summarized.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/chapter_12_summarized.md>) | အဆင့်မြင့် actor-critic နည်းလမ်းများဖြစ်သော DDPG၊ TD3၊ SAC နှင့် PPO တို့၏ အဓိကသဘောတရား၊ network နှင့် hyperparameter များ အနှစ်ချုပ်။ |
 | [chapter_12_translated.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/chapter_12_translated.md>) | အခန်း ၁၂ ၏ အဆင့်မြင့် actor-critic နည်းလမ်းများကို အသေးစိတ် မြန်မာဘာသာပြန်။ |
-| [rom_photos/01_1_NFQ_original_paper.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/01_1_NFQ_original_paper.md>) | NFQ algorithm ၏ data flow ကို overview နှင့် detailed diagram နှစ်မျိုးဖြင့် ရှင်းလင်းထားသော မှတ်စု။ |
-| [rom_photos/02_1_DQN.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/02_1_DQN.md>) | မူရင်း DQN paper ကို အခြေခံထားသော agent-environment interaction၊ experience replay၊ target network နှင့် Atari-scale pipeline ဆိုင်ရာ overview နှင့် detailed diagram များ။ |
-| [rom_photos/03_1_DOUBLE_DQN.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/03_1_DOUBLE_DQN.md>) | Double DQN ၏ overestimation bias လျှော့ချနည်း၊ action selection နှင့် evaluation ခွဲခြားပုံ၊ မူရင်းနှင့် ဆက်စပ် paper များကို diagram များဖြင့် ရှင်းလင်းထားသော မှတ်စု။ |
-| [rom_photos/04_1_Dueling_DDQN.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/04_1_Dueling_DDQN.md>) | Dueling Network Architecture ၏ Value/Advantage stream ခွဲခြားပုံ၊ Double DQN target formula နှင့် ပေါင်းစပ်ပုံ၊ identifiability problem နှင့် aggregation equation များကို မူရင်းနှင့် ဆက်စပ် paper များဖြင့် ရှင်းလင်းထားသော မှတ်စု။ |
+| [rom_photos/01_1_VB_NFQ_original_paper.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/01_1_VB_NFQ_original_paper.md>) | NFQ algorithm ၏ data flow ကို overview နှင့် detailed diagram နှစ်မျိုးဖြင့် ရှင်းလင်းထားသော မှတ်စု။ |
+| [rom_photos/02_1_VB_DQN.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/02_1_VB_DQN.md>) | မူရင်း DQN paper ကို အခြေခံထားသော agent-environment interaction၊ experience replay၊ target network နှင့် Atari-scale pipeline ဆိုင်ရာ overview နှင့် detailed diagram များ။ |
+| [rom_photos/03_1_VB_DOUBLE_DQN.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/03_1_VB_DOUBLE_DQN.md>) | Double DQN ၏ overestimation bias လျှော့ချနည်း၊ action selection နှင့် evaluation ခွဲခြားပုံ၊ မူရင်းနှင့် ဆက်စပ် paper များကို diagram များဖြင့် ရှင်းလင်းထားသော မှတ်စု။ |
+| [rom_photos/04_1_VB_Dueling_DDQN.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/04_1_VB_Dueling_DDQN.md>) | Dueling Network Architecture ၏ Value/Advantage stream ခွဲခြားပုံ၊ Double DQN target formula နှင့် ပေါင်းစပ်ပုံ၊ identifiability problem၊ aggregation equation များနှင့် optional Polyak averaging target update ကို diagram များဖြင့် ရှင်းလင်းထားသော မှတ်စု။ |
+| [rom_photos/05_1_VB_PER_.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/05_1_VB_PER_.md>) | Prioritized Experience Replay (PER) ကို Dueling DDQN နှင့် တွဲသုံးပုံ၊ priority/probability/importance-sampling weight ကွာခြားချက်၊ hyperparameter များ၊ အမေးအဖြေများနှင့် မူရင်းမှ နောက်ဆက်တွဲ paper များအထိ ဆက်စပ်ပုံကို diagram များဖြင့် ရှင်းလင်းထားသော မှတ်စု။ |
 
 ### ၅။ Robotics Simulation နှင့် Sim-to-Real လေ့လာရေး (၅ ဖိုင်)
 
