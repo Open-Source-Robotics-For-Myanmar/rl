@@ -1,6 +1,6 @@
 # Prioritized Experience Replay (PER) — Dueling DDQN နှင့် တွဲသုံးပုံ၊ Diagrams၊ Weights၊ Hyperparameters နှင့် Related Papers
 
-[Dueling DDQN ရှင်းလင်းချက်](./04_1_Dueling_DDQN.md) ကို ဆက်ဖတ်တဲ့အနေနဲ့ ဒီစာမှာ **ဘယ် experience ကို ပြန်သင်မလဲ၊ ဘယ်လောက် weight ပေးပြီး သင်မလဲ** ဆိုတာကို ရှင်းပြထားပါတယ်။
+[Dueling DDQN ရှင်းလင်းချက်](./04_1_VB_Dueling_DDQN.md) ကို ဆက်ဖတ်တဲ့အနေနဲ့ ဒီစာမှာ **ဘယ် experience ကို ပြန်သင်မလဲ၊ ဘယ်လောက် weight ပေးပြီး သင်မလဲ** ဆိုတာကို ရှင်းပြထားပါတယ်။
 
 > **အဓိကခွဲမှတ်ရန်:** Dueling က **network architecture**၊ Double DQN က **bootstrap target တွက်ပုံ**၊ PER က **replay sampling နှင့် update weighting** ဖြစ်ပါတယ်။ သုံးခုဟာ မတူတဲ့ပြဿနာတွေကို ဖြေရှင်းလို့ အတူတွဲသုံးနိုင်ပါတယ်။ **PER ဟာ network အသစ်၊ optimizer အသစ်၊ reward function အသစ် မဟုတ်ပါဘူး။**
 
@@ -30,9 +30,23 @@ Uniform replay မှာ လက်ရှိ transition `N` ခုရှိရင
 
 **PER ရဲ့ idea:** လက်ရှိခန့်မှန်းချက်နဲ့ target ကွာဟမှု `|TD error|` များတဲ့ transition တွေကို **ပိုမိုမကြာခဏ ပြန်သင်**ခိုင်းတယ်။ ဒါဟာ “အသုံးဝင်မှု” အတွက် heuristic ဖြစ်ပြီး **TD error ကြီးတိုင်း အရေးအကြီးဆုံး၊ reward ကောင်းဆုံး** လို့ မဆိုလိုပါဘူး။ Noise ကြောင့်လည်း error ကြီးနိုင်ပါတယ်။
 
+### Diagram အရောင်များ — Dueling DDQN မှတ်စုနှင့် တူညီသော Color Rule
+
+| အရောင် | Fill / border / text | အဓိပ္ပာယ် |
+|---|---|---|
+| အပြာနု | `#cce5ff` / `#004085` | State၊ data gathering၊ shared backbone၊ DQN baseline |
+| အစိမ်းနု | `#d4edda` / `#155724` | Value head၊ Online Dueling network၊ DDQN action selection |
+| အဝါနု | `#fff3cd` / `#856404` | Advantage head၊ generic replay-design analysis; မူရင်း pipeline မှာ uniform minibatch sampling |
+| ခရမ်းနု | `#e2d9f3` / `#4b0082` | Dueling aggregation၊ Target network / evaluation၊ bootstrap target၊ Dueling paper |
+| ပန်းရောင်နု | `#f8d7da` / `#721c24` | TD-error / loss calculation၊ optimization၊ Rainbow paper |
+| **လိမ္မော်နု — PER-specific blocks အတွက် ထပ်တိုးအရောင်** | **`#ffe5cc` / `#8a3b00`** | Prioritized buffer၊ priority / probability၊ IS weights၊ priority refresh၊ sum-tree၊ PER နှင့် prioritized-sampling extensions |
+
+လိမ္မော်နုဟာ [Dueling DDQN paper-lineage diagram](./04_1_VB_Dueling_DDQN.md) ထဲက PER node ရဲ့ palette နဲ့လည်း တူပါတယ်။ **ဒီစာမှာတော့ PER-specific operations အားလုံးဆီ အဲဒီအရောင်ကို တိုးချဲ့သုံးထားပါတယ်။** Weighted loss က PER weight ကို သုံးပေမယ့် optimization block ဖြစ်လို့ ပန်းရောင်ကို ဆက်သုံးပါတယ်။ Arrows တွေကို မူရင်းအတိုင်း **အပြာ `#218bff`** သုံးထားပြီး block label တွေနဲ့လည်း အဓိပ္ပာယ် ခွဲပြထားပါတယ်။
+
 ## Diagram 1 — Dueling၊ DDQN၊ PER တို့ရဲ့ တာဝန်ခွဲခြားပုံ
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     S["State input"] --> F["Shared CNN / MLP backbone"]
     F --> V["Value head: V(s), scalar"]
@@ -50,11 +64,17 @@ flowchart TD
     E --> U["Refresh sampled priorities using absolute TD error"]
     U --> B
 
-    classDef net fill:#d4edda,stroke:#155724,color:#155724;
-    classDef replay fill:#fff3cd,stroke:#856404,color:#856404;
-    classDef train fill:#e2d9f3,stroke:#4b0082,color:#4b0082;
-    class F,V,A,Q,D net;
-    class B,P,W,U replay;
+    classDef shared fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef online fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef advantage fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef aggregation fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef per fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    class S,F shared;
+    class V,D online;
+    class A advantage;
+    class Q aggregation;
+    class B,P,W,U per;
     class E,L,O train;
 ```
 
@@ -158,6 +178,7 @@ L(θ) = mean_i [w̃_i × Huber_κ(δ_i)]
 ## Diagram 2 — Full Training Loop: Dueling DDQN + PER
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     E["Environment"] --> T["Collect transition: s, a, r, next state, terminal"]
     T --> B["Replay buffer: transition + priority"]
@@ -184,6 +205,17 @@ flowchart TD
 
     TD --> PR["Detach absolute TD errors; add epsilon; refresh sampled priorities"]
     PR --> B
+
+    classDef dataGathering fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef online fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef optimization fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef per fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
+    class E,T,SYNC dataGathering;
+    class CUR,ON,SEL online;
+    class TAR,EV,Y target;
+    class TD,LOSS,WL,OPT optimization;
+    class B,S,W,PR per;
 ```
 
 **Update တစ်ကြိမ်ရဲ့ အစီအစဉ်:**
@@ -210,6 +242,7 @@ flowchart TD
 | D | 8 | `8/15 ≈ 0.5333` | 0.46875 | 0.125 | `1/15` |
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart LR
     HIGH["High priority"] --> OFTEN["Sampled more often"]
     OFTEN --> SMALL["Smaller IS weight per occurrence"]
@@ -217,6 +250,9 @@ flowchart LR
     RARE --> LARGE["Larger IS weight per occurrence"]
     SMALL --> BAL["At beta = 1: balance expected sampling contribution"]
     LARGE --> BAL
+
+    classDef per fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
+    class HIGH,OFTEN,SMALL,LOW,RARE,LARGE,BAL per;
 ```
 
 **D ကို မကြာခဏ သင်ပေးပေမယ့် တစ်ခါချင်းစီမှာ weight သေးသေးပေးတယ်။** A ကို ရှားရှားရွေးပေမယ့် ရွေးမိရင် weight ပိုကြီးပေးတယ်။ Weight က reward လည်း မဟုတ်၊ “ဒီ transition အရေးမကြီး” လို့ ဆုံးဖြတ်တာလည်း မဟုတ်ပါဘူး။
@@ -261,6 +297,7 @@ w̃_i  = (P_min / P(i))^β
 ဒီစာရဲ့ notation အရ **leaf တစ်ခုစီမှာ sampling mass `m_i = p_i^α`** ကို သိမ်းတယ်။ အပေါ်က `α = 1` ဥပမာအတွက်:
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     ROOT["Total mass = 15"] --> LEFT["Left sum = 3"]
     ROOT --> RIGHT["Right sum = 12"]
@@ -268,6 +305,9 @@ flowchart TD
     LEFT --> B["B: mass 2"]
     RIGHT --> C["C: mass 4"]
     RIGHT --> D["D: mass 8"]
+
+    classDef per fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
+    class ROOT,LEFT,RIGHT,A,B,C,D per;
 ```
 
 ```text
@@ -348,6 +388,7 @@ Hard target copy အစား soft update သုံးနိုင်ပေမ�
 ## Diagram 5 — Paper Lineage: ပေါင်းစပ်ခြင်း၊ Scale ချဲ့ခြင်း၊ ပြန်လည်ဆန်းစစ်ခြင်း
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     DQN["DQN, 2015: uniform replay baseline"] --> PER["PER, 2015 preprint / ICLR 2016"]
     DDQN["Double DQN, AAAI 2016: decoupled target"] --> PER
@@ -359,6 +400,19 @@ flowchart TD
     PER -.->|"related replay-design analysis"| FEDUS["Fedus et al., ICML 2020: capacity and replay ratio"]
     RAIN -.->|"replay design context"| FEDUS
     PER -->|"revisit sampling theory and TD-error proxy"| LABER["LaBER, 2021 preprint / ICML 2022"]
+
+    classDef dqn fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef ddqn fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef dueling fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef rainbow fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef analysis fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef per fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
+    class DQN dqn;
+    class DDQN ddqn;
+    class DUEL dueling;
+    class RAIN rainbow;
+    class FEDUS analysis;
+    class PER,APEX,LABER per;
 ```
 
 Arrow တွေက တစ်ခုကတစ်ခုကို အကုန်အစားထိုးသွားတဲ့ version history မဟုတ်ပါဘူး။ **ပေါင်းသုံးခြင်း၊ extension လုပ်ခြင်း၊ သက်ဆိုင်ရာ design ကို ပြန်လေ့လာခြင်း** တို့ကို ခွဲပြထားတာပါ။
