@@ -1,243 +1,191 @@
-# A2C — Synchronous Advantage Actor-Critic
+# A2C — Synchronous Advantage Actor-Critic: Shared Network နှင့် Batched Algorithm
 
-[A3C](./08_1_PB_actor-critic_A3C.md) ရဲ့ **architecture (actor + critic heads)** ကို ထိန်းထားပြီး **async Hogwild! ကို ဖြုတ်**လိုက်တာက A2C ဖြစ်ပါတယ်။ Worker တွေက environment ကို parallel step လုပ်ပြီး rollout ပြည့်မှ **network တစ်ခုတည်း** ကို batch update လုပ်တယ်။ GPU နဲ့ ကိုက်တယ်။
+[A3C](./08_1_PB_actor-critic_A3C.md) က worker အဆင်သင့်ဖြစ်တိုင်း global parameters ပြင်ပါတယ်။ **A2C (Advantage Actor-Critic)** က workers / environments အားလုံးဆီက rollout ကို **တူညီတဲ့ policy version နဲ့ စု၊ batch ပေါင်း၊ တစ်ပြိုင်တည်း update** လုပ်ပါတယ်။
 
-> **အနှစ်ချုပ်:** Shared actor-critic **တစ်ခုတည်း**။ `num_envs` ကို sync vector အနေနဲ့ step။ n-step (သို့ GAE) advantage။ Target network မရှိ။ Loss တစ်ခုထဲမှာ policy + value − entropy ပေါင်းတယ်။
+## ၁။ Original Foundation နှင့် Related Sources
 
-## Original Paper နှင့် ဆက်စပ် Papers
+| ရင်းမြစ် | ဆက်စပ်ပုံ / ဖတ်ရန် |
+|---|---|
+| **Mnih et al., ICML 2016 — [Asynchronous Methods for Deep Reinforcement Learning](https://proceedings.mlr.press/v48/mniha16.html)** | A3C ရဲ့ n-step advantage actor-critic အခြေခံ; A2C-only original paper မဟုတ်ပါဘူး |
+| **[OpenAI Baselines: ACKTR & A2C — August 18, 2017](https://openai.com/index/openai-baselines-acktr-a2c/)** | **A2C and A3C** အပိုင်း: workers အားလုံးကို စောင့်ပြီး average update လုပ်သော synchronous variant |
+| **[Official Baselines A2C implementation](https://github.com/openai/baselines/blob/master/baselines/a2c/a2c.py)** | Policy loss၊ value loss၊ entropy၊ batch size နဲ့ optimizer ကို ချိတ်ထားပုံ |
+| **Schulman et al., ICLR 2016 — [GAE](https://arxiv.org/abs/1506.02438)** | Advantage estimator ကို ရွေးချယ်ပြောင်းနိုင်တဲ့ ဆက်စပ်နည်း |
+| **Schulman et al., 2017 — [PPO](https://arxiv.org/abs/1707.06347)** | Synchronous rollout batch သုံးနိုင်ပေမယ့် policy-ratio / clipped objective ပါသော သီးခြားနည်း |
 
-A2C က peer-reviewed “A2C paper” သီးသန့် မဟုတ်ပါ။ A3C ကို engineering ပြန်ချိန်ထားတဲ့ **OpenAI Baselines** နာမည်ဖြစ်ပါတယ်။
+**A2C အတွက် အများလက်ခံထားတဲ့ သီးခြား original paper တစ်စောင်တည်း မရှိပါဘူး။** ဒီမှာ A3C paper နဲ့ official synchronous implementation ရှင်းလင်းချက်ကို အခြေခံထားပါတယ်။ Release ခေါင်းစဉ်မှာပါတဲ့ **ACKTR က သီးခြား algorithm** ဖြစ်ပြီး ACKTR paper ကို A2C မူရင်း paper လို့ မယူသင့်ပါဘူး။
 
-1. **Mnih et al. (2016) ICML** — A3C original; A2C က ဒီ architecture/loss ကို sync ပြန်ရေး။
-2. **OpenAI Baselines blog (2017)**, *OpenAI Baselines: ACKTR & A2C* (Wu, Espeholt, Andrychowicz, Zaremba, …) — **A2C နာမည် စတင်ကျယ်သုံး**။ Parallel env + one learner က A3C နဲ့ ယှဉ်ပြီး ပိုတည်ငြိမ် / ပိုမြန်နိုင်ကြောင်း။
-3. **Schulman et al. (2015)**, *GAE* — ခေတ်သစ် A2C (SB3, CleanRL, Grokking နောက်ပိုင်း) အများအပြားက n-step အစား **GAE(λ)** သုံး။
-4. **Schulman et al. (2017)**, *PPO* — A2C-style rollout + clipped surrogate; နောက်အခန်း။
-5. **Morales (2020)** Grokking Ch. 11 — `FCAC` single net, `MultiprocessEnv`။
-6. **Espeholt et al. (2018) IMPALA** — sync A2C ထက် actor/learner ခွဲ၊ off-policy correction။
+### Color Rule
 
-## Diagram အရောင်များ
+ရှေ့ဖိုင်တွေရဲ့ **fill / border / text** အတိုင်း: အပြာ `#cce5ff / #004085` = data/environments/shared backbone၊ အစိမ်း `#d4edda / #155724` = policy/value heads၊ အဝါ `#fff3cd / #856404` = rollout batch/advantage၊ ခရမ်း `#e2d9f3 / #4b0082` = bootstrap targets / synchronization၊ ပန်းရောင် `#f8d7da / #721c24` = loss/optimizer။ Arrow = `#218bff`။
 
-| အရောင် | Fill / border | အဓိပ္ပာယ် |
+## Diagram 1 — Shared Actor-Critic Network Architecture
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+flowchart TD
+    S["State batch<br/>N observations at each acting step"] --> F["Shared MLP / CNN backbone"]
+    F --> P["Actor linear head<br/>K logits per state"]
+    F --> V["Critic linear head<br/>one scalar V per state"]
+    P --> D["Categorical policy for each environment"]
+    D --> A["Sample N actions"]
+    A --> E["N parallel / vectorized environments"]
+    E -->|"N next observations"| S
+    E --> B["Rollout over T steps<br/>T by N transitions"]
+    B --> R["n-step targets<br/>bootstrap from endpoint V"]
+    R --> ADV["A_hat = target minus V<br/>or optional GAE"]
+    V --> ADV
+    ADV -->|"detach"| LP["Policy loss"]
+    D --> LP
+    D --> H["Negative entropy loss"]
+    V --> LV["Value loss"]
+    R --> LV
+    LP --> L["Combined loss"]
+    H --> L
+    LV --> L
+    L -.->|"one backward pass updates shared trunk and heads"| F
+
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef network fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    class S,F,E data;
+    class P,V,D,A network;
+    class B,ADV batch;
+    class R target;
+    class LP,H,LV,L train;
+```
+
+ဒီပုံစံမှာ **logical actor-critic network တစ်ခု၊ heads နှစ်ခု** ပါပါတယ်။ [Chapter 11 ရဲ့ `FCAC`](../chapter_11_summarized.md) ကလည်း shared hidden layers နဲ့ scalar value / action-logits outputs ခွဲထားပါတယ်။ Vector state အတွက် MLP၊ pixels အတွက် CNN သုံးနိုင်ပြီး continuous action မှာ Gaussian policy head သုံးနိုင်ပါတယ်။
+
+**Synchronous updates က A2C ရဲ့ အဓိကဖြစ်ပြီး shared trunk က မဖြစ်မနေ မဟုတ်ပါဘူး။** Policy/value သီးခြား networks နဲ့လည်း ရနိုင်ပါတယ်။ Acting copies ရှိရင် rollout မစခင် တူညီတဲ့ weights ပေးထားရပြီး stale local gradients ကို အဆင်သင့်ဖြစ်သလို ပို့တာ မဟုတ်ပါဘူး။
+
+## Diagram 2 — Full Algorithm: Collect Together → Batch → One Update
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+flowchart TD
+    P["Current actor-critic parameters<br/>fixed during rollout collection"]
+    P --> E1["Environment 1: T steps"]
+    P --> E2["Environment 2: T steps"]
+    P --> EN["Environment N: T steps"]
+    E1 --> B["Wait for all rollout segments<br/>stack batch with shape T by N"]
+    E2 --> B
+    EN --> B
+    B --> R["Per-environment return recursion<br/>terminal masks and endpoint bootstrap"]
+    R --> A["Compute detached advantages<br/>n-step baseline or GAE"]
+    B --> F["Forward pass on recorded states/actions<br/>log probabilities, values, entropy"]
+    A --> L["Mean combined loss over B = T times N samples"]
+    R --> L
+    F --> L
+    L --> O["Zero grad, backward, optional grad clipping<br/>one optimizer step"]
+    O -->|"new weights for next rollout"| P
+
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef network fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    class E1,E2,EN data;
+    class P,F network;
+    class B,A batch;
+    class R target;
+    class L,O train;
+```
+
+Environment တစ်ခု episode ပြီးရင် reset ပြီး rollout ဆက်ဖြည့်နိုင်ပါတယ်။ **Terminal mask နဲ့ returns / traces ကို episode အကြား ဖြတ်**ရပါတယ်။ ပြိုင်တူ environment အားလုံး episode တစ်ပြိုင်နက်ပြီးဖို့ မလိုပါဘူး; စောင့်တာက သတ်မှတ်ထားတဲ့ rollout segments ပါ။
+
+`T=5`၊ `N=8` ဆို update တစ်ခါမှာ **`B=40` transitions** ပါပါတယ်။ Temporal returns / GAE ကို **environment တစ်ခုစီအတွက် သီးခြားတွက်ပြီးမှ** batch flatten လုပ်ပါ။ Environment 1 ရဲ့ နောက်ဆုံး step ကို Environment 2 ရဲ့ ပထမ step နဲ့ မဆက်တွက်ရပါဘူး။
+
+## ၂။ Loss နှင့် Bootstrap အကျဉ်း
+
+`r_t` = action ပြီးနောက် reward၊ `b_t=0` က true terminal၊ `b_t=1` က bootstrap လုပ်နိုင်တဲ့ transition ဖြစ်ပါတယ်။ Chunk endpoint မှာ detached value နဲ့ initialize လုပ်ပြီး episode boundaries မှန်အောင် နောက်ပြန်တွက်ပါ။
+
+$$
+\hat R_t=r_t+\gamma b_t\hat R_{t+1},
+\qquad
+\hat A_t=\hat R_t-V_\phi(s_t).
+$$
+
+$$
+\mathcal L_\pi=-\operatorname{mean}_{t,i}\left[\log\pi_\theta(a_{t,i}\mid s_{t,i})\operatorname{sg}(\hat A_{t,i})\right],
+\quad
+\mathcal L_V=\tfrac12\operatorname{mean}_{t,i}\left[(V_\phi(s_{t,i})-\operatorname{sg}(\hat R_{t,i}))^2\right].
+$$
+
+$$
+\mathcal L=\mathcal L_\pi+c_V\mathcal L_V-c_H\operatorname{mean}_{t,i}H[\pi_\theta(\cdot\mid s_{t,i})].
+$$
+
+`sg` = stop-gradient၊ `cV` = critic weight၊ `cH ≥ 0` = entropy coefficient ပါ။ Minimize လုပ်တဲ့ loss မှာ **entropy ကို minus နဲ့ထည့်**လို့ exploration ကို အားပေးပါတယ်။ Shared trunk ကို actor/critic losses နှစ်ခုလုံးက သင်ပေးပါတယ်။ Advantage detach လုပ်ထားတာကြောင့် value head ဆီ actor loss က တိုက်ရိုက် gradient မစီးပါဘူး။
+
+**Truncation + reset သတိ:** အထက် return recursion က episode အတွင်းအတွက်ပါ။ External time limit ရောက်ရင် task ဆက်နိုင်သေးသော **final observation value** နဲ့ segment ကို အဆုံးသတ်တွက်ပါ; reset episode ရဲ့ return ကို ရှေ့ episode ဆီ မဆက်ပါနှင့်။ GAE ရွေးသုံးရင် [bootstrap / trace masks ခွဲပုံ](./09_1_PB_GAE.md) ကို ကြည့်ပါ။
+
+## Diagram 3 — A3C vs A2C: Update Timing ကွာခြားပုံ
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+flowchart LR
+    subgraph ASYNC [A3C - Asynchronous]
+        W1["Worker 1 ready"] --> U1["Global update 1"]
+        W2["Worker 2 ready later"] --> U2["Global update 2"]
+        U1 --> G["Shared global weights<br/>may change during other rollouts"]
+        U2 --> G
+    end
+    subgraph SYNC [A2C - Synchronous]
+        E1["Environment 1 segment"] --> B["Wait and combine all segments"]
+        E2["Environment 2 segment"] --> B
+        B --> U["One batched optimizer update"]
+        U --> P["Same new policy version<br/>for next collection"]
+    end
+
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef network fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    class W1,W2,E1,E2 data;
+    class B batch;
+    class G,P network;
+    class U1,U2,U train;
+    style ASYNC fill:#e7f1ff,stroke:#004085,stroke-width:2px;
+    style SYNC fill:#eaf7ec,stroke:#155724,stroke-width:2px;
+```
+
+| အချက် | A3C | A2C |
 |---|---|---|
-| အပြာနု | `#cce5ff` / `#004085` | Parallel envs၊ shared backbone |
-| အစိမ်းနု | `#d4edda` / `#155724` | Policy head |
-| အဝါနု | `#fff3cd` / `#856404` | Advantage / GAE |
-| ခရမ်းနု | `#e2d9f3` / `#4b0082` | Value head / bootstrap |
-| ပန်းရောင်နု | `#f8d7da` / `#721c24` | Combined loss / Adam |
-| လိမ္မော်နု | `#ffe5cc` / `#8a3b00` | Sync batch, vector env (A3C worker နေရာ) |
+| Data collection | Local policies / environments အများကြီး | Same-version policy နဲ့ environments အများကြီး |
+| Update | Worker ready ဖြစ်တိုင်း | Segments အားလုံးစု၊ batch တစ်ခုနဲ့ update |
+| Policy lag | Local gradient stale ဖြစ်နိုင် | Collection အတွင်း learner weights ကို မပြောင်းထား |
+| Compute | CPU worker updates နဲ့ အဆင်ပြေ | Batched network calls ကြောင့် GPU သုံးရလွယ် |
+| အကန့်အသတ် | Concurrent updates / stale gradients | နှေးသော environment ကို စောင့်ရနိုင် |
+| Advantage | Original n-step | n-step သို့မဟုတ် optional GAE |
 
-## ဘာပြဿနာကို ဖြေရှင်းတာလဲ
+## ၃။ Q&A
 
-A3C ရဲ့ lock-free update က implementation ခက်၊ GPU အလဟဿ၊ gradient stale ဖြစ်နိုင်။ A2C က:
+### မေး ၁။ A2C က deterministic policy လား?
 
-- Env N ခု **တစ်ပြိုင်နက်** `step`
-- Experience ကို **စုပြီးမှ** learner တစ်ခု update
-- Decorrelation ကို async နဲ့မဟုတ်ဘဲ **parallel env တွေရဲ့ မတူတဲ့ state** နဲ့ ရ
+မဟုတ်ပါဘူး။ Official description ရဲ့ synchronous / deterministic implementation ဆိုတာ **update coordination** ကို ရည်ညွှန်းတာပါ။ Actor က stochastic policy ဖြစ်နိုင်ပြီး actions ကို sample လုပ်ပါတယ်။ Hardware/environment randomness ပါလို့ runs အားလုံး အလိုအလျောက် bitwise တူမယ်လို့လည်း မဆိုလိုပါဘူး။
 
-Advantage နှစ်မျိုးတွေ့ရတယ်:
+### မေး ၂။ Network တစ်ခုဆို actor နဲ့ critic ကို ဘယ်လိုခွဲသလဲ?
 
-```text
-# Paper-style / classic n-step (A3C formula, batched)
-G_t^{(n)} = n-step return with V(s_{t+n}) bootstrap
-A_t       = G_t^{(n)} - V(s_t)
+Hidden layers တူပြီး **output heads နှစ်ခု** ခွဲထားတာပါ။ Actor က action logits၊ critic က scalar value ထုတ်ပါတယ်။ ဒါက Dueling ရဲ့ `V+A−mean(A)` aggregation မဟုတ်ပါဘူး။
 
-# Common modern A2C (GAE)
-δ_t = r_t + γ V(s_{t+1})(1-d_t) - V(s_t)
-A_t = GAE(γ, λ) from δ
-R_t = A_t + V(s_t)          # value target
-L   = -mean(log π · A) + c_v MSE(V, R) - c_e mean(H)
-```
+### မေး ၃။ Advantage ကို network က ထုတ်ပေးသလား?
 
-GAE က A2C ရဲ့ မဖြစ်မနေ အစိတ်အပိုင်း မဟုတ်။ Orthogonal estimator ဖြစ်ပါတယ်။
+မထုတ်ပေးပါဘူး။ Value head ထုတ်တဲ့ `V(s)` နဲ့ returns ကနေ တွက်ပါတယ်။ GAE ရွေးသုံးရင် weighted TD residuals ကနေ တွက်ပါတယ်။
 
-## Diagram 1 — Paper Lineage
+### မေး ၄။ GAE မပါရင် A2C မဖြစ်တော့ဘူးလား?
 
-```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
-graph TD
-    P1[Mnih 2016 A3C - async actor-learners]
-    P2[Schulman 2015 GAE - optional advantage estimator]
-    P3[OpenAI 2017 A2C - synchronous learners, vectorized envs]
-    P4[Grokking FCAC + MultiprocessEnv]
-    P5[PPO 2017 - clip on top of A2C-style rollouts]
-    P6[IMPALA 2018 - another parallelism design]
+ဖြစ်ပါသေးတယ်။ **A2C က synchronous actor-critic update scheme** ဖြစ်ပြီး GAE က optional estimator ပါ။
 
-    P1 -->|remove Hogwild, keep parallel data| P3
-    P2 -.->|often plugged into A2C code| P3
-    P3 --> P4
-    P3 --> P5
-    P1 --> P6
+### မေး ၅။ A2C နဲ့ PPO က တူသလား?
 
-    classDef a3c fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
-    classDef gae fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef a2c fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef later fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
+မတူပါဘူး။ Standard A2C က fresh batch နဲ့ vanilla actor-critic update တစ်ခါ လုပ်ပါတယ်။ PPO က policy probability ratio / clipped surrogate ကိုသုံးပြီး batch တစ်ခုကို epochs အများကြီး optimize လုပ်နိုင်အောင် သတ်မှတ်ထားပါတယ်။
 
-    class P1 a3c;
-    class P2 gae;
-    class P3,P4 a2c;
-    class P5,P6 later;
-```
+### မေး ၆။ Replay buffer / target network လိုသလား?
 
-## Diagram 2 — Network Architecture (အရေးကြီးဆုံး)
+Standard A2C မှာ မလိုပါဘူး။ Rollout storage ကို update ပြီးရှင်းတယ်။ Critic target ကို detach လုပ်တာက **သီးခြား frozen target network တစ်ခုရှိတာနဲ့ မတူပါဘူး**။
 
-A2C architecture က A3C နဲ့ **တူ**တယ်။ ကွာတာက **copy အရေအတွက်** — A2C မှာ live weights တစ်စုံတည်း။ Grokking `FCAC` က Dueling လို hidden မျှပြီး head နှစ်ခု၊ ဒါပေမယ့် output က `Q` မဟုတ် **`(logits, V)` tuple**။
+### မေး ၇။ Workers များရင် အမြဲပိုမြန်၊ ပိုကောင်းသလား?
 
-```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
-graph TD
-    subgraph Phase1 [Single shared actor-critic - FCAC]
-        Batch[Batched states from N envs] --> Hidden[Shared FC or Conv + ReLU]
-        Hidden --> PHead[Policy head Linear to n_actions]
-        Hidden --> VHead[Value head Linear to 1]
-        PHead --> Logits[Logits batch]
-        Logits --> Dist[Categorical per env]
-        Dist --> Act[Actions for all envs at once]
-        Dist --> LP[log pi batch]
-        Dist --> Ent[Entropy batch]
-        VHead --> Vs["V(s) batch"]
-    end
-
-    classDef shared fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef policy fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef sample fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef value fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
-
-    class Batch,Hidden shared;
-    class PHead,Logits,LP policy;
-    class Dist,Act,Ent sample;
-    class VHead,Vs value;
-
-    style Phase1 fill:#eaf7ec,stroke:#155724,stroke-width:2px;
-```
-
-CartPole docker `08_a2c`: `4 → 128 ReLU → {logits: 2, V: 1}`၊ `SyncVectorEnv` default `num_envs=8`။ Grokking: hidden `(32,32)` ပြီး `policy_output` + `value_output`။
-
-```text
-forward(s) -> (logits, V)
-full_pass  -> action, log_prob, entropy, V
-eval       -> argmax(logits)   # value head unused
-```
-
-**Target network မရှိ။** Rollout အဆုံး `V(s_T)` ကို **လက်ရှိ** value head နဲ့ တွက်ပြီး `.detach()` လုပ်တယ်။ ဒါက freeze clone မဟုတ်၊ graph ပြန်မဝင်အောင်ပဲ။
-
-## Diagram 3 — A3C vs A2C parallelism
-
-```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
-graph LR
-    subgraph A3Cside [A3C - many actor-learners]
-        L0[Local net 0] -->|async grads| G[Global net]
-        L1[Local net 1] -->|async grads| G
-        L2[Local net 2] -->|async grads| G
-    end
-
-    subgraph A2Cside [A2C - one learner, many envs]
-        E0[Env 0]
-        E1[Env 1]
-        E2[Env 2]
-        E0 --> NET[Single actor-critic]
-        E1 --> NET
-        E2 --> NET
-        NET -->|batched sync update| NET
-    end
-
-    classDef a3c fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
-    classDef a2c fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef env fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-
-    class L0,L1,L2,G a3c;
-    class NET a2c;
-    class E0,E1,E2 env;
-
-    style A3Cside fill:#fff1e5,stroke:#8a3b00,stroke-width:2px;
-    style A2Cside fill:#eaf7ec,stroke:#155724,stroke-width:2px;
-```
-
-## Diagram 4 — Sync training loop
-
-```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
-graph TD
-    subgraph Phase1 [Vectorized rollout]
-        Net[Single AC net] -->|sample a for each env| Envs[N environments]
-        Envs -->|r, s, done for all| Buf[(Rollout tensor: T times N)]
-        Buf --> Net
-    end
-
-    subgraph Phase2 [Advantage]
-        Buf --> Boot["Detach V(s_T) bootstrap"]
-        Boot --> Adv[n-step or GAE advantages]
-        Adv --> Ret["returns = A + V  value targets"]
-    end
-
-    subgraph Phase3 [One combined optimizer step]
-        Adv --> PL[Policy loss]
-        Ret --> VL[Value loss]
-        Buf --> Ent[Entropy bonus]
-        PL --> L["L = L_pi + c_v L_V - c_e H"]
-        VL --> L
-        Ent --> L
-        L --> Opt[Adam + grad clip]
-        Opt --> Net
-    end
-
-    classDef dataGathering fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef sampling fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef value fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
-    classDef optimization fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    classDef policy fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-
-    class Envs,Buf dataGathering;
-    class Adv sampling;
-    class Boot,Ret,VL value;
-    class L,Opt,Ent optimization;
-    class Net,PL policy;
-
-    style Phase1 fill:#e7f1ff,stroke:#004085,stroke-width:2px;
-    style Phase2 fill:#fffbea,stroke:#856404,stroke-width:2px;
-    style Phase3 fill:#fdecea,stroke:#721c24,stroke-width:2px;
-```
-
-## Architecture နှိုင်းယှဉ် — REINFORCE → A2C
-
-| | REINFORCE | VPG | A3C | A2C |
-|---|---|---|---|---|
-| Policy head | ရှိ | ရှိ | ရှိ | ရှိ |
-| Value head | မရှိ | သီးခြား net | head သို့မဟုတ် သီးခြား | **shared net head** |
-| Bootstrap | မရှိ | မရှိ | n-step `V` | n-step သို့မဟုတ် GAE |
-| Actor-critic | မဟုတ် | မဟုတ် | ဟုတ် | **ဟုတ်** |
-| Copies in RAM | 1 | 2 nets | 1 global + N local | **1** |
-| Parallel | မရှိ | မရှိ | async learners | **sync envs** |
-| Target Q | မရှိ | မရှိ | မရှိ | **မရှိ** |
-| Typical loss | `-logπ G` | `-logπ A`, MSE `V` | same, Hogwild | **weighted sum, one step** |
-
-## Q&A
-
-### မေး ၁။ Network ဘယ်နှခုလဲ?
-
-**တစ်ခု။** Shared backbone + policy head + value head။ A3C worker copy တွေ မလို။ DQN target မလို။
-
-### မေး ၂။ A3C နဲ့ architecture ကွာသလား?
-
-**မကွာသင့်ပါ** — နှစ်ခုလုံး actor-critic heads။ ကွာတာ parallelism နဲ့ update timing။ Code တချို့က A3C မှာ nets ခွဲ၊ A2C မှာ share — ဒါက implementation choice၊ algorithm definition မဟုတ်။
-
-### မေး ၃။ GAE မထည့်ရင် A2C မဟုတ်ဘူးလား?
-
-**ဟုတ်ပါတယ်။** A2C = synchronous advantage actor-critic။ GAE က advantage တွက်ပုံ option။
-
-### မေး ၄။ Output က action တိုက်ရိုက်လား?
-
-Logits → distribution။ Train: sample။ Eval: `argmax`။ `V(s)` က critic estimate၊ acting မပါ။
-
-## အနှစ်ချုပ်
-
-```text
-A2C net     → shared backbone + π head + V head
-data        → N envs, sync rollout T steps
-advantage   → n-step or GAE (optional)
-update      → one Adam step on combined loss
-vs A3C      → no local clones, no Hogwild!
-vs DQN      → no θ⁻, no replay; on-policy actor-critic
-next typical → PPO clip / entropy / GAE on this skeleton
-```
+မသေချာပါဘူး။ Batch ကြီးလာတာနဲ့ update frequency၊ sample usage၊ communication overhead ပြောင်းပါတယ်။ နှေးတဲ့ worker ကို စောင့်ရခြင်းလည်း ရှိနိုင်ပါတယ်။ **Sample efficiency နဲ့ wall-clock speed ကို သီးခြားနှိုင်းပါ။**

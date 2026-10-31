@@ -1,253 +1,180 @@
-# GAE — Generalized Advantage Estimation
+# GAE — Generalized Advantage Estimation: Network၊ TD Residual နှင့် Algorithm
 
-GAE ဟာ **network architecture အသစ် မဟုတ်ပါ**။ [VPG](./07_1_PB_VPG.md) ကနေ [A3C](./08_1_PB_actor-critic_A3C.md) / [A2C](./09_PB_actor-critic_A2C.md) အထိ သုံးတဲ့ policy-gradient ထဲက **`Ψ_t` (advantage / return estimator)** ကို bias–variance ချိန်ပေးတဲ့ တွက်ကိန်း ဖြစ်ပါတယ်။ Actor-critic net က A2C နဲ့ တူနိုင်တယ်။ ပြောင်းတာက `A_t` ဘယ်လိုရလဲ ဆိုတာပဲ။
+**GAE က network architecture အသစ်မဟုတ်ဘဲ policy gradient အတွက် advantage estimate တွက်နည်း** ဖြစ်ပါတယ်။ [VPG](./07_1_PB_VPG.md) ရဲ့ MC estimate နဲ့ [A3C](./08_1_PB_actor-critic_A3C.md) ရဲ့ short n-step estimate အကြား bias–variance trade-off ကို `λ` နဲ့ ညှိနိုင်အောင် လုပ်ထားတာပါ။
 
-> **အနှစ်ချုပ်:** `δ_t` (TD residual) တွေကို `(γλ)^l` နဲ့ exponential mix လုပ်တယ်။ `λ = 0` → 1-step (bias များ)။ `λ = 1` → MC advantage (variance များ)။ လက်တွေ့ `λ ≈ 0.95`။ Target Q-network မလို။
+## ၁။ Original Paper နှင့် Related Papers
 
-## Original Paper နှင့် ဆက်စပ် Papers
+| ရင်းမြစ် | ဖတ်ရန် / ဆက်စပ်ပုံ |
+|---|---|
+| **Schulman, Moritz, Levine, Jordan & Abbeel — [High-Dimensional Continuous Control Using Generalized Advantage Estimation](https://arxiv.org/abs/1506.02438)** | **June 2015 preprint / ICLR 2016**; Section 3 ရဲ့ TD residual နဲ့ GAE derivation |
+| **[Original PDF](https://arxiv.org/pdf/1506.02438)** | Section 6.1: experiments မှာ GAE ကို **TRPO** နဲ့ ပေါင်းသုံးထားပုံ |
+| **Schulman et al., ICML 2015 — [Trust Region Policy Optimization](https://proceedings.mlr.press/v37/schulman15.html)** | Policy update ကို trust region နဲ့ ထိန်းတဲ့ optimizer-side method |
+| **Schulman et al., 2017 — [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347)** | Advantage estimates ကို policy surrogate ထဲ ထည့်သုံးတဲ့ နောက်ဆက်တွဲနည်း |
+| **[Chapter 11 မှတ်စု](../chapter_11_summarized.md)** | ဒီ repo မှာ A3C-style actor-critic ပေါ် GAE ထည့်သုံးပုံ |
 
-1. **Schulman, Moritz, Levine, Jordan & Abbeel (2015/2016)**, *High-Dimensional Continuous Control Using Generalized Advantage Estimation* (ICLR) — **main paper**။
-2. **Sutton (1988) / Sutton & Barto** — TD(λ); GAE က advantage ဘက်က λ-return နဲ့ ဆင်တယ်။
-3. **Williams (1992)** REINFORCE — `Ψ = G_t` စွန်း။
-4. **Mnih et al. (2016)** A3C — n-step advantage = GAE ရဲ့ အထူးကိစ္စ (`λ` ကို n-step ကပ်လျက်)။
-5. **Schulman et al. (2015) TRPO** နှင့် **(2017) PPO** — GAE ကို policy update နဲ့ တွဲသုံးလေ့ရှိ (PPO implementations အများစု)။
-6. **OpenAI Baselines A2C (2017)** / Grokking Ch. 11 — A2C + GAE အဖြစ် တွေ့ရများ။
+**ဖိုင်စဉ်က publication chronology မဟုတ်ပါဘူး။** GAE က A3C ပြီးမှ ထွက်လာတဲ့ version မဟုတ်ပါဘူး။ မူရင်း GAE experiments က separate policy/value neural networks နဲ့ TRPO သုံးထားပြီး **A3C worker system မလိုပါဘူး**။
 
-## Diagram အရောင်များ
+### Color Rule
 
-GitHub Mermaid အတွက် `%%{init}%%` မသုံးပါ။ `flowchart` + `:::class` သုံးထားပါတယ်။
+ရှေ့ဖိုင်များအတိုင်း **fill / border / text**: အပြာ `#cce5ff / #004085` = data/features၊ အစိမ်း `#d4edda / #155724` = policy/value networks၊ အဝါ `#fff3cd / #856404` = advantage / λ aggregation၊ ခရမ်း `#e2d9f3 / #4b0082` = bootstrap / detached targets၊ ပန်းရောင် `#f8d7da / #721c24` = losses/optimization။ Arrow = `#218bff`။
 
-| အရောင် | Fill / stroke | အဓိပ္ပာယ် |
-|---|---|---|
-| အပြာနု | `#cce5ff` / `#004085` | Env, rollout, shared backbone |
-| အစိမ်းနု | `#d4edda` / `#155724` | Policy head |
-| အဝါနု | `#fff3cd` / `#856404` | Advantage / GAE mix |
-| ခရမ်းနု | `#e2d9f3` / `#4b0082` | Value head / bootstrap / `δ_t` |
-| ပန်းရောင်နု | `#f8d7da` / `#721c24` | Loss |
-| လိမ္မော်နု | `#ffe5cc` / `#8a3b00` | `λ` knob / estimator family |
-
-## ဘာပြဿနာကို ဖြေရှင်းတာလဲ
-
-Policy gradient:
-
-```text
-g = E[ Σ_t  Ψ_t  ∇ log π(A_t | S_t; θ) ]
-```
-
-`Ψ_t` ရွေးမှ variance နဲ့ bias ပြောင်းတယ်။
-
-| Ψ | နာမည် | Variance | Bias |
-|---|---|---|---|
-| full episode return `G_0` | အစက return | အမြင့်ဆုံး | နည်း |
-| reward-to-go `G_t` | REINFORCE | ကြီး | 0 (MC) |
-| `G_t - V(s_t)` | VPG | အလယ် | `V` အမှားရှိရင် နည်းနည်း |
-| n-step `G_t^{(n)} - V(s_t)` | A3C | နည်းလာ | n တိုလေ bias များ |
-| `δ_t = r + γV(s') - V(s)` | 1-step TD | အနိမ့်ဆုံး | အမြင့်ဆုံး |
-
-GAE က n-step advantage အားလုံးကို λ နဲ့ ပေါင်းတယ်။
-
-```text
-δ_t     = r_t + γ V(s_{t+1}) (1 - d_t) - V(s_t)
-A_t^GAE = δ_t + (γλ)(1-d_t) A_{t+1}^GAE
-R_t     = A_t^GAE + V(s_t)          # critic target
-```
-
-`d_t = 1` (true terminal) မှာ bootstrap ဖြတ်။ Time-limit truncate ကို terminal လို့ မမှားပါနှင့်။
-
-## Diagram 1 — Paper Lineage
+## Diagram 1 — Network Architecture နှင့် GAE ထည့်ရသောနေရာ
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
-    P1["Williams 1992 REINFORCE / VPG baseline"]:::policy
-    P2["Sutton TD lambda"]:::value
-    P3["Mnih 2016 A3C n-step advantage"]:::shared
-    P4["Schulman et al ICLR GAE original paper"]:::sample
-    P5["TRPO 2015 and PPO 2017 use GAE in practice"]:::extra
-    P6["A2C implementations often plug GAE into the same net"]:::train
+    S["Observation s<br/>မူရင်း continuous control: kinematics"] --> P["Policy network theta<br/>MLP features"]
+    P --> D["Distribution head<br/>Gaussian mu and std for continuous actions"]
+    D --> A["Sample action a"]
+    A --> E["Environment"]
+    E --> B["Fresh rollout: states, rewards, boundaries"]
+    S --> V["Value network phi<br/>MLP + linear scalar V of s"]
+    V --> VS["Detached values<br/>V of s_t and V of next state"]
+    B --> TD["TD residual delta_t<br/>reward + discounted next value - current value"]
+    VS --> TD
+    TD --> G["GAE recurrence<br/>A_hat_t = delta_t + gamma lambda times next A_hat"]
+    G --> L["Policy update uses detached A_hat<br/>VPG / TRPO / PPO / actor-critic"]
+    D --> L
+    L -.->|"update theta"| P
+    B --> TV["Value regression targets<br/>chosen by the learner"]
+    TV --> LV["Value loss"]
+    V --> LV
+    LV -.->|"update phi"| V
 
-    P1 --> P4
-    P2 --> P4
-    P3 --> P4
-    P4 --> P5
-    P4 --> P6
-
-    classDef shared fill:#cce5ff,stroke:#004085,color:#004085
-    classDef policy fill:#d4edda,stroke:#155724,color:#155724
-    classDef sample fill:#fff3cd,stroke:#856404,color:#856404
-    classDef value fill:#e2d9f3,stroke:#4b0082,color:#4b0082
-    classDef train fill:#f8d7da,stroke:#721c24,color:#721c24
-    classDef extra fill:#ffe5cc,stroke:#8a3b00,color:#8a3b00
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef network fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef advantage fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    class S,E,B data;
+    class P,D,A,V network;
+    class G advantage;
+    class VS,TD,TV target;
+    class L,LV train;
 ```
 
-## Diagram 2 — Network (A2C နဲ့ တူ — GAE က head မထည့်)
+**Policy/value networks ရှိပြီးသားကို ဆက်သုံးတယ်။** GAE block မှာ trainable weights မရှိပါဘူး။ ဒီ diagram က မူရင်း paper နဲ့ ကိုက်သော separate-network layout ကို အကျဉ်းချုပ်ဆွဲထားတာဖြစ်ပြီး hidden widths အတိအကျကို မသတ်မှတ်ထားပါဘူး။ Discrete actions ဆို categorical head၊ shared actor-critic ဆို trunk တစ်ခုနဲ့ heads နှစ်ခုလည်း သုံးနိုင်ပါတယ်။
 
-docker `07_gae` / Grokking GAE agent: **shared actor-critic တစ်ခု**။ Extra GAE network မရှိ။
+## ၂။ Core Equations — TD Error တွေကို Discount လုပ်ပြီးပေါင်းခြင်း
 
-```mermaid
-flowchart TD
-    subgraph Backbone["Shared backbone"]
-        S["State s"]:::shared --> H["FC or Conv plus ReLU"]:::shared
-    end
+`r_t` = action `a_t` ပြီးနောက် reward၊ `V` = rollout စုချိန်က fixed value estimate၊ `γ` = reward discount၊ `λ` = trace-decay parameter ဖြစ်ပါတယ်။ Episode boundary မရှိသော segment အတွင်း:
 
-    subgraph Heads["Two heads like A2C"]
-        H --> PHead["Policy head to n_actions"]:::policy
-        PHead --> Logits["Logits"]:::policy
-        Logits --> Dist["Categorical"]:::sample
-        Dist --> Act["Sampled action"]:::sample
-        Dist --> LP["log pi"]:::policy
-        H --> VHead["Value head to 1"]:::value
-        VHead --> Vs["V(s) scalar"]:::value
-    end
+$$
+\delta_t=r_t+\gamma V(s_{t+1})-V(s_t),
+\qquad
+\hat A_t^{\mathrm{GAE}(\gamma,\lambda)}
+=\sum_{l=0}^{T-t-1}(\gamma\lambda)^l\delta_{t+l}.
+$$
 
-    Vs --> GAE["GAE uses stored V and rewards not a third net"]:::extra
+`δ_t` က **လက်ရှိ V ထက် one-step result ဘယ်လောက်ပိုကောင်းလဲ** ဆိုတဲ့ signal ပါ။ GAE က နောက်ပိုင်း residual တွေကိုပါ decay လုပ်ပြီး သယ်လာပါတယ်။ **`V(s)` ကို action head အဖြစ်သုံးတာ မဟုတ်ပါဘူး။**
 
-    classDef shared fill:#cce5ff,stroke:#004085,color:#004085
-    classDef policy fill:#d4edda,stroke:#155724,color:#155724
-    classDef sample fill:#fff3cd,stroke:#856404,color:#856404
-    classDef value fill:#e2d9f3,stroke:#4b0082,color:#4b0082
-    classDef extra fill:#ffe5cc,stroke:#8a3b00,color:#8a3b00
-
-    style Backbone fill:#e7f1ff,stroke:#004085
-    style Heads fill:#eaf7ec,stroke:#155724
-```
-
-CartPole ဥပမာ: `4 → 128 ReLU → {logits 2, V 1}`။ Acting မှာ `V` မလို။ GAE က rollout ပြီးမှ `V` sequence ကို သုံးတယ်။
-
-## Diagram 3 — Ψ estimators (စာအုပ် math slide)
+### Diagram 2 — λ က One-step နှင့် Multi-step Signals ကို ချိတ်ပေးပုံ
 
 ```mermaid
-flowchart TD
-    G["Policy gradient uses Psi times nabla log pi"]:::policy
-
-    E1["1 Total return G from t=0 high variance"]:::train
-    E2["2 Reward-to-go REINFORCE"]:::train
-    E3["3 VPG G minus V(s)"]:::sample
-    E4["4 n-step advantage A3C"]:::shared
-    E5["5 Q or A of s,a if you had it"]:::value
-    E6["6 One-step TD residual delta"]:::value
-    Mix["GAE exponential mix of n-step advantages"]:::extra
-
-    G --> E1
-    G --> E2
-    G --> E3
-    G --> E4
-    G --> E5
-    G --> E6
-    E3 --> Mix
-    E4 --> Mix
-    E6 --> Mix
-
-    classDef shared fill:#cce5ff,stroke:#004085,color:#004085
-    classDef policy fill:#d4edda,stroke:#155724,color:#155724
-    classDef sample fill:#fff3cd,stroke:#856404,color:#856404
-    classDef value fill:#e2d9f3,stroke:#4b0082,color:#4b0082
-    classDef train fill:#f8d7da,stroke:#721c24,color:#721c24
-    classDef extra fill:#ffe5cc,stroke:#8a3b00,color:#8a3b00
-```
-
-## Diagram 4 — λ spectrum
-
-```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart LR
-    L0["lambda = 0  one-step delta  low var high bias"]:::value
-    Lm["0 less than lambda less than 1  typical 0.95"]:::extra
-    L1["lambda = 1  MC advantage  high var low bias"]:::train
+    D0["delta_t<br/>weight 1"] --> SUM["Sum = GAE advantage at t"]
+    D1["delta at t+1"] --> W1["multiply by gamma lambda"]
+    D2["delta at t+2"] --> W2["multiply by gamma lambda squared"]
+    DN["later TD residuals"] --> WN["exponentially decaying weights"]
+    W1 --> SUM
+    W2 --> SUM
+    WN --> SUM
+    SUM --> SG["Detach A_hat"]
+    SG --> L["Weight selected-action log probability<br/>or learner-specific surrogate"]
 
-    L0 --> Lm --> L1
-
-    classDef value fill:#e2d9f3,stroke:#4b0082,color:#4b0082
-    classDef extra fill:#ffe5cc,stroke:#8a3b00,color:#8a3b00
-    classDef train fill:#f8d7da,stroke:#721c24,color:#721c24
+    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef advantage fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    class D0,D1,D2,DN,SG target;
+    class W1,W2,WN,SUM advantage;
+    class L train;
 ```
 
-n-step A3C က fixed `n` တစ်ခု။ GAE က n အားလုံး ပေါင်းပြီး `λ` နဲ့ အလေးပေးတယ်။
+| `λ` | အဓိပ္ပာယ် | အကန့်အသတ် |
+|---|---|---|
+| `0` | `Â_t = δ_t` — one-step TD advantage | Value approximation error အပေါ် ပိုမှီခိုတယ် |
+| `0 < λ < 1` | Short/long horizon signals ကို weighted mix လုပ်တယ် | Value မတိကျရင် bias ရှိနိုင်ပြီး variance နဲ့ ချိန်ညှိရတယ် |
+| `1` | Full terminal episode မှာ `Â_t = G_t − V(s_t)` | MC baseline ပုံစံ၊ ပုံမှန်အားဖြင့် variance ပိုမြင့်နိုင်တယ် |
 
-## Diagram 5 — Training loop (GAE recursion)
+**`λ=1` ကို rollout cutoff မှာဖြတ်ထားရင်** `Â_t = bootstrapped return − V(s_t)` ဖြစ်ပြီး endpoint value error ရှိနိုင်သေးပါတယ်။ Complete terminal episode ရမှ MC equivalence အပြည့်ရပါတယ်။ `V=Vπ` အတိအကျဆိုရင် intermediate `λ` က value approximation ကြောင့်ဖြစ်တဲ့ bias မထည့်ပါဘူး။ `γ` က reward horizon / objective ကို သတ်မှတ်တာ၊ `λ` က estimator ရဲ့ trace ကို ညှိတာဖြစ်လို့ parameter နှစ်ခုကို အစားထိုးမသုံးရပါဘူး။
+
+## Diagram 3 — Practical Algorithm: Boundary-aware Backward Pass
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
-    subgraph Phase1["On-policy rollout"]
-        Net["Actor-critic net"]:::policy
-        Env["Environment"]:::shared
-        Buf["Store r, done, log_pi, V(s)"]:::shared
-        Net -->|"sample a"| Env
-        Env --> Buf
-        Net --> Buf
-    end
+    C["Current policy ဖြင့် rollout စု"] --> B["Rewards, values, next values<br/>terminal and boundary flags"]
+    B --> M["Masks ခွဲသတ်မှတ်<br/>b: bootstrap allowed<br/>c: next residual belongs to same episode"]
+    M --> D["delta_t = r_t + gamma b_t V_next - V_t"]
+    D --> I["Initialize next advantage = 0<br/>at end of available rollout"]
+    I --> G["Backward loop<br/>A_hat_t = delta_t + gamma lambda c_t A_hat_next"]
+    G --> T["Detach advantages and chosen value targets"]
+    T --> P["Learner-specific policy update"]
+    T --> V["Value regression update"]
+    P --> C
 
-    subgraph Phase2["Backward GAE"]
-        Boot["Detach V at last state if not terminal"]:::value
-        Del["delta = r + gamma V_next mask - V"]:::value
-        Rec["A_t = delta_t + gamma lambda mask A_tplus1"]:::sample
-        Ret["return target = A + V"]:::sample
-        Boot --> Del --> Rec --> Ret
-        Buf --> Boot
-        Buf --> Del
-    end
-
-    subgraph Phase3["One optimizer step"]
-        PL["Policy loss minus log_pi times A"]:::policy
-        VL["Value MSE vs return"]:::value
-        H["Entropy bonus"]:::extra
-        L["L = L_pi + c_v L_V - c_e H"]:::train
-        Opt["Adam plus grad clip"]:::train
-        Rec --> PL
-        Ret --> VL
-        Buf --> H
-        PL --> L
-        VL --> L
-        H --> L
-        L --> Opt --> Net
-    end
-
-    classDef shared fill:#cce5ff,stroke:#004085,color:#004085
-    classDef policy fill:#d4edda,stroke:#155724,color:#155724
-    classDef sample fill:#fff3cd,stroke:#856404,color:#856404
-    classDef value fill:#e2d9f3,stroke:#4b0082,color:#4b0082
-    classDef train fill:#f8d7da,stroke:#721c24,color:#721c24
-    classDef extra fill:#ffe5cc,stroke:#8a3b00,color:#8a3b00
-
-    style Phase1 fill:#e7f1ff,stroke:#004085
-    style Phase2 fill:#fffbea,stroke:#856404
-    style Phase3 fill:#fdecea,stroke:#721c24
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef advantage fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    class C,B data;
+    class G advantage;
+    class M,D,I,T target;
+    class P,V train;
 ```
 
-Priority / IS weight မရှိ။ Replay မရှိ။ Target clone မရှိ။ `detach` က graph ပြန်မဝင်အောင်။
+**Bootstrap mask `b` နဲ့ trace-continuation mask `c` ကို ခွဲဖတ်ပါ။**
 
-## VPG vs A3C vs GAE vs A2C
+| Transition အမျိုးအစား | `b_t` | `c_t` | ဘာကြောင့်လဲ? |
+|---|---|---|---|
+| ပုံမှန် nonterminal၊ same episode | `1` | `1` | Next value နဲ့ next residual နှစ်ခုလုံး ဆက်ယူနိုင် |
+| True task terminal | `0` | `0` | Future value သုည၊ episode ပြီး |
+| External time-limit truncation + reset | `1` | `0` | Final observation value နဲ့ bootstrap၊ reset episode ဆီ trace မကူး |
+| Rollout အဆုံး၊ episode မပြီး | `1` | ရရှိသမျှ segment မှာပဲ ရပ် | Endpoint value သုံးပြီး အပြင်က residual မရှိလို့ `Â_next=0` ထား |
 
-| | VPG | A3C n-step | GAE | A2C |
-|---|---|---|---|---|
-| ဘာလဲ | algorithm | algorithm | **estimator** | algorithm |
-| Net | policy + value သီးခြား | AC heads / copies | **A3C/A2C net ပြန်သုံး** | shared AC |
-| Ψ | `G - V` MC | fixed n-step | **λ-mix of n-step** | n-step သို့မဟုတ် GAE |
-| Bootstrap | မရှိ | ရှိ | **ရှိ (`δ` ထဲ `V`)** | ရှိ |
-| Parallel | မလို | async workers | မသတ်မှတ် | sync envs |
+အထက်ပါ truncation rule က **underlying task ဆက်နိုင်သေးတဲ့ external cutoff** အတွက်ပါ။ Task ကိုယ်တိုင် finite horizon ပြီးသွားရင် true terminal အဖြစ် သတ်မှတ်ရပါတယ်။ Auto-reset environment မှာ `V_next` ကို **final observation** ကနေယူပါ။
 
-## Q&A
+Practical actor-critic version တစ်ခုမှာ `R̂_t^λ = sg(Â_t + V_old(s_t))` ကို critic target အဖြစ် သုံးနိုင်ပါတယ်။ ဒါက **ရွေးချယ်ထားတဲ့ value-fitting rule** ဖြစ်ပြီး GAE ရဲ့ မဖြစ်မနေ requirement မဟုတ်ပါဘူး; မူရင်း paper ရဲ့ value fitting ကို ဒီ rule နဲ့ တူတယ်လို့ မယူပါနှင့်။
 
-### မေး ၁။ GAE network ထပ်လိုသလား?
+### ကိန်းဂဏန်း ဥပမာ
 
-**မလို။** `V(s)` ရှိပြီးသား actor-critic ပေါ်မှာ `δ` နဲ့ recursion သာ။
-
-### မေး ၂။ `λ` နဲ့ `γ` ကွာသလား?
-
-`γ` က reward discount (MDP)။ `λ` က **estimator mixing** — environment dynamics မဟုတ်။
-
-### မေး ၃။ Actor-critic လား?
-
-GAE ကိုယ်တိုင်က estimator။ `V(s')` bootstrap သုံးလို့ **တွဲသုံးတဲ့ agent က actor-critic** ဖြစ်တယ်။ VPG MC `G-V` ပေါ် GAE တပ်လို့ မရသလောက် (δ မှာ `V(s')` လို)။
-
-### မေး ၄။ Target network လား?
-
-မဟုတ်။ နောက် state `V` က **လက်ရှိ** critic၊ `.detach()` ပဲ။
-
-## အနှစ်ချုပ်
+Terminal 3-step episode မှာ `δ=[1,2,3]`၊ `γ=0.9`၊ `λ=0.8` ဆို `γλ=0.72` ဖြစ်ပါတယ်။
 
 ```text
-GAE        → not a new net
-delta      → r + γ V(s')(1-d) - V(s)
-A          → mix deltas with (γλ)
-λ=0 / λ=1  → 1-step / MC-like
-plugs into → A3C, A2C, PPO
+A_hat_2 = 3
+A_hat_1 = 2 + 0.72 × 3       = 4.16
+A_hat_0 = 1 + 0.72 × 4.16    = 3.9952
 ```
+
+ဒါကြောင့် step 0 ရဲ့ learning signal ထဲမှာ နောက်ကျရောက်လာတဲ့ residual တွေပါ သက်ရောက်ပါတယ်။ **Environment reward ကို တကယ်ပြောင်းရေးတာ မဟုတ်ပါဘူး။**
+
+## ၃။ Q&A
+
+### မေး ၁။ GAE network သီးခြားထပ်လိုသလား?
+
+မလိုပါဘူး။ ရှိပြီးသား value estimates နဲ့ rewards ပေါ်က **weighted-sum / backward recurrence** ပါ။ Trainable advantage head မရှိပါဘူး။
+
+### မေး ၂။ A3C၊ A2C၊ PPO ဘယ်တစ်ခုနဲ့ပဲ သုံးလို့ရသလဲ?
+
+တစ်ခုတည်းအတွက် မဟုတ်ပါဘူး။ GAE က advantage estimator ဖြစ်လို့ learner ရဲ့ policy objective နဲ့ data assumptions ကိုက်ရင် VPG၊ TRPO၊ PPO၊ A2C သို့မဟုတ် A3C-style learner နဲ့ တွဲနိုင်ပါတယ်။
+
+### မေး ၃။ `λ` ကြီးရင် အမြဲပိုကောင်းသလား?
+
+မဟုတ်ပါဘူး။ Delayed signal ပိုသယ်လာပေမယ့် variance မြင့်နိုင်ပါတယ်။ Value quality၊ rollout length နဲ့ task ပေါ်မူတည်လို့ `λ=0.95` က universal optimum မဟုတ်ပါဘူး။
+
+### မေး ၄။ `δ_t` က true advantage လား?
+
+Sample တစ်ခုရဲ့ TD residual ဖြစ်ပါတယ်။ Value မှန်ကန်ရင် conditional expectation က advantage နဲ့ ကိုက်ပေမယ့် **sample တစ်ခုစီက true advantage နဲ့ အတိအကျမတူပါဘူး**။
+
+### မေး ၅။ ဘာကို detach လုပ်ရသလဲ?
+
+Standard policy-gradient update အတွက် **GAE calculation နဲ့ advantage output ကို fixed signal** အဖြစ်ထားပါတယ်။ Critic update မှာ target ကို detach လုပ်ပြီး current `Vφ(s)` prediction ဆီပဲ gradient စီးစေပါတယ်။
+
+### မေး ၆။ GAE က replay data အဟောင်းကို on-policy ဖြစ်အောင် လုပ်ပေးသလား?
+
+မလုပ်ပေးပါဘူး။ Advantage variance ကို ကိုင်တွယ်တာဖြစ်ပြီး behavior-policy mismatch ကို correction လုပ်ပေးတာ မဟုတ်ပါဘူး။
+
+### မေး ၇။ A2C သုံးရင် GAE မဖြစ်မနေလိုသလား?
+
+မလိုပါဘူး။ [A2C](./10_1_PB_actor-critic_A2C.md) က synchronous update scheme ဖြစ်ပြီး n-step advantage သို့မဟုတ် GAE ကို ရွေးသုံးနိုင်ပါတယ်။
