@@ -108,13 +108,13 @@ $$
 $$
 
 $$
-\mathcal L_\pi=-\operatorname{mean}_{t,i}\left[\log\pi_\theta(a_{t,i}\mid s_{t,i})\operatorname{sg}(\hat A_{t,i})\right],
+\mathcal L_\pi=-\mathrm{mean}_{t,i}\left[\log\pi_\theta(a_{t,i}\mid s_{t,i})\mathrm{sg}(\hat A_{t,i})\right],
 \quad
-\mathcal L_V=\tfrac12\operatorname{mean}_{t,i}\left[(V_\phi(s_{t,i})-\operatorname{sg}(\hat R_{t,i}))^2\right].
+\mathcal L_V=\tfrac12\mathrm{mean}_{t,i}\left[(V_\phi(s_{t,i})-\mathrm{sg}(\hat R_{t,i}))^2\right].
 $$
 
 $$
-\mathcal L=\mathcal L_\pi+c_V\mathcal L_V-c_H\operatorname{mean}_{t,i}H[\pi_\theta(\cdot\mid s_{t,i})].
+\mathcal L=\mathcal L_\pi+c_V\mathcal L_V-c_H\mathrm{mean}_{t,i}H[\pi_\theta(\cdot\mid s_{t,i})].
 $$
 
 `sg` = stop-gradient၊ `cV` = critic weight၊ `cH ≥ 0` = entropy coefficient ပါ။ Minimize လုပ်တဲ့ loss မှာ **entropy ကို minus နဲ့ထည့်**လို့ exploration ကို အားပေးပါတယ်။ Shared trunk ကို actor/critic losses နှစ်ခုလုံးက သင်ပေးပါတယ်။ Advantage detach လုပ်ထားတာကြောင့် value head ဆီ actor loss က တိုက်ရိုက် gradient မစီးပါဘူး။

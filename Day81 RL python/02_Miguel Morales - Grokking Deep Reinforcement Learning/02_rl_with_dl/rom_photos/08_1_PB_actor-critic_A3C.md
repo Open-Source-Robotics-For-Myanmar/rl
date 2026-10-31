@@ -128,10 +128,10 @@ R_t^{(n)}=\sum_{k=0}^{n-1}\gamma^k r_{t+k}+\gamma^n V_{\text{local}}(s_{t+n}),
 $$
 
 $$
-\mathcal L_\pi=-\operatorname{mean}_t[\log\pi_{\text{local}}(a_t\mid s_t)\operatorname{sg}(\hat A_t)]
--\beta\operatorname{mean}_t H[\pi_{\text{local}}],
+\mathcal L_\pi=-\mathrm{mean}_t[\log\pi_{\text{local}}(a_t\mid s_t)\mathrm{sg}(\hat A_t)]
+-\beta\mathrm{mean}_t H[\pi_{\text{local}}],
 \quad
-\mathcal L_V=\tfrac12\operatorname{mean}_t\left[(V_{\text{local}}(s_t)-\operatorname{sg}(R_t^{(n)}))^2\right].
+\mathcal L_V=\tfrac12\mathrm{mean}_t\left[(V_{\text{local}}(s_t)-\mathrm{sg}(R_t^{(n)}))^2\right].
 $$
 
 ဒီ loss က practical A3C sampled-state convention ဖြစ်ပြီး အပြင် `γ^t` မထည့်ထားပါဘူး; return အတွင်း discount ကတော့ ပါပါတယ်။ Shared trunk ဆိုရင် `L = Lπ + cV LV` ကနေ heads နဲ့ trunk ဆီ gradient စီးပါတယ်။

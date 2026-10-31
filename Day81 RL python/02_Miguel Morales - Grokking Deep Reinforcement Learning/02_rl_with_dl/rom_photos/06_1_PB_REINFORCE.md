@@ -102,7 +102,7 @@ flowchart TD
 $$
 G_t = \sum_{k=t}^{T-1}\gamma^{k-t}r_k,
 \qquad
-\mathcal L_\pi = -\frac{1}{T}\sum_{t=0}^{T-1}\gamma^t\,\operatorname{sg}(G_t)\log\pi_\theta(a_t\mid s_t).
+\mathcal L_\pi = -\frac{1}{T}\sum_{t=0}^{T-1}\gamma^t\,\mathrm{sg}(G_t)\log\pi_\theta(a_t\mid s_t).
 $$
 
 `sg` = **stop-gradient / detach**။ Complete episode အတွက် `G_T=0` ကနေ နောက်ပြန်တွက်ပါတယ်။ ဒီ `γ^t` အပြင်ဘက် weight က Chapter 11 ရဲ့ start-state discounted-objective convention နဲ့ ကိုက်ပါတယ်။ Practical VPG/A3C/A2C implementations အများအပြားက အပြင် `γ^t` မပါသော sampled-state surrogate သုံးကြပါတယ်; **return အတွင်း discount** နဲ့ **အပြင် timestep weight** ဟာ အဓိပ္ပာယ်မတူပါဘူး။

@@ -100,10 +100,10 @@ G_t=\sum_{k=t}^{T-1}\gamma^{k-t}r_k,
 $$
 
 $$
-\mathcal L_\pi=-\operatorname{mean}_t\left[\gamma^t\operatorname{sg}(\hat A_t)\log\pi_\theta(a_t\mid s_t)\right]
--\beta\operatorname{mean}_t H[\pi_\theta(\cdot\mid s_t)],
+\mathcal L_\pi=-\mathrm{mean}_t\left[\gamma^t\mathrm{sg}(\hat A_t)\log\pi_\theta(a_t\mid s_t)\right]
+-\beta\mathrm{mean}_t H[\pi_\theta(\cdot\mid s_t)],
 \qquad
-\mathcal L_V=\tfrac12\operatorname{mean}_t\left(V_\phi(s_t)-\operatorname{sg}(G_t)\right)^2.
+\mathcal L_V=\tfrac12\mathrm{mean}_t\left(V_\phi(s_t)-\mathrm{sg}(G_t)\right)^2.
 $$
 
 **ဒီမှာ အပြင် `γ^t` က စာအုပ် convention** ဖြစ်ပါတယ်။ [REINFORCE မှတ်စု](./06_1_PB_REINFORCE.md) မှာ ရှင်းထားသလို practical sampled-state VPG surrogate တချို့မှာ မပါပါဘူး။ Entropy bonus က optional ဖြစ်ပြီး **VPG ကို အဓိပ္ပာယ်သတ်မှတ်တဲ့ မဖြစ်မနေအပိုင်း မဟုတ်ပါဘူး**။ Value regression ကို batch တစ်ခုတည်းနဲ့ steps အများကြီးလုပ်နိုင်ပေမယ့် vanilla policy loss ကို policy ပြောင်းပြီးတိုင်း correction မပါဘဲ ထပ်ခါ optimize မလုပ်သင့်ပါဘူး။
