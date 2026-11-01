@@ -30,18 +30,26 @@ Uniform replay မှာ လက်ရှိ transition `N` ခုရှိရင
 
 **PER ရဲ့ idea:** လက်ရှိခန့်မှန်းချက်နဲ့ target ကွာဟမှု `|TD error|` များတဲ့ transition တွေကို **ပိုမိုမကြာခဏ ပြန်သင်**ခိုင်းတယ်။ ဒါဟာ “အသုံးဝင်မှု” အတွက် heuristic ဖြစ်ပြီး **TD error ကြီးတိုင်း အရေးအကြီးဆုံး၊ reward ကောင်းဆုံး** လို့ မဆိုလိုပါဘူး။ Noise ကြောင့်လည်း error ကြီးနိုင်ပါတယ်။
 
-### Diagram အရောင်များ — Dueling DDQN မှတ်စုနှင့် တူညီသော Color Rule
+### အရောင်အသုံးပြုပုံ (Color Rule)
 
-| အရောင် | Fill / border / text | အဓိပ္ပာယ် |
-|---|---|---|
-| အပြာနု | `#cce5ff` / `#004085` | State၊ data gathering၊ shared backbone၊ DQN baseline |
-| အစိမ်းနု | `#d4edda` / `#155724` | Value head၊ Online Dueling network၊ DDQN action selection |
-| အဝါနု | `#fff3cd` / `#856404` | Advantage head၊ generic replay-design analysis; မူရင်း pipeline မှာ uniform minibatch sampling |
-| ခရမ်းနု | `#e2d9f3` / `#4b0082` | Dueling aggregation၊ Target network / evaluation၊ bootstrap target၊ Dueling paper |
-| ပန်းရောင်နု | `#f8d7da` / `#721c24` | TD-error / loss calculation၊ optimization၊ Rainbow paper |
-| **လိမ္မော်နု — PER-specific blocks အတွက် ထပ်တိုးအရောင်** | **`#ffe5cc` / `#8a3b00`** | Prioritized buffer၊ priority / probability၊ IS weights၊ priority refresh၊ sum-tree၊ PER နှင့် prioritized-sampling extensions |
+**အစိမ်း၊ လိမ္မော်၊ ခရမ်း ၃ ရောင်ကို network / trainable layer / head block များအတွက်သာ သီးသန့်သုံးပါတယ်။** သက်ဆိုင်ရာ network ပါသော diagram မှာသာ အဲဒီအရောင်ကို တွေ့ရပါမယ်။
 
-လိမ္မော်နုဟာ [Dueling DDQN paper-lineage diagram](./04_1_VB_Dueling_DDQN.md) ထဲက PER node ရဲ့ palette နဲ့လည်း တူပါတယ်။ **ဒီစာမှာတော့ PER-specific operations အားလုံးဆီ အဲဒီအရောင်ကို တိုးချဲ့သုံးထားပါတယ်။** Weighted loss က PER weight ကို သုံးပေမယ့် optimization block ဖြစ်လို့ ပန်းရောင်ကို ဆက်သုံးပါတယ်။ Arrows တွေကို မူရင်းအတိုင်း **အပြာ `#218bff`** သုံးထားပြီး block label တွေနဲ့လည်း အဓိပ္ပာယ် ခွဲပြထားပါတယ်။
+| အသုံးပြုပုံ | အရောင် | အရောင်နမူနာ | Fill | Border / text |
+|---|---|---|---|---|
+| Policy / actor network; Online / current Q-network | အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/green.svg) | `#d4edda` | `#155724` |
+| Value / baseline / critic network နှင့် trainable value head | လိမ္မော်နု | ![လိမ္မော်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/orange.svg) | `#ffe5cc` | `#8a3b00` |
+| Frozen target Q-network | ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | `#e2d9f3` | `#4b0082` |
+| State / environment / data / shared backbone | အပြာနု | ![အပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | `#cce5ff` | `#004085` |
+| Batch / sampling / advantage | အဝါနု | ![အဝါနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | `#fff3cd` | `#856404` |
+| Preprocessing / PER / action selection / synchronization | စိမ်းပြာနု | ![စိမ်းပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/cyan.svg) | `#d1ecf1` | `#0c5460` |
+| Outputs / probabilities / returns / target values / aggregation | မီးခိုးနု | ![မီးခိုးနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/gray.svg) | `#e2e3e5` | `#383d41` |
+| Loss / gradient / optimizer update | ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | `#f8d7da` | `#721c24` |
+
+Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) **အပြာ `#218bff`**။
+
+Network က ထုတ်သော Q / V တန်ဖိုး၊ action probability၊ sample လုပ်သော action၊ return၊ bootstrap target နဲ့ loss block တွေမှာ network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ **Target value / return က မီးခိုး၊ target network ကသာ ခရမ်း** ဖြစ်ပါတယ်။
+
+Paper lineage / algorithm comparison နဲ့ အဆင့်များပါသော subgraph နောက်ခံတွေမှာလည်း network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ အုပ်စုခွဲပုံကို label နဲ့တွဲဖတ်ပါ။
 
 ## Diagram 1 — Dueling၊ DDQN၊ PER တို့ရဲ့ တာဝန်ခွဲခြားပုံ
 
@@ -53,8 +61,9 @@ flowchart TD
     F --> A["Advantage head: A(s,a), action vector"]
     V --> Q["Dueling aggregation: Q = V + A - mean(A)"]
     A --> Q
-    Q --> D["DDQN: online selects next action; target evaluates"]
-    D --> E["TD error: target minus current Q"]
+    Q --> D["DDQN: online network selects next action"]
+    D --> EV["DDQN: target network evaluates selected action"]
+    EV --> E["TD error: target minus current Q"]
     B["Replay buffer with priorities"] --> P["PER: sample using P(i)"]
     P --> D
     P --> W["Importance-sampling weights"]
@@ -64,18 +73,19 @@ flowchart TD
     E --> U["Refresh sampled priorities using absolute TD error"]
     U --> B
 
-    classDef shared fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef online fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef advantage fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef aggregation fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
-    classDef per fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
     classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    class S,F shared;
-    class V,D online;
-    class A advantage;
-    class Q aggregation;
-    class B,P,W,U per;
+    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef valueNetwork fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
+
+    class S,F data;
+    class A batch;
     class E,L,O train;
+    class B,P,W,U,D,EV process;
+    class Q result;
+    class V valueNetwork;
 ```
 
 | Component | ပြောင်းလဲတဲ့နေရာ | မပြောင်းလဲတဲ့နေရာ |
@@ -206,16 +216,19 @@ flowchart TD
     TD --> PR["Detach absolute TD errors; add epsilon; refresh sampled priorities"]
     PR --> B
 
-    classDef dataGathering fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef online fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
-    classDef optimization fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    classDef per fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
-    class E,T,SYNC dataGathering;
-    class CUR,ON,SEL online;
-    class TAR,EV,Y target;
-    class TD,LOSS,WL,OPT optimization;
-    class B,S,W,PR per;
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef onlineNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef targetNetwork fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+
+    class E,T,SYNC data;
+    class TD,LOSS,WL,OPT train;
+    class B,S,W,PR,SEL process;
+    class EV,Y result;
+    class CUR,ON onlineNetwork;
+    class TAR targetNetwork;
 ```
 
 **Update တစ်ကြိမ်ရဲ့ အစီအစဉ်:**
@@ -251,8 +264,9 @@ flowchart LR
     SMALL --> BAL["At beta = 1: balance expected sampling contribution"]
     LARGE --> BAL
 
-    classDef per fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
-    class HIGH,OFTEN,SMALL,LOW,RARE,LARGE,BAL per;
+    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+
+    class HIGH,OFTEN,SMALL,LOW,RARE,LARGE,BAL process;
 ```
 
 **D ကို မကြာခဏ သင်ပေးပေမယ့် တစ်ခါချင်းစီမှာ weight သေးသေးပေးတယ်။** A ကို ရှားရှားရွေးပေမယ့် ရွေးမိရင် weight ပိုကြီးပေးတယ်။ Weight က reward လည်း မဟုတ်၊ “ဒီ transition အရေးမကြီး” လို့ ဆုံးဖြတ်တာလည်း မဟုတ်ပါဘူး။
@@ -306,8 +320,9 @@ flowchart TD
     RIGHT --> C["C: mass 4"]
     RIGHT --> D["D: mass 8"]
 
-    classDef per fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
-    class ROOT,LEFT,RIGHT,A,B,C,D per;
+    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+
+    class ROOT,LEFT,RIGHT,A,B,C,D process;
 ```
 
 ```text
@@ -401,18 +416,17 @@ flowchart TD
     RAIN -.->|"replay design context"| FEDUS
     PER -->|"revisit sampling theory and TD-error proxy"| LABER["LaBER, 2021 preprint / ICML 2022"]
 
-    classDef dqn fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef ddqn fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef dueling fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
-    classDef rainbow fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    classDef analysis fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef per fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
-    class DQN dqn;
-    class DDQN ddqn;
-    class DUEL dueling;
-    class RAIN rainbow;
-    class FEDUS analysis;
-    class PER,APEX,LABER per;
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+
+    class DQN data;
+    class FEDUS batch;
+    class RAIN train;
+    class PER,APEX,LABER process;
+    class DDQN,DUEL result;
 ```
 
 Arrow တွေက တစ်ခုကတစ်ခုကို အကုန်အစားထိုးသွားတဲ့ version history မဟုတ်ပါဘူး။ **ပေါင်းသုံးခြင်း၊ extension လုပ်ခြင်း၊ သက်ဆိုင်ရာ design ကို ပြန်လေ့လာခြင်း** တို့ကို ခွဲပြထားတာပါ။

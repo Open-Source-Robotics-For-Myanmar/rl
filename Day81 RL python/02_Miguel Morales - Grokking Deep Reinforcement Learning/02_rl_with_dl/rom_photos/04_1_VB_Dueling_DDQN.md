@@ -12,6 +12,27 @@ Dueling DDQN ဟာ [Double DQN](</home/mr_robot/Desktop/Git/rl/Day81 RL python/
 
 Full DQN / Double DQN ရဲ့ single-stream network ဟာ `Q(s,a)` ကို action တစ်ခုချင်းစီအတွက် **သီးခြားစီ** estimate လုပ်ပါတယ်။ ဒါပေမယ့် states အများစုမှာ — **ဘယ် action ယူလုပ်မယ်ဆိုတာ သိပ်အရေးမကြီးတဲ့ အချိန်**တွေလည်း ရှိပါတယ် (ဥပမာ Dueling paper ရဲ့ Enduro game saliency-map ဥပမာ — ရှေ့မှာ ကားမရှိတဲ့ အချိန်မှာ steer/accelerate ဘာလုပ်လုပ် ရလဒ် သိပ်မကွာ)။ ဒီလို states တွေမှာ, network ဟာ "ဒီ state ကောင်းသလား/ဆိုးသလား" (state value) ကို သိရုံနဲ့ လုံလောက်ပြီး, "action တစ်ခုချင်းစီရဲ့ တိကျတဲ့ effect" ကို အသေးစိတ် သင်စရာ မလိုပါဘူး။ Single-stream architecture ကတော့ action အားလုံးအတွက် Q-value ကို **သီးခြားသီးခြား** output node ကနေ regress လုပ်နေရလို့, state value ဆိုင်ရာ learning signal ကို action node တွေအကြား **ထပ်ထပ်ပြီး အလဟဿ ပြန်သင်** နေရပါတယ် (generalize မလုပ်နိုင်ဘူး)။ Dueling architecture ရဲ့ idea က `Q(s,a) = V(s) + A(s,a)` ဆိုပြီး **state value `V(s)`** (scalar, action နဲ့ မဆိုင်) နဲ့ **advantage `A(s,a)`** (action တစ်ခုချင်းစီက state-value ထက် ဘယ်လောက် ပိုကောင်း/ညံ့လဲ) ကို **network architecture ထဲမှာပဲ** သီးခြား stream ၂ ခု ခွဲခိုင်းလိုက်ခြင်းဖြင့် — update တစ်ခါပြုလုပ်တိုင်း `V(s)` stream ဟာ action ရွေးချယ်ထားတာနဲ့ မဆိုင်ဘဲ update ဖြစ်နိုင်သွားပြီး, **actions အများကြားမှာ ပိုမိုကောင်းမွန်စွာ generalize** လုပ်နိုင်ပါတယ် (especially action count များလာလေလေ, action value တွေ ကပ်နေလေလေ အကျိုးရှိလေလေ ဖြစ်ပါတယ်)။
 
+### အရောင်အသုံးပြုပုံ (Color Rule)
+
+**အစိမ်း၊ လိမ္မော်၊ ခရမ်း ၃ ရောင်ကို network / trainable layer / head block များအတွက်သာ သီးသန့်သုံးပါတယ်။** သက်ဆိုင်ရာ network ပါသော diagram မှာသာ အဲဒီအရောင်ကို တွေ့ရပါမယ်။
+
+| အသုံးပြုပုံ | အရောင် | အရောင်နမူနာ | Fill | Border / text |
+|---|---|---|---|---|
+| Policy / actor network; Online / current Q-network | အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/green.svg) | `#d4edda` | `#155724` |
+| Value / baseline / critic network နှင့် trainable value head | လိမ္မော်နု | ![လိမ္မော်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/orange.svg) | `#ffe5cc` | `#8a3b00` |
+| Frozen target Q-network | ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | `#e2d9f3` | `#4b0082` |
+| State / environment / data / shared backbone | အပြာနု | ![အပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | `#cce5ff` | `#004085` |
+| Batch / sampling / advantage | အဝါနု | ![အဝါနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | `#fff3cd` | `#856404` |
+| Preprocessing / PER / action selection / synchronization | စိမ်းပြာနု | ![စိမ်းပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/cyan.svg) | `#d1ecf1` | `#0c5460` |
+| Outputs / probabilities / returns / target values / aggregation | မီးခိုးနု | ![မီးခိုးနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/gray.svg) | `#e2e3e5` | `#383d41` |
+| Loss / gradient / optimizer update | ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | `#f8d7da` | `#721c24` |
+
+Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) **အပြာ `#218bff`**။
+
+Network က ထုတ်သော Q / V တန်ဖိုး၊ action probability၊ sample လုပ်သော action၊ return၊ bootstrap target နဲ့ loss block တွေမှာ network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ **Target value / return က မီးခိုး၊ target network ကသာ ခရမ်း** ဖြစ်ပါတယ်။
+
+Paper lineage / algorithm comparison နဲ့ အဆင့်များပါသော subgraph နောက်ခံတွေမှာလည်း network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ အုပ်စုခွဲပုံကို label နဲ့တွဲဖတ်ပါ။
+
 ## Diagram 1 — Paper Lineage (ဘယ်ကလာတာလဲ)
 
 ```mermaid
@@ -30,19 +51,17 @@ graph TD
     P4 -->|combined experimentally - Prioritized Dueling, new SOTA| P5
     P5 --> P6
 
-    classDef dqn fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef tabular fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef ddqn fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef per fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
-    classDef dueling fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
-    classDef rainbow fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
 
-    class P1 dqn;
-    class P2 tabular;
-    class P3 ddqn;
-    class P4 per;
-    class P5 dueling;
-    class P6 rainbow;
+    class P1 data;
+    class P2 batch;
+    class P6 train;
+    class P4 process;
+    class P3,P5 result;
 ```
 
 ## Diagram 2 — Dueling Network Architecture (Single Stream vs Two Streams)
@@ -70,19 +89,21 @@ graph TD
 
     Qout -->|drives epsilon greedy acting AND is the regression target in Loss| Downstream[Used exactly like a normal Q vector downstream]
 
-    classDef shared fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef value fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef advantage fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef agg fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef valueNetwork fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
 
-    class Input,Conv shared;
-    class VStream,Vs value;
-    class AStream,As advantage;
-    class Agg,Qout,Downstream agg;
+    class Input,Conv data;
+    class AStream batch;
+    class As,Vs,Agg,Qout,Downstream result;
+    class VStream valueNetwork;
+
+
 
     style Phase1 fill:#e7f1ff,stroke:#004085,stroke-width:2px;
-    style Phase2 fill:#eaf7ec,stroke:#155724,stroke-width:2px;
-    style Phase3 fill:#f3e9fc,stroke:#4b0082,stroke-width:2px;
+    style Phase2 fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
+    style Phase3 fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
 ```
 
 > မှတ်ချက်: ဒီ diagram ကို ရေးဆွဲဖို့ book ထဲက hand-annotated diagrams ၂ ခုကို reference ထားပါတယ် — [04_3_dueling-architecture.png](</home/mr_robot/Desktop/Git/rl/Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/04_3_dueling-architecture.png>) (Dueling paper ရဲ့ original Figure 1 — single-stream vs dueling CNN diagram) နဲ့ [04_2_dueling.png](</home/mr_robot/Desktop/Git/rl/Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/04_2_dueling.png>) (`V(s)` node, `A(s,a)` nodes, နဲ့ stream merging node ကို label တပ်ထားတဲ့ CartPole-scale FC version)။
@@ -99,25 +120,33 @@ graph LR
 
     subgraph DuelingStream [Dueling Network - decoupled generalization across actions]
         S2[State s] --> B2[Conv or FC Backbone - SAME as single stream]
-        B2 --> V2["V(s) -- how good is this state, regardless of action"]
+        B2 --> V2["Value head V(s) -- how good is this state, regardless of action"]
         B2 --> A2["A(s,a) -- how much better or worse is each action vs the state average"]
         V2 --> Agg2[Aggregation Module]
         A2 --> Agg2
         Agg2 --> Out2["Q(s,a) = V(s) + centered A(s,a) -- V(s) updates on EVERY visit, independent of which action was taken"]
     end
 
-    classDef single fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    classDef dueling fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef valueNetwork fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
 
-    class S1,B1,Out1 single;
-    class S2,B2,V2,A2,Agg2,Out2 dueling;
+    class S2,B2 data;
+    class A2 batch;
+    class S1,B1,Out1 train;
+    class Agg2,Out2 result;
+    class V2 valueNetwork;
+
+
 
     style SingleStream fill:#fdecea,stroke:#721c24,stroke-width:2px;
-    style DuelingStream fill:#eaf7ec,stroke:#155724,stroke-width:2px;
+    style DuelingStream fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
 ```
 
 - **Single Stream** (ပန်းရောင် box) — action တစ်ခုချင်းစီက output node တစ်ခုစီကို **သီးခြား** regress လုပ်ရတယ်; state `s` ကောင်းတယ်ဆိုတဲ့ signal ကို action အားလုံး ကိုယ်စီ ပြန်သင်ရတယ်။
-- **Dueling** (အစိမ်းရောင် box) — `V(s)` ကို action ဘယ်ဟာ ရွေးထားမိစေ **update တိုင်း** gradient ရတယ် (action ၁ ခုတည်းရွေးထားမိရင်တောင် `V(s)` stream ပါ update ဖြစ်သွားတယ်), `A(s,a)` ကတော့ action တစ်ခုချင်းစီက state average ထက် ဘယ်လောက်ကွာလဲဆိုတာပဲ learn လုပ်တယ် — ဒီ "shared `V(s)` signal" ကပဲ **sample efficiency** နဲ့ **generalization across actions** ကို တိုးစေတာ ဖြစ်ပါတယ်။
+- **Dueling** (မီးခိုးရောင် အုပ်စု box) — `V(s)` ကို action ဘယ်ဟာ ရွေးထားမိစေ **update တိုင်း** gradient ရတယ် (action ၁ ခုတည်းရွေးထားမိရင်တောင် `V(s)` stream ပါ update ဖြစ်သွားတယ်), `A(s,a)` ကတော့ action တစ်ခုချင်းစီက state average ထက် ဘယ်လောက်ကွာလဲဆိုတာပဲ learn လုပ်တယ် — ဒီ "shared `V(s)` signal" ကပဲ **sample efficiency** နဲ့ **generalization across actions** ကို တိုးစေတာ ဖြစ်ပါတယ်။
 
 ## Identifiability Problem နှင့် Aggregation Equation (Eq. 7 → 8 → 9)
 
@@ -188,22 +217,28 @@ graph TD
 
     OnlineDueling ==>|Hard Copy theta into theta minus EVERY C steps - unchanged from DQN/DDQN| TargetDueling
 
-    classDef dataGathering fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef sampling fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef select fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef evaluate fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
-    classDef optimization fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef onlineNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef targetNetwork fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
 
-    class Env,Agent,Buffer dataGathering;
-    class Batch sampling;
-    class OnlineDueling,Q_pred,OnlineNext,Astar select;
-    class TargetDueling,Qeval,Target_Y evaluate;
-    class Loss,Opt optimization;
+    class Env,Agent,Buffer data;
+    class Batch batch;
+    class Loss,Opt train;
+    class Astar process;
+    class Q_pred,Qeval,Target_Y result;
+    class OnlineDueling,OnlineNext onlineNetwork;
+    class TargetDueling targetNetwork;
+
+
 
     style Phase1 fill:#e7f1ff,stroke:#004085,stroke-width:2px;
     style Phase2 fill:#fffbea,stroke:#856404,stroke-width:2px;
-    style Phase3 fill:#eaf7ec,stroke:#155724,stroke-width:2px;
-    style Phase4 fill:#f3e9fc,stroke:#4b0082,stroke-width:2px;
+    style Phase3 fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
+    style Phase4 fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
     style Phase5 fill:#fdecea,stroke:#721c24,stroke-width:2px;
 ```
 
@@ -237,14 +272,21 @@ graph TD
     Target -->|"Old target parameters; not a gradient path"| Polyak
     Polyak ==>|"Write averaged parameters; no backprop"| Target
 
-    classDef online fill:#d4edda,stroke:#155724,color:#155724;
-    classDef target fill:#e2d9f3,stroke:#4b0082,color:#4b0082;
-    classDef update fill:#cce5ff,stroke:#004085,color:#004085;
-    classDef optimization fill:#f8d7da,stroke:#721c24,color:#721c24;
-    class Online,Current,Select online;
-    class Target,Evaluate,Y target;
-    class Init,Polyak update;
-    class Loss,Optimizer optimization;
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef onlineNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef targetNetwork fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+
+    class Init,Polyak data;
+    class Batch batch;
+    class Loss,Optimizer train;
+    class Select process;
+    class Current,Evaluate,Y result;
+    class Online onlineNetwork;
+    class Target targetNetwork;
 ```
 
 ### Hard Copy နဲ့ Polyak Averaging ဘာကွာသလဲ?

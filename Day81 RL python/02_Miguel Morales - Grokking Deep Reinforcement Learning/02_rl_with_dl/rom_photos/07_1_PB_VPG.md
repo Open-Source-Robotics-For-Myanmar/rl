@@ -14,19 +14,26 @@
 | **Schulman et al., 2015 — [TRPO](https://proceedings.mlr.press/v37/schulman15.html)** | Policy step အလွန်ကြီးသွားတာကို trust region နဲ့ ထိန်းတဲ့ ဆက်စပ်နည်း |
 | **[Chapter 11 မှတ်စု](../chapter_11_summarized.md)** | ဒီမှာသုံးတဲ့ separate `FCDAP` / `FCV` networks နဲ့ MC baseline version |
 
-### Color Rule
+### အရောင်အသုံးပြုပုံ (Color Rule)
 
-ရှေ့ဖိုင်တွေရဲ့ **fill / border / text** palette အတိုင်း သုံးထားပါတယ်။ အရောင်နမူနာတစ်ခုစီမှာ နောက်ခံက fill၊ ဘောင်နဲ့စာသားက border / text အရောင်ပါ။
+**အစိမ်း၊ လိမ္မော်၊ ခရမ်း ၃ ရောင်ကို network / trainable layer / head block များအတွက်သာ သီးသန့်သုံးပါတယ်။** သက်ဆိုင်ရာ network ပါသော diagram မှာသာ အဲဒီအရောင်ကို တွေ့ရပါမယ်။
 
-| အရောင် | အရောင်နမူနာ | Fill | Border / text | ဒီစာတွင် သုံးပုံ |
+| အသုံးပြုပုံ | အရောင် | အရောင်နမူနာ | Fill | Border / text |
 |---|---|---|---|---|
-| အပြာနု | ![အပြာနု နောက်ခံ၊ အပြာရင့် ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | `#cce5ff` | `#004085` | State / data၊ environment၊ episode စုခြင်း |
-| အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ အစိမ်းရင့် ဘောင်နှင့်စာသား](./color_swatches/green.svg) | `#d4edda` | `#155724` | Trainable policy / value networks နှင့် outputs |
-| အဝါနု | ![အဝါနု နောက်ခံ၊ အညိုရင့် ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | `#fff3cd` | `#856404` | On-policy batch / advantage estimate |
-| ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ခရမ်းရင့် ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | `#e2d9f3` | `#4b0082` | MC return / target evaluation |
-| ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ အနီရင့် ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | `#f8d7da` | `#721c24` | Policy / value loss နှင့် optimizer update |
+| Policy / actor network; Online / current Q-network | အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/green.svg) | `#d4edda` | `#155724` |
+| Value / baseline / critic network နှင့် trainable value head | လိမ္မော်နု | ![လိမ္မော်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/orange.svg) | `#ffe5cc` | `#8a3b00` |
+| Frozen target Q-network | ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | `#e2d9f3` | `#4b0082` |
+| State / environment / data / shared backbone | အပြာနု | ![အပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | `#cce5ff` | `#004085` |
+| Batch / sampling / advantage | အဝါနု | ![အဝါနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | `#fff3cd` | `#856404` |
+| Preprocessing / PER / action selection / synchronization | စိမ်းပြာနု | ![စိမ်းပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/cyan.svg) | `#d1ecf1` | `#0c5460` |
+| Outputs / probabilities / returns / target values / aggregation | မီးခိုးနု | ![မီးခိုးနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/gray.svg) | `#e2e3e5` | `#383d41` |
+| Loss / gradient / optimizer update | ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | `#f8d7da` | `#721c24` |
 
 Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) **အပြာ `#218bff`**။
+
+Network က ထုတ်သော Q / V တန်ဖိုး၊ action probability၊ sample လုပ်သော action၊ return၊ bootstrap target နဲ့ loss block တွေမှာ network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ **Target value / return က မီးခိုး၊ target network ကသာ ခရမ်း** ဖြစ်ပါတယ်။
+
+Paper lineage / algorithm comparison နဲ့ အဆင့်များပါသော subgraph နောက်ခံတွေမှာလည်း network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ အုပ်စုခွဲပုံကို label နဲ့တွဲဖတ်ပါ။
 
 ## Diagram 1 — Network Architecture: Policy နှင့် Value Baseline သီးခြားနှစ်ခု
 
@@ -53,15 +60,20 @@ flowchart TD
     LV -.->|"update phi"| V
 
     classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef network fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef advantage fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
     classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef policyNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef valueNetwork fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
+
     class S,E,R data;
-    class P,Z,D,A,LP,V,VS network;
-    class ADV advantage;
-    class G target;
+    class ADV batch;
     class L,LV train;
+    class A process;
+    class D,LP,G result;
+    class P,Z policyNetwork;
+    class V,VS valueNetwork;
 ```
 
 ဒီ **Chapter 11 ဥပမာ**မှာ trainable networks နှစ်ခု၊ weight sets `θ` နဲ့ `φ` နှစ်ခုပါ။ Architecture တူဖို့မလိုဘဲ policy output က **action logits**၊ value output က **scalar expected return** ဖြစ်ပါတယ်။ `Vφ` က frozen target-network clone မဟုတ်ပါဘူး; regression loss နဲ့ သင်နေပါတယ်။ Shared trunk + heads နှစ်ခုလည်း ရွေးနိုင်ပေမယ့် VPG ရဲ့ မဖြစ်မနေ requirement မဟုတ်ပါဘူး။
@@ -91,15 +103,18 @@ flowchart TD
     N --> C
 
     classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef network fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
     classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
     classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef policyNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef valueNetwork fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
+
     class C,N data;
-    class P,V,VS,H network;
     class B,A batch;
-    class G target;
     class LP,OP,LV,OV train;
+    class VS,H,G result;
+    class P policyNetwork;
+    class V valueNetwork;
 ```
 
 `r_t` = action `a_t` ပြီးနောက် reward၊ `sg` = stop-gradient၊ `β ≥ 0` = entropy coefficient လို့ သတ်မှတ်ပါ။ ဒီ MC version မှာ:
@@ -142,12 +157,13 @@ flowchart LR
     T --> P["PPO, 2017<br/>clipped surrogate variant"]
     G -.->|"advantage estimates ပေးနိုင်"| P
 
-    classDef network fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef advantage fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef update fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    class R,V network;
-    class G advantage;
-    class T,P update;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+
+    class G batch;
+    class T,P train;
+    class R,V result;
 ```
 
 **GAE က score တွက်ပုံ၊ TRPO/PPO က policy update ထိန်းပုံ** ဖြစ်လို့ အတူတွဲနိုင်ပါတယ်။ [PPO မူရင်း paper](https://arxiv.org/abs/1707.06347) နဲ့ [GAE မှတ်စု](./09_1_PB_GAE.md) ကို ဆက်ဖတ်နိုင်ပါတယ်။

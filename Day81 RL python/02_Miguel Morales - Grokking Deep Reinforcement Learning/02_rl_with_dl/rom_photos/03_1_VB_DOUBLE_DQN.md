@@ -11,6 +11,29 @@ Double DQN ဟာ [Full DQN](</home/mr_robot/Desktop/Git/rl/Day81 RL python/02_M
 
 Standard Q-learning / DQN ရဲ့ target `y = r + γ · maxₐ' Q̂(s', a'; θ⁻)` ထဲမှာ, `max` operator ကတစ်ခုတည်းသော network (`θ⁻`) ကိုပဲ သုံးပြီး **(1) ဘယ် action `a'` အကောင်းဆုံးလဲ ရွေးချယ်ခြင်း (selection)** နဲ့ **(2) အဲဒီ action ရဲ့ value ဘယ်လောက်လဲ အကဲဖြတ်ခြင်း (evaluation)** ကို **တစ်ပြိုင်နက် လုပ်ပါတယ်**။ Network ရဲ့ Q-value estimate တွေမှာ noise/error အမြဲပါတတ်လို့, `max` ဟာ noise အများဆုံး ဖောက်ထားတဲ့ (positively biased) action ကို ထပ်ကာထပ်ကာ ရွေးတတ်ပါတယ် — ဒါကြောင့် target `y` ဟာ true value ထက် **စနစ်တကျ ပိုမြင့်နေတတ်ပါတယ် (systematic overestimation)**။ Double DQN ရဲ့ အဓိက idea က **selection** နဲ့ **evaluation** ကို **network ၂ ခု ခွဲ**ပြီး, error တွေ decorrelate ဖြစ်အောင် လုပ်တာပါ။
 
+### အရောင်အသုံးပြုပုံ (Color Rule)
+
+**အစိမ်း၊ လိမ္မော်၊ ခရမ်း ၃ ရောင်ကို network / trainable layer / head block များအတွက်သာ သီးသန့်သုံးပါတယ်။** သက်ဆိုင်ရာ network ပါသော diagram မှာသာ အဲဒီအရောင်ကို တွေ့ရပါမယ်။
+
+| အသုံးပြုပုံ | အရောင် | အရောင်နမူနာ | Fill | Border / text |
+|---|---|---|---|---|
+| Policy / actor network; Online / current Q-network | အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/green.svg) | `#d4edda` | `#155724` |
+| Value / baseline / critic network နှင့် trainable value head | လိမ္မော်နု | ![လိမ္မော်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/orange.svg) | `#ffe5cc` | `#8a3b00` |
+| Frozen target Q-network | ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | `#e2d9f3` | `#4b0082` |
+| State / environment / data / shared backbone | အပြာနု | ![အပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | `#cce5ff` | `#004085` |
+| Batch / sampling / advantage | အဝါနု | ![အဝါနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | `#fff3cd` | `#856404` |
+| Preprocessing / PER / action selection / synchronization | စိမ်းပြာနု | ![စိမ်းပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/cyan.svg) | `#d1ecf1` | `#0c5460` |
+| Outputs / probabilities / returns / target values / aggregation | မီးခိုးနု | ![မီးခိုးနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/gray.svg) | `#e2e3e5` | `#383d41` |
+| Loss / gradient / optimizer update | ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | `#f8d7da` | `#721c24` |
+
+Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) **အပြာ `#218bff`**။
+
+Network က ထုတ်သော Q / V တန်ဖိုး၊ action probability၊ sample လုပ်သော action၊ return၊ bootstrap target နဲ့ loss block တွေမှာ network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ **Target value / return က မီးခိုး၊ target network ကသာ ခရမ်း** ဖြစ်ပါတယ်။
+
+Paper lineage / algorithm comparison နဲ့ အဆင့်များပါသော subgraph နောက်ခံတွေမှာလည်း network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ အုပ်စုခွဲပုံကို label နဲ့တွဲဖတ်ပါ။
+
+Sequence diagram ရဲ့ network participant box များကိုလည်း online / current = အစိမ်း၊ target = ခရမ်း ခွဲထားပြီး calculation နောက်ခံများကို မီးခိုး / စိမ်းပြာ သုံးထားပါတယ်။
+
 ## Diagram 1 — Paper Lineage (ဘယ်ကလာတာလဲ)
 
 ```mermaid
@@ -27,17 +50,15 @@ graph TD
     P3 -->|engineering: reusable Target Network already exists| P4
     P4 --> P5
 
-    classDef problem fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    classDef tabular fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef dqn fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef ddqn fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef rainbow fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
 
-    class P1 problem;
-    class P2 tabular;
-    class P3 dqn;
-    class P4 ddqn;
-    class P5 rainbow;
+    class P3 data;
+    class P2 batch;
+    class P1 train;
+    class P4,P5 result;
 ```
 
 ## Diagram 2 — Double DQN Full Algorithm Overview (Decoupled Selection and Evaluation)
@@ -80,21 +101,27 @@ graph TD
     Online -.->|Q values of s drive epsilon greedy selection| Agent
     Online ==>|Hard Copy theta into theta minus EVERY C steps - unchanged from vanilla DQN| Target_Net
 
-    classDef dataGathering fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef sampling fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef select fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef evaluate fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
-    classDef optimization fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef onlineNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef targetNetwork fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
 
-    class Env,Agent,Buffer dataGathering;
-    class Batch sampling;
-    class Online,Q_pred,OnlineNext,Astar select;
-    class Target_Net,Qeval,Target_Y evaluate;
-    class Loss,Opt optimization;
+    class Env,Agent,Buffer data;
+    class Batch batch;
+    class Loss,Opt train;
+    class Astar process;
+    class Q_pred,Qeval,Target_Y result;
+    class Online,OnlineNext onlineNetwork;
+    class Target_Net targetNetwork;
+
+
 
     style Phase1 fill:#e7f1ff,stroke:#004085,stroke-width:2px;
     style Phase2 fill:#fffbea,stroke:#856404,stroke-width:2px;
-    style Phase3 fill:#eaf7ec,stroke:#155724,stroke-width:2px;
+    style Phase3 fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
     style Phase4 fill:#fdecea,stroke:#721c24,stroke-width:2px;
 ```
 
@@ -123,21 +150,29 @@ graph LR
         Eval2 --> Y2["y = r + gamma times Eval2  -- decorrelated, bias reduced"]
     end
 
-    classDef bias fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    classDef fixed fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef onlineNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef targetNetwork fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
 
-    class S1,TN1,Vec1,Max1,Y1 bias;
-    class S2,ON2,Vec2,Arg2,TN2,Vec3,Eval2,Y2 fixed;
+    class S1,S2 data;
+    class Arg2 process;
+    class Vec2,Vec1,Max1,Y1,Vec3,Eval2,Y2 result;
+    class ON2 onlineNetwork;
+    class TN1,TN2 targetNetwork;
+
+
 
     style StandardDQN fill:#fdecea,stroke:#721c24,stroke-width:2px;
-    style DoubleDQNTarget fill:#eaf7ec,stroke:#155724,stroke-width:2px;
+    style DoubleDQNTarget fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
 ```
 
 ### Diagram 2 vs Diagram 3 ရဲ့ ဆက်စပ်မှု
 
 - Diagram 2 က Full DDQN algorithm ရဲ့ **closed loop** (acting + replay buffer + training + target sync) ကို ပြထားပြီး, Diagram 3 ကတော့ Diagram 2 ရဲ့ Phase 3 ထဲက **target `y` ဘယ်လိုတွက်လဲ** ဆိုတဲ့ အပိုင်းကိုပဲ **standard DQN နဲ့ side-by-side** ယှဉ်ပြထားတာပါ — ဒါက "Double DQN ဟာ DQN ကို architecture အသစ် ထပ်မထည့်ဘဲ, **target formula တစ်ကြောင်းတည်း** ပြောင်းလိုက်ရုံနဲ့ ရလာတဲ့ fix" ဆိုတာကို အထင်းသားဆုံး ပြသတဲ့ diagram ဖြစ်ပါတယ်။
 - **Standard DQN** (ပန်းရောင် box) — `Target_Net` တစ်ခုတည်းကပဲ next state `s'` ကို Q-value vector အဖြစ် ထုတ်ပေးပြီး, အဲဒီ vector ပေါ်ကနေ `max` ယူလိုက်တာဟာ **select ရော evaluate ပါ** တစ်ပြိုင်နက် လုပ်လိုက်တာပါ — error ရှိနေရင် ၎င်း error ကိုယ်တိုင်က `max` ကို ဆွဲတင်တတ်တယ်။
-- **Double DQN** (အစိမ်းရောင် box) — `Online` Network ကို next state `s'` အတွက် Q-vector ထုတ်ခိုင်းပြီး **`argmax` ရယူ (select)**၊ ဒါပေမယ့် အဲဒီ `a_star` ရဲ့ **value ကိုတော့** `Target_Net` ရဲ့ (ကွဲပြားတဲ့ weight `θ⁻` နဲ့ ထုတ်ထားတဲ့) vector ထဲကနေ **ပြန်ထုတ်ယူ (evaluate)** တာပါ — network ၂ ခုရဲ့ noise က ကွဲနေလို့ (decorrelated) ဖြစ်လို့, overestimation bias က သိသိသာသာ လျော့ကျသွားပါတယ်။
+- **Double DQN** (မီးခိုးရောင် အုပ်စု box) — `Online` Network ကို next state `s'` အတွက် Q-vector ထုတ်ခိုင်းပြီး **`argmax` ရယူ (select)**၊ ဒါပေမယ့် အဲဒီ `a_star` ရဲ့ **value ကိုတော့** `Target_Net` ရဲ့ (ကွဲပြားတဲ့ weight `θ⁻` နဲ့ ထုတ်ထားတဲ့) vector ထဲကနေ **ပြန်ထုတ်ယူ (evaluate)** တာပါ — network ၂ ခုရဲ့ noise က ကွဲနေလို့ (decorrelated) ဖြစ်လို့, overestimation bias က သိသိသာသာ လျော့ကျသွားပါတယ်။
 
 ## Full DQN vs Double DQN — ကွာခြားချက် အနှစ်ချုပ်
 
@@ -170,7 +205,7 @@ graph LR
 **မှန်ပါတယ်, timing mechanism ကတော့ Full DQN နဲ့ အတူတူပါပဲ (hard copy, `C` steps) — Double DQN က ပြောင်းထားတာက "target `y` ကို ဘယ် network ၂ ခုနဲ့ ဘယ်လို တွက်လဲ" ဆိုတဲ့ **formula** ချည်းသာ ဖြစ်ပါတယ်။**
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'lineColor': '#218bff', 'signalColor': '#218bff', 'actorLineColor': '#218bff', 'loopLineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"lineColor": "#218bff", "signalColor": "#218bff", "actorLineColor": "#218bff", "loopLineColor": "#218bff", "actorBkg": "#e2e3e5", "actorBorder": "#383d41", "actorTextColor": "#383d41", "noteBkgColor": "#d1ecf1", "noteBorderColor": "#0c5460", "noteTextColor": "#0c5460", "labelBoxBkgColor": "#fff3cd", "labelBoxBorderColor": "#856404"}, "themeCSS": "rect.actor[name=\"Onl\"] { fill: #d4edda !important; stroke: #155724 !important; } rect.actor[name=\"Onl\"] + text { fill: #155724 !important; } rect.actor[name=\"Tgt\"] { fill: #e2d9f3 !important; stroke: #4b0082 !important; } rect.actor[name=\"Tgt\"] + text { fill: #4b0082 !important; } "}}%%
 sequenceDiagram
     participant Onl as Online Q Network theta
     participant Tgt as Target Q Network theta_minus
@@ -178,17 +213,17 @@ sequenceDiagram
     participant Cnt as Global Step Counter
 
     Note over Tgt: sync theta_minus = theta at step 0 - SAME schedule as vanilla DQN
-    rect rgb(212, 237, 218)
+    rect rgb(209, 236, 241)
     Note right of Onl: STEP 1 - SELECTION happens on the Online side
     L->>Onl: send next state s_prime
     Onl-->>L: a_star = argmax over a prime of Q(s_prime, a prime, theta)
     end
-    rect rgb(226, 217, 243)
+    rect rgb(226, 227, 229)
     Note right of Tgt: STEP 2 - EVALUATION happens on the FROZEN Target side
     L->>Tgt: send next state s_prime and the index a_star
     Tgt-->>L: y = r + gamma times Q_hat(s_prime, a_star, theta_minus)
     end
-    rect rgb(212, 237, 218)
+    rect rgb(209, 236, 241)
     Note right of Onl: STEP 3 - Online also predicts for the CURRENT state s,a
     L->>Onl: send state s and action a
     Onl-->>L: Q_pred = Q(s, a, theta)

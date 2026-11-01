@@ -14,9 +14,26 @@
 
 **A2C အတွက် အများလက်ခံထားတဲ့ သီးခြား original paper တစ်စောင်တည်း မရှိပါဘူး။** ဒီမှာ A3C paper နဲ့ official synchronous implementation ရှင်းလင်းချက်ကို အခြေခံထားပါတယ်။ Release ခေါင်းစဉ်မှာပါတဲ့ **ACKTR က သီးခြား algorithm** ဖြစ်ပြီး ACKTR paper ကို A2C မူရင်း paper လို့ မယူသင့်ပါဘူး။
 
-### Color Rule
+### အရောင်အသုံးပြုပုံ (Color Rule)
 
-ရှေ့ဖိုင်တွေရဲ့ **fill / border / text** အတိုင်း: အပြာ `#cce5ff / #004085` = data/environments/shared backbone၊ အစိမ်း `#d4edda / #155724` = policy/value heads၊ အဝါ `#fff3cd / #856404` = rollout batch/advantage၊ ခရမ်း `#e2d9f3 / #4b0082` = bootstrap targets / synchronization၊ ပန်းရောင် `#f8d7da / #721c24` = loss/optimizer။ Arrow = `#218bff`။
+**အစိမ်း၊ လိမ္မော်၊ ခရမ်း ၃ ရောင်ကို network / trainable layer / head block များအတွက်သာ သီးသန့်သုံးပါတယ်။** သက်ဆိုင်ရာ network ပါသော diagram မှာသာ အဲဒီအရောင်ကို တွေ့ရပါမယ်။
+
+| အသုံးပြုပုံ | အရောင် | အရောင်နမူနာ | Fill | Border / text |
+|---|---|---|---|---|
+| Policy / actor network; Online / current Q-network | အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/green.svg) | `#d4edda` | `#155724` |
+| Value / baseline / critic network နှင့် trainable value head | လိမ္မော်နု | ![လိမ္မော်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/orange.svg) | `#ffe5cc` | `#8a3b00` |
+| Frozen target Q-network | ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | `#e2d9f3` | `#4b0082` |
+| State / environment / data / shared backbone | အပြာနု | ![အပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | `#cce5ff` | `#004085` |
+| Batch / sampling / advantage | အဝါနု | ![အဝါနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | `#fff3cd` | `#856404` |
+| Preprocessing / PER / action selection / synchronization | စိမ်းပြာနု | ![စိမ်းပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/cyan.svg) | `#d1ecf1` | `#0c5460` |
+| Outputs / probabilities / returns / target values / aggregation | မီးခိုးနု | ![မီးခိုးနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/gray.svg) | `#e2e3e5` | `#383d41` |
+| Loss / gradient / optimizer update | ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | `#f8d7da` | `#721c24` |
+
+Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) **အပြာ `#218bff`**။
+
+Network က ထုတ်သော Q / V တန်ဖိုး၊ action probability၊ sample လုပ်သော action၊ return၊ bootstrap target နဲ့ loss block တွေမှာ network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ **Target value / return က မီးခိုး၊ target network ကသာ ခရမ်း** ဖြစ်ပါတယ်။
+
+Actor နဲ့ critic နှစ်ခုလုံးပါသော shared network / parameter-copy block ကို အပြာဖြင့်ပြပြီး သီးခြား actor / critic heads ကို အစိမ်း / လိမ္မော် ခွဲထားပါတယ်။
 
 ## Diagram 1 — Shared Actor-Critic Network Architecture
 
@@ -45,15 +62,20 @@ flowchart TD
     L -.->|"one backward pass updates shared trunk and heads"| F
 
     classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef network fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
     classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
     classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef policyNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef valueNetwork fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
+
     class S,F,E data;
-    class P,V,D,A network;
     class B,ADV batch;
-    class R target;
     class LP,H,LV,L train;
+    class A process;
+    class D,R result;
+    class P policyNetwork;
+    class V valueNetwork;
 ```
 
 ဒီပုံစံမှာ **logical actor-critic network တစ်ခု၊ heads နှစ်ခု** ပါပါတယ်။ [Chapter 11 ရဲ့ `FCAC`](../chapter_11_summarized.md) ကလည်း shared hidden layers နဲ့ scalar value / action-logits outputs ခွဲထားပါတယ်။ Vector state အတွက် MLP၊ pixels အတွက် CNN သုံးနိုင်ပြီး continuous action မှာ Gaussian policy head သုံးနိုင်ပါတယ်။
@@ -82,15 +104,14 @@ flowchart TD
     O -->|"new weights for next rollout"| P
 
     classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef network fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
     classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
     classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    class E1,E2,EN data;
-    class P,F network;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+
+    class E1,E2,EN,P,F data;
     class B,A batch;
-    class R target;
     class L,O train;
+    class R result;
 ```
 
 Environment တစ်ခု episode ပြီးရင် reset ပြီး rollout ဆက်ဖြည့်နိုင်ပါတယ်။ **Terminal mask နဲ့ returns / traces ကို episode အကြား ဖြတ်**ရပါတယ်။ ပြိုင်တူ environment အားလုံး episode တစ်ပြိုင်နက်ပြီးဖို့ မလိုပါဘူး; စောင့်တာက သတ်မှတ်ထားတဲ့ rollout segments ပါ။
@@ -141,14 +162,15 @@ flowchart LR
 
     classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
     classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef network fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
     classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    class W1,W2,E1,E2 data;
+
+    class W1,W2,E1,E2,G,P data;
     class B batch;
-    class G,P network;
     class U1,U2,U train;
+
+
     style ASYNC fill:#e7f1ff,stroke:#004085,stroke-width:2px;
-    style SYNC fill:#eaf7ec,stroke:#155724,stroke-width:2px;
+    style SYNC fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
 ```
 
 | အချက် | A3C | A2C |

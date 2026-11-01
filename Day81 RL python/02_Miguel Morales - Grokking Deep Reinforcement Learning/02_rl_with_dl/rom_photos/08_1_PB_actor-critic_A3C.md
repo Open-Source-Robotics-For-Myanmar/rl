@@ -13,9 +13,26 @@
 
 Paper ထဲမှာ async Q-learning / Sarsa နည်းတွေပါရှိပါတယ်။ **ဒီစာက A3C ကိုသာ ရည်ညွှန်းပါတယ်**; အခြား async value-based variants ရဲ့ target network ကို A3C ဆီ မရောထည့်ပါနှင့်။
 
-### Color Rule
+### အရောင်အသုံးပြုပုံ (Color Rule)
 
-ရှေ့ဖိုင်တွေရဲ့ **fill / border / text** အတိုင်း: အပြာ `#cce5ff / #004085` = state/environment/shared features၊ အစိမ်း `#d4edda / #155724` = trainable policy/value networks၊ အဝါ `#fff3cd / #856404` = rollout/advantage၊ ခရမ်း `#e2d9f3 / #4b0082` = bootstrap target / parameter sync၊ ပန်းရောင် `#f8d7da / #721c24` = loss/gradient/update။ Arrow = `#218bff`။
+**အစိမ်း၊ လိမ္မော်၊ ခရမ်း ၃ ရောင်ကို network / trainable layer / head block များအတွက်သာ သီးသန့်သုံးပါတယ်။** သက်ဆိုင်ရာ network ပါသော diagram မှာသာ အဲဒီအရောင်ကို တွေ့ရပါမယ်။
+
+| အသုံးပြုပုံ | အရောင် | အရောင်နမူနာ | Fill | Border / text |
+|---|---|---|---|---|
+| Policy / actor network; Online / current Q-network | အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/green.svg) | `#d4edda` | `#155724` |
+| Value / baseline / critic network နှင့် trainable value head | လိမ္မော်နု | ![လိမ္မော်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/orange.svg) | `#ffe5cc` | `#8a3b00` |
+| Frozen target Q-network | ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | `#e2d9f3` | `#4b0082` |
+| State / environment / data / shared backbone | အပြာနု | ![အပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | `#cce5ff` | `#004085` |
+| Batch / sampling / advantage | အဝါနု | ![အဝါနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | `#fff3cd` | `#856404` |
+| Preprocessing / PER / action selection / synchronization | စိမ်းပြာနု | ![စိမ်းပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/cyan.svg) | `#d1ecf1` | `#0c5460` |
+| Outputs / probabilities / returns / target values / aggregation | မီးခိုးနု | ![မီးခိုးနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/gray.svg) | `#e2e3e5` | `#383d41` |
+| Loss / gradient / optimizer update | ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | `#f8d7da` | `#721c24` |
+
+Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) **အပြာ `#218bff`**။
+
+Network က ထုတ်သော Q / V တန်ဖိုး၊ action probability၊ sample လုပ်သော action၊ return၊ bootstrap target နဲ့ loss block တွေမှာ network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ **Target value / return က မီးခိုး၊ target network ကသာ ခရမ်း** ဖြစ်ပါတယ်။
+
+Actor နဲ့ critic နှစ်ခုလုံးပါသော shared network / parameter-copy block ကို အပြာဖြင့်ပြပြီး သီးခြား actor / critic heads ကို အစိမ်း / လိမ္မော် ခွဲထားပါတယ်။
 
 ## Diagram 1 — Worker တစ်ခု၏ Network Architecture
 
@@ -41,15 +58,20 @@ flowchart TD
     LV --> GR
 
     classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef network fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
     classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
     classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef policyNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef valueNetwork fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
+
     class S,F,M,E data;
-    class P,V,A network;
     class B,ADV batch;
-    class R target;
     class LP,LV,GR train;
+    class A process;
+    class R result;
+    class P policyNetwork;
+    class V valueNetwork;
 ```
 
 **မူရင်း paper ရဲ့ အသုံးများသော architecture** က hidden layers ကို share ပြီး **policy softmax head + linear value head** ခွဲထားတာပါ။ Recurrent variant မှာ LSTM ပါနိုင်ပေမယ့် A3C အတွက် မဖြစ်မနေ မလိုပါဘူး။ **[Chapter 11 ဥပမာ](../chapter_11_summarized.md)** က policy/value MLP နှစ်ခု သီးခြားထားတဲ့ implementation ကို ပြထားပါတယ်; အဲဒါလည်း A3C ဖြစ်နိုင်ပါတယ်။
@@ -79,11 +101,10 @@ flowchart TD
     UN -->|"apply when ready"| G
 
     classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef network fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
     classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
     classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    class E1,E2,EN data;
-    class G,W1,W2,WN network;
+
+    class E1,E2,EN,G,W1,W2,WN data;
     class B1,B2,BN batch;
     class U1,U2,UN train;
 ```
@@ -110,14 +131,15 @@ flowchart TD
     GR --> U["Apply gradients to GLOBAL parameters<br/>အခြား workers ကို မစောင့်"]
     U --> SY
 
-    classDef sync fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
     classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
     classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
     classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    class SY,END,R sync;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+
     class C data;
     class B,A batch;
     class LP,LV,GR,U train;
+    class SY,END,R result;
 ```
 
 `r_t` = action ပြီးနောက် reward၊ `n` = ဒီ state ကနေ rollout endpoint အထိ steps ဖြစ်ပါတယ်။ True terminal ရောက်ရင် endpoint value ကို သုညထားပြီး:

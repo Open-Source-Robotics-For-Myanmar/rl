@@ -2,6 +2,27 @@
 
 Full DQN ရဲ့ data flow ကို diagram ၂ ခုနဲ့ ဖော်ပြထားပါတယ် (Mnih et al., 2015, *Human-level control through deep reinforcement learning*, Nature — Algorithm 1: **Deep Q-learning with Experience Replay** ကို အခြေခံထားပါတယ်). ပထမတစ်ခုက **closed-loop overview** (Agent ⇄ Environment interaction အပါအဝင်) ဖြစ်ပြီး၊ ဒုတိယတစ်ခုက **Atari-scale full pipeline** (raw pixel preprocessing + CNN + hard target update every C steps) ကို ပိုမိုရှင်းလင်းစွာ ဖော်ပြထားတဲ့ detailed version ဖြစ်ပါတယ်။
 
+### အရောင်အသုံးပြုပုံ (Color Rule)
+
+**အစိမ်း၊ လိမ္မော်၊ ခရမ်း ၃ ရောင်ကို network / trainable layer / head block များအတွက်သာ သီးသန့်သုံးပါတယ်။** သက်ဆိုင်ရာ network ပါသော diagram မှာသာ အဲဒီအရောင်ကို တွေ့ရပါမယ်။
+
+| အသုံးပြုပုံ | အရောင် | အရောင်နမူနာ | Fill | Border / text |
+|---|---|---|---|---|
+| Policy / actor network; Online / current Q-network | အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/green.svg) | `#d4edda` | `#155724` |
+| Value / baseline / critic network နှင့် trainable value head | လိမ္မော်နု | ![လိမ္မော်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/orange.svg) | `#ffe5cc` | `#8a3b00` |
+| Frozen target Q-network | ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | `#e2d9f3` | `#4b0082` |
+| State / environment / data / shared backbone | အပြာနု | ![အပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | `#cce5ff` | `#004085` |
+| Batch / sampling / advantage | အဝါနု | ![အဝါနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | `#fff3cd` | `#856404` |
+| Preprocessing / PER / action selection / synchronization | စိမ်းပြာနု | ![စိမ်းပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/cyan.svg) | `#d1ecf1` | `#0c5460` |
+| Outputs / probabilities / returns / target values / aggregation | မီးခိုးနု | ![မီးခိုးနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/gray.svg) | `#e2e3e5` | `#383d41` |
+| Loss / gradient / optimizer update | ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | `#f8d7da` | `#721c24` |
+
+Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) **အပြာ `#218bff`**။
+
+Network က ထုတ်သော Q / V တန်ဖိုး၊ action probability၊ sample လုပ်သော action၊ return၊ bootstrap target နဲ့ loss block တွေမှာ network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ **Target value / return က မီးခိုး၊ target network ကသာ ခရမ်း** ဖြစ်ပါတယ်။
+
+Sequence diagram ရဲ့ network participant box များကိုလည်း online / current = အစိမ်း၊ target = ခရမ်း ခွဲထားပြီး calculation နောက်ခံများကို မီးခိုး / စိမ်းပြာ သုံးထားပါတယ်။
+
 ## Diagram 1 — Basic Overview (Behavior Loop + Learning Loop)
 
 ```mermaid
@@ -37,21 +58,25 @@ graph TD
     Online -.->|Q values of s for all actions drive epsilon greedy selection| Agent
     Online ==>|Hard Copy theta into theta minus EVERY C steps| Target_Net
 
-    classDef dataGathering fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef sampling fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef online fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
-    classDef optimization fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef onlineNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef targetNetwork fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
 
-    class Env,Agent,Buffer dataGathering;
-    class Batch sampling;
-    class Online,Q_pred online;
-    class Target_Net,Max_Q,Target_Y target;
-    class Loss,Opt optimization;
+    class Env,Agent,Buffer data;
+    class Batch batch;
+    class Loss,Opt train;
+    class Q_pred,Max_Q,Target_Y result;
+    class Online onlineNetwork;
+    class Target_Net targetNetwork;
+
+
 
     style Phase1 fill:#e7f1ff,stroke:#004085,stroke-width:2px;
     style Phase2 fill:#fffbea,stroke:#856404,stroke-width:2px;
-    style Phase3 fill:#eaf7ec,stroke:#155724,stroke-width:2px;
+    style Phase3 fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
     style Phase4 fill:#fdecea,stroke:#721c24,stroke-width:2px;
 ```
 
@@ -100,31 +125,35 @@ graph TD
     Q_Current ==>|theta minus is reset to theta EVERY C steps, e.g. C = 10000| Q_Target
     CNN_Online -. shares identical weights theta with .- Q_Current
 
-    classDef preprocess fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
-    classDef dataGathering fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef sampling fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef current fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
-    classDef optimization fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef onlineNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef targetNetwork fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
 
-    class Raw,Pre,Phi preprocess;
-    class CNN_Online,Qvec,Select,Emu,Raw2,Buffer dataGathering;
-    class Batch sampling;
-    class Q_Current,Q_pred2 current;
-    class Q_Target,Max_Q2,Target_Y2 target;
-    class Loss2,Opt2 optimization;
+    class Emu,Raw2,Buffer data;
+    class Batch batch;
+    class Loss2,Opt2 train;
+    class Select,Raw,Pre,Phi process;
+    class Qvec,Q_pred2,Max_Q2,Target_Y2 result;
+    class CNN_Online,Q_Current onlineNetwork;
+    class Q_Target targetNetwork;
 
-    style Phase0 fill:#fff1e5,stroke:#8a3b00,stroke-width:2px;
+
+
+    style Phase0 fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
     style Phase1 fill:#e7f1ff,stroke:#004085,stroke-width:2px;
     style Phase2 fill:#fffbea,stroke:#856404,stroke-width:2px;
-    style Phase3 fill:#eaf7ec,stroke:#155724,stroke-width:2px;
+    style Phase3 fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
     style Phase4 fill:#fdecea,stroke:#721c24,stroke-width:2px;
 ```
 
 ### Diagram 1 vs Diagram 2 ခြားနားချက်
 
 - Diagram 1 က general closed-loop (control-theory style) version ဖြစ်ပြီး, `Online` / `Target_Net` ဆိုတဲ့ node name အတိုချုပ်ပဲ သုံးထားပါတယ်။ Diagram 2 ကတော့ original Nature paper ရဲ့ **Atari pipeline အတိုင်း** — raw pixel `x_t` ကနေ grayscale + 84×84 downsample + 4-frame stack preprocessing (`φ`), CNN architecture (conv-conv-conv-FC), reward clipping `[-1, 1]`, RMSProp optimizer, နဲ့ `C` steps (ဥပမာ 10,000 steps) တိုင်း hard reset `θ⁻ ← θ` စတာတွေအထိ အသေးစိတ် ဖော်ပြထားပါတယ်။
-- Color coding အားလုံးမှာ **Preprocessing** (Diagram 2 ထဲပဲ ရှိတယ်) = လိမ္မော်ရောင်၊ **Data Gathering / Acting** = ပြာ၊ **Sampling** = အဝါ၊ **Online/Current Q-Network** = အစိမ်း၊ **Target Network** = ခရမ်းရောင်၊ **Optimization** = အနီ ဖြစ်ပါတယ်။
+- အရောင်အသုံးပြုပုံကို အပေါ်က **Color Rule** table အတိုင်း ဖတ်ပါ။ Network အရောင် ၃ ရောင်ကို အခြား block များမှာ မသုံးထားပါဘူး။
 - Diagram 1 ရဲ့ `Online -.-> Agent` dashed arrow နဲ့ Diagram 2 ရဲ့ `CNN_Online -. shares weights .- Q_Current` dashed arrow နှစ်ခုစလုံးက "Online network တစ်ခုတည်းကိုပဲ **acting** (behavior policy) အတွက်လည်းကောင်း, **training** (gradient target regression) အတွက်လည်းကောင်း တွဲသုံးနေတယ်" ဆိုတာကို အလေးပေးပြထားတာပါ — ဒါက NFQ ထက် Full DQN မှာ ပိုရှင်းလင်းစွာ သတ်မှတ်ထားတဲ့ design ဖြစ်ပါတယ်။
 
 ## Full DQN vs NFQ — ထပ်ဆင့် ကွာခြားချက်များ
@@ -155,7 +184,7 @@ graph TD
 **မှန်ပါတယ်, ဒါပေမယ့် NFQ နဲ့ မတူတာက "ပြီးတော့" ဆိုတဲ့ timing ကို episode/outer-loop အစား **fixed step counter `C`** နဲ့ တိတိကျကျ သတ်မှတ်ထားတာပါ။**
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'lineColor': '#218bff', 'signalColor': '#218bff', 'actorLineColor': '#218bff', 'loopLineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"lineColor": "#218bff", "signalColor": "#218bff", "actorLineColor": "#218bff", "loopLineColor": "#218bff", "actorBkg": "#e2e3e5", "actorBorder": "#383d41", "actorTextColor": "#383d41", "noteBkgColor": "#d1ecf1", "noteBorderColor": "#0c5460", "noteTextColor": "#0c5460", "labelBoxBkgColor": "#fff3cd", "labelBoxBorderColor": "#856404"}, "themeCSS": "rect.actor[name=\"Onl\"] { fill: #d4edda !important; stroke: #155724 !important; } rect.actor[name=\"Onl\"] + text { fill: #155724 !important; } rect.actor[name=\"Tgt\"] { fill: #e2d9f3 !important; stroke: #4b0082 !important; } rect.actor[name=\"Tgt\"] + text { fill: #4b0082 !important; } "}}%%
 sequenceDiagram
     participant Onl as Online Q Network theta
     participant Tgt as Target Q Network theta_minus
@@ -163,12 +192,12 @@ sequenceDiagram
     participant Cnt as Global Step Counter
 
     Note over Tgt: initial sync theta_minus = theta at step 0
-    rect rgb(226, 217, 243)
+    rect rgb(226, 227, 229)
     Note right of Tgt: Target side is frozen, no gradient
     L->>Tgt: send next state phi_j+1
     Tgt-->>L: y_j = r_j + gamma times max Q_hat of phi_j+1
     end
-    rect rgb(212, 237, 218)
+    rect rgb(209, 236, 241)
     Note right of Onl: Online side gets gradient EVERY step
     L->>Onl: send state phi_j and action a_j
     Onl-->>L: Q_pred

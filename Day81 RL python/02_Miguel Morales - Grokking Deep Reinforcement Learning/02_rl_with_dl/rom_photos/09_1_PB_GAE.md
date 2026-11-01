@@ -14,9 +14,24 @@
 
 **ဖိုင်စဉ်က publication chronology မဟုတ်ပါဘူး။** GAE က A3C ပြီးမှ ထွက်လာတဲ့ version မဟုတ်ပါဘူး။ မူရင်း GAE experiments က separate policy/value neural networks နဲ့ TRPO သုံးထားပြီး **A3C worker system မလိုပါဘူး**။
 
-### Color Rule
+### အရောင်အသုံးပြုပုံ (Color Rule)
 
-ရှေ့ဖိုင်များအတိုင်း **fill / border / text**: အပြာ `#cce5ff / #004085` = data/features၊ အစိမ်း `#d4edda / #155724` = policy/value networks၊ အဝါ `#fff3cd / #856404` = advantage / λ aggregation၊ ခရမ်း `#e2d9f3 / #4b0082` = bootstrap / detached targets၊ ပန်းရောင် `#f8d7da / #721c24` = losses/optimization။ Arrow = `#218bff`။
+**အစိမ်း၊ လိမ္မော်၊ ခရမ်း ၃ ရောင်ကို network / trainable layer / head block များအတွက်သာ သီးသန့်သုံးပါတယ်။** သက်ဆိုင်ရာ network ပါသော diagram မှာသာ အဲဒီအရောင်ကို တွေ့ရပါမယ်။
+
+| အသုံးပြုပုံ | အရောင် | အရောင်နမူနာ | Fill | Border / text |
+|---|---|---|---|---|
+| Policy / actor network; Online / current Q-network | အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/green.svg) | `#d4edda` | `#155724` |
+| Value / baseline / critic network နှင့် trainable value head | လိမ္မော်နု | ![လိမ္မော်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/orange.svg) | `#ffe5cc` | `#8a3b00` |
+| Frozen target Q-network | ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | `#e2d9f3` | `#4b0082` |
+| State / environment / data / shared backbone | အပြာနု | ![အပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | `#cce5ff` | `#004085` |
+| Batch / sampling / advantage | အဝါနု | ![အဝါနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | `#fff3cd` | `#856404` |
+| Preprocessing / PER / action selection / synchronization | စိမ်းပြာနု | ![စိမ်းပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/cyan.svg) | `#d1ecf1` | `#0c5460` |
+| Outputs / probabilities / returns / target values / aggregation | မီးခိုးနု | ![မီးခိုးနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/gray.svg) | `#e2e3e5` | `#383d41` |
+| Loss / gradient / optimizer update | ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | `#f8d7da` | `#721c24` |
+
+Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) **အပြာ `#218bff`**။
+
+Network က ထုတ်သော Q / V တန်ဖိုး၊ action probability၊ sample လုပ်သော action၊ return၊ bootstrap target နဲ့ loss block တွေမှာ network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ **Target value / return က မီးခိုး၊ target network ကသာ ခရမ်း** ဖြစ်ပါတယ်။
 
 ## Diagram 1 — Network Architecture နှင့် GAE ထည့်ရသောနေရာ
 
@@ -42,15 +57,20 @@ flowchart TD
     LV -.->|"update phi"| V
 
     classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef network fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef advantage fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
     classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef policyNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef valueNetwork fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
+
     class S,E,B data;
-    class P,D,A,V network;
-    class G advantage;
-    class VS,TD,TV target;
+    class G batch;
     class L,LV train;
+    class A process;
+    class VS,TD,TV result;
+    class P,D policyNetwork;
+    class V valueNetwork;
 ```
 
 **Policy/value networks ရှိပြီးသားကို ဆက်သုံးတယ်။** GAE block မှာ trainable weights မရှိပါဘူး။ ဒီ diagram က မူရင်း paper နဲ့ ကိုက်သော separate-network layout ကို အကျဉ်းချုပ်ဆွဲထားတာဖြစ်ပြီး hidden widths အတိအကျကို မသတ်မှတ်ထားပါဘူး။ Discrete actions ဆို categorical head၊ shared actor-critic ဆို trunk တစ်ခုနဲ့ heads နှစ်ခုလည်း သုံးနိုင်ပါတယ်။
@@ -83,12 +103,13 @@ flowchart LR
     SUM --> SG["Detach A_hat"]
     SG --> L["Weight selected-action log probability<br/>or learner-specific surrogate"]
 
-    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
-    classDef advantage fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
     classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    class D0,D1,D2,DN,SG target;
-    class W1,W2,WN,SUM advantage;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+
+    class W1,W2,WN,SUM batch;
     class L train;
+    class D0,D1,D2,DN,SG result;
 ```
 
 | `λ` | အဓိပ္ပာယ် | အကန့်အသတ် |
@@ -115,13 +136,14 @@ flowchart TD
     P --> C
 
     classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef advantage fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
     classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+
     class C,B data;
-    class G advantage;
-    class M,D,I,T target;
+    class G batch;
     class P,V train;
+    class M,D,I,T result;
 ```
 
 **Bootstrap mask `b` နဲ့ trace-continuation mask `c` ကို ခွဲဖတ်ပါ။**

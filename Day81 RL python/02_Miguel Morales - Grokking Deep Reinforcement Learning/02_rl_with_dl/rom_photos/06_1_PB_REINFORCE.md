@@ -12,17 +12,28 @@
 
 **ဒီစာမှာဖော်ပြတာက ယနေ့အသုံးများတဲ့ episodic Monte Carlo REINFORCE ပုံစံ** ဖြစ်ပါတယ်။ မူရင်း 1992 paper က ဒီ MLP layer အရေအတွက်ကို သတ်မှတ်ထားတာ မဟုတ်သလို baseline မပါသော algorithm တစ်မျိုးတည်းကိုသာ ဆွေးနွေးထားတာလည်း မဟုတ်ပါဘူး။
 
-### Color Rule — ရှေ့ဖိုင်များနှင့် တူညီသော Palette
+### အရောင်အသုံးပြုပုံ (Color Rule)
 
-| အရောင် | Fill / border / text | ဒီစာတွင် သုံးပုံ |
-|---|---|---|
-| အပြာနု | ![အပြာနု နောက်ခံ၊ အပြာရင့် ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | State၊ environment၊ data gathering၊ features |
-| အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ အစိမ်းရင့် ဘောင်နှင့်စာသား](./color_swatches/green.svg) | သင်ယူနေသော policy network / action selection |
-| အဝါနု | ![အဝါနု နောက်ခံ၊ အညိုရင့် ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | လက်ရှိ trajectory batch |
-| ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ခရမ်းရင့် ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | Return / learning signal တွက်ခြင်း |
-| ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ အနီရင့် ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | Loss၊ gradient၊ optimizer |
+**အစိမ်း၊ လိမ္မော်၊ ခရမ်း ၃ ရောင်ကို network / trainable layer / head block များအတွက်သာ သီးသန့်သုံးပါတယ်။** သက်ဆိုင်ရာ network ပါသော diagram မှာသာ အဲဒီအရောင်ကို တွေ့ရပါမယ်။
 
-Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) **အပြာ**။ Policy-based အတွက် အရောင်ရဲ့ role ကို label နဲ့တွဲဖတ်ပါ။ ခရမ်းရောင် return block ရှိတာက DQN target network ရှိတယ်လို့ မဆိုလိုပါဘူး။
+| အသုံးပြုပုံ | အရောင် | အရောင်နမူနာ | Fill | Border / text |
+|---|---|---|---|---|
+| Policy / actor network; Online / current Q-network | အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/green.svg) | `#d4edda` | `#155724` |
+| Value / baseline / critic network နှင့် trainable value head | လိမ္မော်နု | ![လိမ္မော်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/orange.svg) | `#ffe5cc` | `#8a3b00` |
+| Frozen target Q-network | ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | `#e2d9f3` | `#4b0082` |
+| State / environment / data / shared backbone | အပြာနု | ![အပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | `#cce5ff` | `#004085` |
+| Batch / sampling / advantage | အဝါနု | ![အဝါနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | `#fff3cd` | `#856404` |
+| Preprocessing / PER / action selection / synchronization | စိမ်းပြာနု | ![စိမ်းပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/cyan.svg) | `#d1ecf1` | `#0c5460` |
+| Outputs / probabilities / returns / target values / aggregation | မီးခိုးနု | ![မီးခိုးနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/gray.svg) | `#e2e3e5` | `#383d41` |
+| Loss / gradient / optimizer update | ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | `#f8d7da` | `#721c24` |
+
+Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) **အပြာ `#218bff`**။
+
+Network က ထုတ်သော Q / V တန်ဖိုး၊ action probability၊ sample လုပ်သော action၊ return၊ bootstrap target နဲ့ loss block တွေမှာ network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ **Target value / return က မီးခိုး၊ target network ကသာ ခရမ်း** ဖြစ်ပါတယ်။
+
+Paper lineage / algorithm comparison နဲ့ အဆင့်များပါသော subgraph နောက်ခံတွေမှာလည်း network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ အုပ်စုခွဲပုံကို label နဲ့တွဲဖတ်ပါ။
+
+ဒီ REINFORCE ပုံစံမှာ value network နဲ့ target Q-network မပါပါဘူး။
 
 ## Diagram 1 — Network Architecture: State → Policy → Action
 
@@ -70,9 +81,16 @@ flowchart LR
     P --> A["Sample action<br/>left သို့မဟုတ် right"]
 
     classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef policy fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef policyNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+
     class X1,X2,X3,X4 data;
-    class H11,H12,H132,H21,H22,H232,ZL,ZR,P,A policy;
+    class A process;
+    class P result;
+    class H11,H12,H132,H21,H22,H232,ZL,ZR policyNetwork;
+
+
     style NN fill:#f1faf3,stroke:#155724,stroke-width:2px;
     style Input fill:#e7f1ff,stroke:#004085,stroke-width:1px;
     style Hidden1 fill:#ffffff,stroke:#155724,stroke-width:1px;
@@ -104,13 +122,16 @@ flowchart LR
     L -.->|"backprop through log probability"| Z
 
     classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef policy fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef signal fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
     classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef policyNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+
     class S,E,R data;
-    class H1,H2,Z,P,A,LP policy;
-    class G signal;
     class L train;
+    class A process;
+    class P,LP,G result;
+    class H1,H2,Z policyNetwork;
 ```
 
 **Network တစ်ခုပဲရှိတယ် — policy network `θ`**။ Output က Q-values မဟုတ်ဘဲ action distribution အတွက် **logits** ပါ။ `Categorical(logits=...)` က normalization ကို ကိုယ်တိုင်လုပ်ပေးလို့ softmax ကို code မှာ ထပ်ထည့်စရာမလိုပါဘူး။ `32 → 32` က Chapter 11 မှတ်စုရဲ့ ဥပမာဖြစ်ပြီး algorithm ရဲ့ မဖြစ်မနေ architecture မဟုတ်ပါဘူး။
@@ -143,15 +164,18 @@ flowchart TD
     end
 
     classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef policy fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
     classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef signal fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
     classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef policyNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+
     class E,D,N data;
-    class P,LP policy;
     class B batch;
-    class G signal;
     class L,O train;
+    class LP,G result;
+    class P policyNetwork;
+
+
     style Phase1 fill:#e7f1ff,stroke:#004085,stroke-width:2px;
     style Phase2 fill:#fffbea,stroke:#856404,stroke-width:2px;
     style Phase3 fill:#fdecea,stroke:#721c24,stroke-width:2px;
@@ -182,12 +206,11 @@ flowchart LR
     S --> V
     V -->|"n-step bootstrap + async workers"| A["Mnih et al. 2016<br/>A3C"]
 
-    classDef policy fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef theory fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
     classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    class W,V policy;
-    class S theory;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+
     class A data;
+    class W,V,S result;
 ```
 
 ဒါက **idea ဆက်စပ်ပုံ** ဖြစ်ပါတယ်။ Baseline idea ကို VPG ကမှ ပထမဆုံးမိတ်ဆက်တယ်လို့ ဆိုလိုတာ မဟုတ်ပါဘူး။ A3C စာတမ်းကို [နောက်မှတ်စု](./08_1_PB_actor-critic_A3C.md) မှာ ချိတ်ပေးထားပါတယ်။

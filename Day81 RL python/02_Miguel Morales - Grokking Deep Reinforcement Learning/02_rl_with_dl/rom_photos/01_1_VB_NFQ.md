@@ -2,6 +2,27 @@
 
 NFQ algorithm ရဲ့ data flow ကို diagram ၂ ခုနဲ့ ဖော်ပြထားပါတယ်။ ပထမတစ်ခုက overview (basic) version ဖြစ်ပြီး ဒုတိယတစ်ခုက Q-Network နဲ့ Target Network ကို ပိုမိုရှင်းလင်းစွာ ခွဲခြားပြထားတဲ့ detailed version ဖြစ်ပါတယ်။
 
+### အရောင်အသုံးပြုပုံ (Color Rule)
+
+**အစိမ်း၊ လိမ္မော်၊ ခရမ်း ၃ ရောင်ကို network / trainable layer / head block များအတွက်သာ သီးသန့်သုံးပါတယ်။** သက်ဆိုင်ရာ network ပါသော diagram မှာသာ အဲဒီအရောင်ကို တွေ့ရပါမယ်။
+
+| အသုံးပြုပုံ | အရောင် | အရောင်နမူနာ | Fill | Border / text |
+|---|---|---|---|---|
+| Policy / actor network; Online / current Q-network | အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/green.svg) | `#d4edda` | `#155724` |
+| Value / baseline / critic network နှင့် trainable value head | လိမ္မော်နု | ![လိမ္မော်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/orange.svg) | `#ffe5cc` | `#8a3b00` |
+| Frozen target Q-network | ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | `#e2d9f3` | `#4b0082` |
+| State / environment / data / shared backbone | အပြာနု | ![အပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | `#cce5ff` | `#004085` |
+| Batch / sampling / advantage | အဝါနု | ![အဝါနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | `#fff3cd` | `#856404` |
+| Preprocessing / PER / action selection / synchronization | စိမ်းပြာနု | ![စိမ်းပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/cyan.svg) | `#d1ecf1` | `#0c5460` |
+| Outputs / probabilities / returns / target values / aggregation | မီးခိုးနု | ![မီးခိုးနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/gray.svg) | `#e2e3e5` | `#383d41` |
+| Loss / gradient / optimizer update | ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | `#f8d7da` | `#721c24` |
+
+Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) **အပြာ `#218bff`**။
+
+Network က ထုတ်သော Q / V တန်ဖိုး၊ action probability၊ sample လုပ်သော action၊ return၊ bootstrap target နဲ့ loss block တွေမှာ network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ **Target value / return က မီးခိုး၊ target network ကသာ ခရမ်း** ဖြစ်ပါတယ်။
+
+Sequence diagram ရဲ့ network participant box များကိုလည်း online / current = အစိမ်း၊ target = ခရမ်း ခွဲထားပြီး calculation နောက်ခံများကို မီးခိုး / စိမ်းပြာ သုံးထားပါတယ်။
+
 ## Diagram 1 — Basic Overview
 
 ```mermaid
@@ -34,19 +55,25 @@ graph TD
         Opt -->|Update Weights| MLP
     end
 
-    classDef dataGathering fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef sampling fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef qnetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef optimization fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef onlineNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef targetNetwork fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
 
-    class Env,Agent,Buffer dataGathering;
-    class Batch sampling;
-    class MLP,Q_pred,Target_Net,Max_Q,Target_Y qnetwork;
-    class Loss,Opt optimization;
+    class Env,Agent,Buffer data;
+    class Batch batch;
+    class Loss,Opt train;
+    class Q_pred,Max_Q,Target_Y result;
+    class MLP onlineNetwork;
+    class Target_Net targetNetwork;
+
+
 
     style Phase1 fill:#e7f1ff,stroke:#004085,stroke-width:2px;
     style Phase2 fill:#fffbea,stroke:#856404,stroke-width:2px;
-    style Phase3 fill:#eaf7ec,stroke:#155724,stroke-width:2px;
+    style Phase3 fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
     style Phase4 fill:#fdecea,stroke:#721c24,stroke-width:2px;
 ```
 
@@ -82,28 +109,32 @@ graph TD
         Opt2 -->|Updates Weights| Q_Current
     end
 
-    classDef dataGathering fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef sampling fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef current fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef target fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
-    classDef optimization fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
+    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef onlineNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    classDef targetNetwork fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
 
-    class Env2,Agent2,Buffer2 dataGathering;
-    class Batch2 sampling;
-    class Q_Current,Q_pred2 current;
-    class Q_Target,Max_Q2,Target_Y2 target;
-    class Loss2,Opt2 optimization;
+    class Env2,Agent2,Buffer2 data;
+    class Batch2 batch;
+    class Loss2,Opt2 train;
+    class Q_pred2,Max_Q2,Target_Y2 result;
+    class Q_Current onlineNetwork;
+    class Q_Target targetNetwork;
+
+
 
     style Phase1 fill:#e7f1ff,stroke:#004085,stroke-width:2px;
     style Phase2 fill:#fffbea,stroke:#856404,stroke-width:2px;
-    style Phase3 fill:#eaf7ec,stroke:#155724,stroke-width:2px;
+    style Phase3 fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
     style Phase4 fill:#fdecea,stroke:#721c24,stroke-width:2px;
 ```
 
 ### Diagram 1 vs Diagram 2 ခြားနားချက်
 
 - Diagram 1 က `MLP` / `Target_Net` ဆိုပြီး node name အတိုချုပ်ပဲ သုံးထားပြီး၊ Diagram 2 ကတော့ `Current Q-Network` (gradient descent နဲ့ update လုပ်တဲ့ network) နဲ့ `Target Generation` (ယခင် iteration ရဲ့ fixed weights သုံးတဲ့ network) ဆိုပြီး ရှင်းလင်းစွာ label တပ်ထားပါတယ်။
-- Color coding အားလုံးမှာ **Data Gathering** = ပြာ၊ **Sampling** = အဝါ၊ **Current/Q Network** = အစိမ်း၊ **Target Network** (Diagram 2) = ခရမ်းရောင်၊ **Optimization** = အနီ ဖြစ်ပါတယ်။
+- အရောင်အသုံးပြုပုံကို အပေါ်က **Color Rule** table အတိုင်း ဖတ်ပါ။ Network အရောင် ၃ ရောင်ကို အခြား block များမှာ မသုံးထားပါဘူး။
 
 ## Q&A — Current Q-Network vs Target Q-Network
 
@@ -121,19 +152,19 @@ graph TD
 **မှန်ပါတယ်, စဉ်းစားပုံအတိအကျ ဖြစ်ပါတယ်။** အဆင့်ဆင့် ဖြစ်စဉ်:
 
 ```mermaid
-%%{init: {'theme': 'base', 'themeVariables': { 'lineColor': '#218bff', 'signalColor': '#218bff', 'actorLineColor': '#218bff', 'loopLineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"lineColor": "#218bff", "signalColor": "#218bff", "actorLineColor": "#218bff", "loopLineColor": "#218bff", "actorBkg": "#e2e3e5", "actorBorder": "#383d41", "actorTextColor": "#383d41", "noteBkgColor": "#d1ecf1", "noteBorderColor": "#0c5460", "noteTextColor": "#0c5460", "labelBoxBkgColor": "#fff3cd", "labelBoxBorderColor": "#856404"}, "themeCSS": "rect.actor[name=\"Cur\"] { fill: #d4edda !important; stroke: #155724 !important; } rect.actor[name=\"Cur\"] + text { fill: #155724 !important; } rect.actor[name=\"Tgt\"] { fill: #e2d9f3 !important; stroke: #4b0082 !important; } rect.actor[name=\"Tgt\"] + text { fill: #4b0082 !important; } "}}%%
 sequenceDiagram
     participant Cur as Current Q Network theta
     participant Tgt as Target Q Network theta_minus
     participant L as Loss and Optimizer
 
     Note over Tgt: sync clone theta_minus = theta at start of outer iteration
-    rect rgb(226, 217, 243)
+    rect rgb(226, 227, 229)
     Note right of Tgt: Target side is frozen, no gradient
     L->>Tgt: send next state s_next
     Tgt-->>L: y = reward + gamma times max Q of s_next
     end
-    rect rgb(212, 237, 218)
+    rect rgb(209, 236, 241)
     Note right of Cur: Current side gets gradient
     L->>Cur: send state s and action a
     Cur-->>L: Q_pred
