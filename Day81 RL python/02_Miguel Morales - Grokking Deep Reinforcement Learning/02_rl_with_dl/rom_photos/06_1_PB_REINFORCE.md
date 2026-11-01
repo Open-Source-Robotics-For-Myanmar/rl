@@ -16,13 +16,13 @@
 
 | အရောင် | Fill / border / text | ဒီစာတွင် သုံးပုံ |
 |---|---|---|
-| အပြာနု | `#cce5ff` / `#004085` | State၊ environment၊ data gathering၊ features |
-| အစိမ်းနု | `#d4edda` / `#155724` | သင်ယူနေသော policy network / action selection |
-| အဝါနု | `#fff3cd` / `#856404` | လက်ရှိ trajectory batch |
-| ခရမ်းနု | `#e2d9f3` / `#4b0082` | Return / learning signal တွက်ခြင်း |
-| ပန်းရောင်နု | `#f8d7da` / `#721c24` | Loss၊ gradient၊ optimizer |
+| အပြာနု | ![အပြာနု နောက်ခံ၊ အပြာရင့် ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | State၊ environment၊ data gathering၊ features |
+| အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ အစိမ်းရင့် ဘောင်နှင့်စာသား](./color_swatches/green.svg) | သင်ယူနေသော policy network / action selection |
+| အဝါနု | ![အဝါနု နောက်ခံ၊ အညိုရင့် ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | လက်ရှိ trajectory batch |
+| ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ခရမ်းရင့် ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | Return / learning signal တွက်ခြင်း |
+| ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ အနီရင့် ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | Loss၊ gradient၊ optimizer |
 
-Arrow = **အပြာ `#218bff`**။ Policy-based အတွက် အရောင်ရဲ့ role ကို label နဲ့တွဲဖတ်ပါ။ ခရမ်းရောင် return block ရှိတာက DQN target network ရှိတယ်လို့ မဆိုလိုပါဘူး။
+Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) **အပြာ**။ Policy-based အတွက် အရောင်ရဲ့ role ကို label နဲ့တွဲဖတ်ပါ။ ခရမ်းရောင် return block ရှိတာက DQN target network ရှိတယ်လို့ မဆိုလိုပါဘူး။
 
 ## Diagram 1 — Network Architecture: State → Policy → Action
 
