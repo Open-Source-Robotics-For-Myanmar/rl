@@ -181,3 +181,36 @@ Policy update အတွက် advantage ကို **fixed learning signal** အ�
 ### မေး ၇။ Entropy မြင့်ရင် အမြဲကောင်းသလား?
 
 မဟုတ်ပါဘူး။ Bonus က policy စောစောမတင်းကျပ်အောင် ကူညီပေမယ့် coefficient ကြီးလွန်းရင် reward ကောင်းတဲ့ action ပေါ် အာရုံမစိုက်နိုင်ပါဘူး။
+
+### မေး ၈။ Policy network ကို gradient descent လုပ်ဖို့ value network က ထုတ်တဲ့ကောင်ကို နှုတ်တာမဟုတ်လား?
+
+**ဟုတ်ပါတယ် — episode က ရလာတဲ့ return `G_t` ထဲက value network ရဲ့ ခန့်မှန်းတန်ဖိုး `Vφ(s_t)` ကို နှုတ်တာပါ။** အဲဒီရလဒ်ကို advantage estimate လို့ ခေါ်ပါတယ်။
+
+$$
+\hat A_t = G_t - V_\phi(s_t).
+$$
+
+Policy network ရဲ့ output သို့မဟုတ် weights ထဲက value network ကို နှုတ်တာ မဟုတ်ပါဘူး။ **“တကယ်ရလာတဲ့ return − ဒီ state မှာ မျှော်လင့်ထားတဲ့ return”** ကို တွက်ပြီး ရွေးခဲ့တဲ့ action ရဲ့ log-probability ကို weight ပေးတာပါ။ Entropy bonus ကို ခဏဖယ်ကြည့်ရင် (`β = 0`):
+
+$$
+\mathcal L_\pi
+=-\frac{1}{T}\sum_{t=0}^{T-1}\gamma^t\,\mathrm{sg}(\hat A_t)
+\log\pi_\theta(a_t\mid s_t),
+\qquad
+\theta \leftarrow \theta - \alpha\nabla_\theta\mathcal L_\pi.
+$$
+
+ဥပမာ `Vφ(s_t) = 8` ဆိုရင် `G_t = 10` အတွက် `Â_t = +2` က ရွေးခဲ့တဲ့ action probability ကို တိုးဖို့ အားပေးပါတယ်။ `G_t = 5` အတွက် `Â_t = −3` က လျှော့ဖို့ signal ပေးပါတယ်။ **Gradient ကို policy ရဲ့ `log πθ` ကနေ တွက်ပြီး detached advantage ကို အလေးချိန်အဖြစ် သုံးတာပါ။**
+
+### မေး ၉။ ဒါဆို freeze လုပ်ထားတဲ့ policy network၊ value network တွေ မရှိဘူးမဟုတ်လား?
+
+**ဟုတ်ပါတယ်။ ဒီစာမှာပြထားတဲ့ MC baseline VPG မှာ frozen policy clone / frozen value target clone မရှိပါဘူး။** Policy `θ` နဲ့ value `φ` နှစ်ခုလုံး trainable ဖြစ်ပြီး ကိုယ့် loss နဲ့ကိုယ် update လုပ်ပါတယ်။
+
+| Trainable network | သုံးတဲ့ loss | ဒီစာရဲ့ separate-network ပုံစံမှာ update ဖြစ်တဲ့ weights |
+|---|---|---|
+| Policy `πθ(a\|s)` | Detached advantage နဲ့ weight ပေးထားတဲ့ policy loss `Lπ` | `θ` |
+| Value baseline `Vφ(s)` | MC return `G_t` ကို ခန့်မှန်းနိုင်အောင် သင်တဲ့ regression loss `LV` | `φ` |
+
+ဒီမှာ **network freeze လုပ်တာ** နဲ့ **advantage ကို detach လုပ်တာ** ကို ခွဲမြင်ရပါမယ်။ `sg(Â_t)` / `detach()` က policy loss တွက်တဲ့အခါ advantage ကို ကိန်းသေအဖြစ်ယူပြီး အဲဒီလမ်းကြောင်းကနေ value network ဆီ gradient မစီးအောင် လုပ်တာပါ။ Value network ကို ဆက်မသင်တော့အောင် freeze လုပ်ထားတာ မဟုတ်ပါဘူး — သူ့ `LV` နဲ့ ဆက်သင်နေပါတယ်။
+
+Episode / batch စုနေစဉ်မှာတော့ policy တစ်ခုတည်းက data ရဖို့ **policy weights ကို မပြောင်းဘဲ ထားပါတယ်**။ Data စုပြီးရင် baseline မသင်မီ လက်ရှိ `Vφ` နဲ့ advantage တွက်၊ detach လုပ်ပြီး policy update နဲ့ value update ကို လုပ်ပါတယ်။ ဒါက rollout စုချိန် update ခဏမလုပ်တာဖြစ်ပြီး DQN လို သီးခြား frozen target network ထားတာ မဟုတ်ပါဘူး။
