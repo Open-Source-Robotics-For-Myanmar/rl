@@ -43,3 +43,12 @@ Neuron များကို စုပြထားတဲ့ diagram မှာ `P
 ## Markdown နှင့် SVG
 
 Markdown မှာ SVG ပုံကို တိုက်ရိုက်ပြထားပြီး `Mermaid source (ပြင်ဆင်ရန်)` အောက်မှာ source ကို သိမ်းထားပါတယ်။ Source label / color ပြင်ရင် သက်ဆိုင်ရာ `diagrams/*.svg` ကိုပါ ပြန်ထုတ်ရပါတယ်။ အရောင်နှင့် network label သတ်မှတ်ချက်ရဲ့ စံဖိုင်က ဒီဖိုင်ဖြစ်ပါတယ်။
+
+SVG ပြန်ထုတ်ပြီးတိုင်း `rom_photos` directory မှာ အောက်ပါ command နဲ့ file size လျှော့နိုင်ပါတယ်။ `svgo.config.mjs` က မလိုအပ်သော metadata / styles၊ hidden elements နဲ့ ထပ်နေသော attributes တွေကို ရှင်းပြီး text နဲ့ `viewBox` ကို ထိန်းထားပါတယ်။
+
+```bash
+npx --yes svgo@4.0.0 --config=svgo.config.mjs --folder=diagrams --final-newline
+npx --yes svgo@4.0.0 --config=svgo.config.mjs --folder=color_swatches --final-newline
+```
+
+ပုံထဲကစာသားကို text အဖြစ် ဆက်သိမ်းထားလို့ search / select လုပ်နိုင်ပြီး zoom ချဲ့ကြည့်ရာမှာလည်း vector ပုံအတိုင်း ကြည်လင်ပါတယ်။
