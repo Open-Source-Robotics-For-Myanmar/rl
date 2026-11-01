@@ -4,7 +4,7 @@ Reinforcement Learning (RL) နှင့် Robotics ကို လေ့လာ�
 
 ## Markdown ဖိုင်စာရင်း
 
-လက်ရှိ repository ထဲရှိ Markdown ဖိုင် **၅၁ ဖိုင်** (ဤ README အပါအဝင်) ကို အုပ်စုခွဲပြီး ဖိုင်တစ်ခုချင်းစီ၏ အကြောင်းအရာအကျဉ်းနှင့် ဖော်ပြထားပါတယ်။ ဖိုင်အမည်ကို နှိပ်၍ သက်ဆိုင်ရာစာတမ်းကို ဖတ်နိုင်ပါတယ်။
+လက်ရှိ repository ထဲရှိ Markdown ဖိုင် **၅၇ ဖိုင်** (ဤ README အပါအဝင်) ကို အုပ်စုခွဲပြီး ဖိုင်တစ်ခုချင်းစီ၏ အကြောင်းအရာအကျဉ်းနှင့် ဖော်ပြထားပါတယ်။ ဖိုင်အမည်ကို နှိပ်၍ သက်ဆိုင်ရာစာတမ်းကို ဖတ်နိုင်ပါတယ်။
 
 ### ၁။ အဓိကလမ်းညွှန်များ (၂ ဖိုင်)
 
@@ -60,14 +60,15 @@ Grokking Deep Reinforcement Learning ၏ အခန်း ၁ မှ ၇ အထ�
 | [chapter_12_summarized.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/chapter_12_summarized.md>) | အဆင့်မြင့် actor-critic နည်းလမ်းများဖြစ်သော DDPG၊ TD3၊ SAC နှင့် PPO တို့၏ အဓိကသဘောတရား၊ network နှင့် hyperparameter များ အနှစ်ချုပ်။ |
 | [chapter_12_translated.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/chapter_12_translated.md>) | အခန်း ၁၂ ၏ အဆင့်မြင့် actor-critic နည်းလမ်းများကို အသေးစိတ် မြန်မာဘာသာပြန်။ |
 
-### ၅။ မူရင်း Paper၊ Network နှင့် Algorithm — rom_photos မှတ်စုများ (၁၀ ဖိုင်)
+### ၅။ Paper၊ Network နှင့် Algorithm — rom_photos မှတ်စုများ (၁၆ ဖိုင်)
 
 တည်နေရာ: [rom_photos](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/>)
 
-မူရင်းနှင့် ဆက်စပ် paper များ၊ network architecture နှင့် algorithm flow တို့ကို color Mermaid diagrams၊ မြန်မာလိုရှင်းလင်းချက်များနှင့် အမေးအဖြေများဖြင့် လေ့လာနိုင်ပါတယ်။ ပထမ ၅ ဖိုင်က value-based methods ဖြစ်ပြီး နောက် ၅ ဖိုင်က policy-gradient၊ actor-critic နှင့် advantage estimation ဆိုင်ရာ မှတ်စုများ ဖြစ်ပါတယ်။
+Diagram အရောင်စံနှုန်း၊ value-based methods၊ policy-gradient နှင့် actor-critic နည်းလမ်းများကို မူရင်း/ဆက်စပ် paper၊ network architecture၊ algorithm flow နှင့် မြန်မာလိုရှင်းလင်းချက်များဖြင့် လေ့လာနိုင်ပါတယ်။ 00_1 က diagram အရောင်နှင့် label စံနှုန်းဖြစ်ပြီး 01_1–05_1 က value-based၊ 06_1–15_1 က policy-gradient နှင့် actor-critic မှတ်စုများ ဖြစ်ပါတယ်။
 
 | ဖိုင် | မူရင်း paper | Network | Algorithm |
 | --- | --- | --- | --- |
+| [00_1_color_define.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/00_1_color_define.md>) | — (diagram color convention) | Diagram များအတွက် network role label နှင့် အရောင် ၈ မျိုး၏ စံသတ်မှတ်ချက်။ | Mermaid / SVG တွင် data၊ network၊ batch၊ process၊ loss နှင့် output များကို တစ်သမတ်တည်း အရောင်ခွဲသုံးရန်။ |
 | [01_1_VB_NFQ.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/01_1_VB_NFQ.md>) | Riedmiller, 2005 — Neural Fitted Q Iteration | MLP: state + action → scalar Q-value; ယခင် iteration weights ဖြင့် targets တွက်။ | Transition dataset စု၊ fixed Bellman targets တွက်၊ batch fitting လုပ်ပြီး ထပ်လုပ်။ |
 | [02_1_VB_DQN.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/02_1_VB_DQN.md>) | Mnih et al., Nature 2015 — Human-level Control through Deep Reinforcement Learning | Online / frozen target Q-networks; Atari ဥပမာတွင် CNN → action တစ်ခုစီ၏ Q-value။ | Experience replay၊ ε-greedy၊ TD loss နှင့် periodic hard target update။ |
 | [03_1_VB_DOUBLE_DQN.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/03_1_VB_DOUBLE_DQN.md>) | van Hasselt, Guez & Silver, AAAI 2016 — Deep Reinforcement Learning with Double Q-learning | DQN အတိုင်း online / target networks နှစ်ခု; extra network မလို။ | Online က next action ရွေး၊ target က ထို action ကို evaluate လုပ်ပြီး overestimation လျှော့။ |
@@ -78,6 +79,11 @@ Grokking Deep Reinforcement Learning ၏ အခန်း ၁ မှ ၇ အထ�
 | [08_1_PB_actor-critic_A3C.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/08_1_PB_actor-critic_A3C.md>) | Mnih et al., ICML 2016 — Asynchronous Methods for Deep Reinforcement Learning | Global actor-critic + worker local copies; shared backbone နှင့် policy / value heads ပါနိုင်။ | Workers က short n-step rollouts စု၊ local gradients ကို global parameters ဆီ asynchronous apply လုပ်။ |
 | [09_1_PB_GAE.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/09_1_PB_GAE.md>) | Schulman et al., 2015 preprint / ICLR 2016 — High-Dimensional Continuous Control Using Generalized Advantage Estimation | ရှိပြီးသား policy / value networks ကိုသုံး; GAE သည် trainable network အသစ် မဟုတ်။ | TD residuals ကို γλ ဖြင့် decay လုပ်ပေါင်းပြီး advantage တွက်; bias–variance trade-off နှင့် terminal / truncation masks။ |
 | [10_1_PB_actor-critic_A2C.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/10_1_PB_actor-critic_A2C.md>) | A3C paper, 2016 + OpenAI Baselines A2C, 2017; သီးခြား original paper တစ်စောင်တည်း မရှိ။ | Shared actor-critic backbone + policy / value heads ဥပမာ; separate networks လည်း ရနိုင်။ | Same-policy parallel rollouts ကို batch ပေါင်းပြီး synchronous update တစ်ခါလုပ်; n-step advantage / optional GAE။ |
+| [11_1_AAC_DDPG.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/11_1_AAC_DDPG.md>) | မှတ်စုမရေးရသေးပါ (ဖိုင်အလွတ်) | — | — |
+| [12_1_AAC_TD3_DDPG.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/12_1_AAC_TD3_DDPG.md>) | မှတ်စုမရေးရသေးပါ (ဖိုင်အလွတ်) | — | — |
+| [13_1_AAC_SAC.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/13_1_AAC_SAC.md>) | မှတ်စုမရေးရသေးပါ (ဖိုင်အလွတ်) | — | — |
+| [14_1_AAC_PPO.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/14_1_AAC_PPO.md>) | Schulman et al., 2017 — Proximal Policy Optimization Algorithms | Policy / actor နှင့် value / critic networks; shared backbone သို့မဟုတ် separate networks။ | Fresh on-policy rollout၊ GAE နှင့် probability-ratio clipped objective ကို minibatch/epoch များဖြင့် optimize လုပ်။ |
+| [15_1_AAC_PPO_with_behavior_cloning.md](<./Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/15_1_AAC_PPO_with_behavior_cloning.md>) | Behavior cloning / imitation learning; PPO ကို Schulman et al., 2017 မှ | Expert demonstrations ဖြင့် supervised pretrain လုပ်ထားသော actor၊ PPO အတွက် reward-trained critic။ | Demonstration state–action pairs မှ BC လုပ်၊ actor weights ကို PPO သို့ကူးပြီး fresh on-policy data ဖြင့် fine-tune လုပ်။ |
 
 ### ၆။ Robotics Simulation နှင့် Sim-to-Real လေ့လာရေး (၅ ဖိုင်)
 
