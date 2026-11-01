@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="140" height="32" viewBox="0 0 140 32">
-  <title>Light gray fill with dark gray border and text</title>
-  <rect x="1" y="1" width="138" height="30" rx="5" fill="#e2e3e5" stroke="#383d41" stroke-width="2"/>
-  <text x="70" y="22" text-anchor="middle" font-family="sans-serif" font-size="18" fill="#383d41">Aa</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="40" viewBox="0 0 140 40">
+  <title>Gray: #555555</title>
+  <rect x="1" y="1" width="138" height="38" rx="5" fill="#555555" stroke="#111111" stroke-width="2"/>
+  <text x="70" y="26" text-anchor="middle" font-family="sans-serif" font-size="18" font-weight="bold" fill="#FFFFFF">GRAY</text>
 </svg>

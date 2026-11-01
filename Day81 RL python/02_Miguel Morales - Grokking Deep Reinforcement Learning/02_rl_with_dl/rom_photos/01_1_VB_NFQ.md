@@ -4,24 +4,24 @@ NFQ algorithm ရဲ့ data flow ကို diagram ၂ ခုနဲ့ ဖေ�
 
 ### အရောင်အသုံးပြုပုံ (Color Rule)
 
-**အစိမ်း၊ လိမ္မော်၊ ခရမ်း ၃ ရောင်ကို network / trainable layer / head block များအတွက်သာ သီးသန့်သုံးပါတယ်။** သက်ဆိုင်ရာ network ပါသော diagram မှာသာ အဲဒီအရောင်ကို တွေ့ရပါမယ်။
+[အရောင် ၈ မျိုးနှင့် network label သတ်မှတ်ချက် — 00_1_color_define.md](./00_1_color_define.md)
 
-| အသုံးပြုပုံ | အရောင် | အရောင်နမူနာ | Fill | Border / text |
+| အသုံးပြုပုံ | အရောင် | နမူနာ | Fill | Text |
 |---|---|---|---|---|
-| Policy / actor network; Online / current Q-network | အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/green.svg) | `#d4edda` | `#155724` |
-| Value / baseline / critic network နှင့် trainable value head | လိမ္မော်နု | ![လိမ္မော်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/orange.svg) | `#ffe5cc` | `#8a3b00` |
-| Frozen target Q-network | ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | `#e2d9f3` | `#4b0082` |
-| State / environment / data / shared backbone | အပြာနု | ![အပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | `#cce5ff` | `#004085` |
-| Batch / sampling / advantage | အဝါနု | ![အဝါနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | `#fff3cd` | `#856404` |
-| Preprocessing / PER / action selection / synchronization | စိမ်းပြာနု | ![စိမ်းပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/cyan.svg) | `#d1ecf1` | `#0c5460` |
-| Outputs / probabilities / returns / target values / aggregation | မီးခိုးနု | ![မီးခိုးနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/gray.svg) | `#e2e3e5` | `#383d41` |
-| Loss / gradient / optimizer update | ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | `#f8d7da` | `#721c24` |
+| Policy Network / Actor; Online / Current Q Network | **Green / အစိမ်း** | ![Green / အစိမ်း](./color_swatches/green.svg) | `#008000` | `#FFFFFF` |
+| Value Network / Critic / Baseline; Dueling value head | **Orange / လိမ္မော်** | ![Orange / လိမ္မော်](./color_swatches/orange.svg) | `#FF8C00` | `#111111` |
+| Frozen Target Network | **Purple / ခရမ်း** | ![Purple / ခရမ်း](./color_swatches/purple.svg) | `#800080` | `#FFFFFF` |
+| State / environment / data / shared backbone | **Blue / အပြာ** | ![Blue / အပြာ](./color_swatches/blue.svg) | `#0057D9` | `#FFFFFF` |
+| Batch / sampling / advantage | **Yellow / အဝါ** | ![Yellow / အဝါ](./color_swatches/yellow.svg) | `#FFD700` | `#111111` |
+| Preprocessing / PER / action selection / synchronization | **Cyan / စိမ်းပြာ** | ![Cyan / စိမ်းပြာ](./color_swatches/cyan.svg) | `#00CED1` | `#111111` |
+| Loss / gradient / optimizer | **Red / အနီ** | ![Red / အနီ](./color_swatches/red.svg) | `#DC143C` | `#FFFFFF` |
+| Outputs / probabilities / returns / target values / aggregation | **Gray / မီးခိုး** | ![Gray / မီးခိုး](./color_swatches/gray.svg) | `#555555` | `#FFFFFF` |
 
-Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) **အပြာ `#218bff`**။
+**Green / orange / purple ကို network၊ trainable layer / head တွေအတွက်သာ သီးသန့်သုံးပါတယ်။** Network block ထဲမှာ `Policy Network`၊ `Value Network`၊ `Online Network` သို့မဟုတ် `Target Network` ဆိုပြီး အမျိုးအစားပါပါတယ်။ Neuron များကို စုပြထားသောပုံမှာ အမျိုးအစားကို enclosing network / layer ခေါင်းစဉ်မှာ ရေးထားပါတယ်။
 
-Network က ထုတ်သော Q / V တန်ဖိုး၊ action probability၊ sample လုပ်သော action၊ return၊ bootstrap target နဲ့ loss block တွေမှာ network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ **Target value / return က မီးခိုး၊ target network ကသာ ခရမ်း** ဖြစ်ပါတယ်။
+Shared actor-critic block မှာ **Policy Network + Value Network** နှစ်ခုလုံးကို ဖော်ပြပြီး shared backbone / copy ကို blue သုံးထားပါတယ်။ Shared heads ဖြစ်ရင် သီးခြား model နှစ်ခုရှိတယ်လို့ မဆိုလိုပါဘူး။ Dueling ရဲ့ value / advantage heads က Q Network ထဲက အစိတ်အပိုင်းများဖြစ်ပြီး သီးခြား policy network မဟုတ်ပါဘူး။
 
-Sequence diagram ရဲ့ network participant box များကိုလည်း online / current = အစိမ်း၊ target = ခရမ်း ခွဲထားပြီး calculation နောက်ခံများကို မီးခိုး / စိမ်းပြာ သုံးထားပါတယ်။
+**Target value / return = gray၊ Target Network = purple** ဖြစ်ပါတယ်။ Network outputs၊ action sampling၊ loss နဲ့ paper-lineage block များကို network အရောင် ၃ ရောင်နဲ့ မပြပါဘူး။ Group နောက်ခံကို transparent ထားပြီး arrow ကို blue သုံးထားပါတယ်။
 
 ## Diagram 1 — Basic Overview
 
@@ -31,7 +31,7 @@ Sequence diagram ရဲ့ network participant box များကိုလည�
 <summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
 
 ```text
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#555555", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#111111", "secondaryColor": "#555555", "tertiaryColor": "#FFFFFF", "lineColor": "#0057D9", "clusterBkg": "#FFFFFF", "clusterBorder": "#555555", "edgeLabelBackground": "#FFFFFF", "textColor": "#111111"}, "htmlLabels": false, "flowchart": {"htmlLabels": false}, "themeCSS": ".edgeLabel text, .edgeLabel tspan { fill: #111111 !important; } .edgeLabel { color: #111111 !important; } .cluster-label text, .cluster-label tspan { fill: #111111 !important; }"}}%%
 graph TD
     subgraph Phase1 [Data Gathering]
         Env[Environment] -->|State and Reward| Agent[Agent]
@@ -44,10 +44,10 @@ graph TD
     end
 
     subgraph Phase3 [Q Network and Target]
-        Batch -->|State and Action| MLP[Current Q Network]
+        Batch -->|State and Action| MLP["Online Network (Current Q)<br/>Trainable weights theta"]
         MLP --> Q_pred[Predicted Q Value]
 
-        Batch -->|Next State| Target_Net[Target Q Network]
+        Batch -->|Next State| Target_Net["Target Network (Q)<br/>Frozen previous-iteration weights"]
         Target_Net --> Max_Q[Max Q Value]
         Batch -->|Reward| Target_Y[Target Value Y]
         Max_Q --> Target_Y
@@ -59,13 +59,12 @@ graph TD
         Loss --> Opt[Gradient Descent Update]
         Opt -->|Update Weights| MLP
     end
-
-    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
-    classDef onlineNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef targetNetwork fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef data fill:#0057D9,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef batch fill:#FFD700,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef train fill:#DC143C,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef result fill:#555555,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef onlineNetwork fill:#008000,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef targetNetwork fill:#800080,stroke:#111111,stroke-width:2px,color:#FFFFFF;
 
     class Env,Agent,Buffer data;
     class Batch batch;
@@ -73,13 +72,10 @@ graph TD
     class Q_pred,Max_Q,Target_Y result;
     class MLP onlineNetwork;
     class Target_Net targetNetwork;
-
-
-
-    style Phase1 fill:#e7f1ff,stroke:#004085,stroke-width:2px;
-    style Phase2 fill:#fffbea,stroke:#856404,stroke-width:2px;
-    style Phase3 fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
-    style Phase4 fill:#fdecea,stroke:#721c24,stroke-width:2px;
+    style Phase1 fill:none,stroke:#555555,stroke-width:2px,color:#111111;
+    style Phase2 fill:none,stroke:#555555,stroke-width:2px,color:#111111;
+    style Phase3 fill:none,stroke:#555555,stroke-width:2px,color:#111111;
+    style Phase4 fill:none,stroke:#555555,stroke-width:2px,color:#111111;
 ```
 
 </details>
@@ -92,7 +88,7 @@ graph TD
 <summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
 
 ```text
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#555555", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#111111", "secondaryColor": "#555555", "tertiaryColor": "#FFFFFF", "lineColor": "#0057D9", "clusterBkg": "#FFFFFF", "clusterBorder": "#555555", "edgeLabelBackground": "#FFFFFF", "textColor": "#111111"}, "htmlLabels": false, "flowchart": {"htmlLabels": false}, "themeCSS": ".edgeLabel text, .edgeLabel tspan { fill: #111111 !important; } .edgeLabel { color: #111111 !important; } .cluster-label text, .cluster-label tspan { fill: #111111 !important; }"}}%%
 graph TD
     subgraph Phase1 [Data Gathering]
         Env2[Environment] -->|State and Reward| Agent2[Agent]
@@ -105,10 +101,10 @@ graph TD
     end
 
     subgraph Phase3 [Q Networks and Target Calculation]
-        Batch2 -->|State s and Action a| Q_Current[Current Q-Network<br/>Updates via Gradient Descent]
+        Batch2 -->|State s and Action a| Q_Current["Online Network (Current Q)<br/>Updates via gradient descent"]
         Q_Current --> Q_pred2[Predicted Q Value]
 
-        Batch2 -->|Next State s'| Q_Target[Target Generation<br/>Fixed weights from previous iteration]
+        Batch2 -->|Next State s'| Q_Target["Target Network (Q)<br/>Fixed weights from previous iteration"]
         Q_Target --> Max_Q2[Max Q Value]
         Batch2 -->|Reward r| Target_Y2[Target Value Y]
         Max_Q2 --> Target_Y2
@@ -120,13 +116,12 @@ graph TD
         Loss2 --> Opt2[Gradient Descent Update]
         Opt2 -->|Updates Weights| Q_Current
     end
-
-    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
-    classDef onlineNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef targetNetwork fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef data fill:#0057D9,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef batch fill:#FFD700,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef train fill:#DC143C,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef result fill:#555555,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef onlineNetwork fill:#008000,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef targetNetwork fill:#800080,stroke:#111111,stroke-width:2px,color:#FFFFFF;
 
     class Env2,Agent2,Buffer2 data;
     class Batch2 batch;
@@ -134,13 +129,10 @@ graph TD
     class Q_pred2,Max_Q2,Target_Y2 result;
     class Q_Current onlineNetwork;
     class Q_Target targetNetwork;
-
-
-
-    style Phase1 fill:#e7f1ff,stroke:#004085,stroke-width:2px;
-    style Phase2 fill:#fffbea,stroke:#856404,stroke-width:2px;
-    style Phase3 fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
-    style Phase4 fill:#fdecea,stroke:#721c24,stroke-width:2px;
+    style Phase1 fill:none,stroke:#555555,stroke-width:2px,color:#111111;
+    style Phase2 fill:none,stroke:#555555,stroke-width:2px,color:#111111;
+    style Phase3 fill:none,stroke:#555555,stroke-width:2px,color:#111111;
+    style Phase4 fill:none,stroke:#555555,stroke-width:2px,color:#111111;
 ```
 
 </details>
@@ -171,19 +163,19 @@ graph TD
 <summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
 
 ```text
-%%{init: {"theme": "base", "themeVariables": {"lineColor": "#218bff", "signalColor": "#218bff", "actorLineColor": "#218bff", "loopLineColor": "#218bff", "actorBkg": "#e2e3e5", "actorBorder": "#383d41", "actorTextColor": "#383d41", "noteBkgColor": "#d1ecf1", "noteBorderColor": "#0c5460", "noteTextColor": "#0c5460", "labelBoxBkgColor": "#fff3cd", "labelBoxBorderColor": "#856404"}, "themeCSS": "rect.actor[name=\"Cur\"] { fill: #d4edda !important; stroke: #155724 !important; } rect.actor[name=\"Cur\"] + text { fill: #155724 !important; } rect.actor[name=\"Tgt\"] { fill: #e2d9f3 !important; stroke: #4b0082 !important; } rect.actor[name=\"Tgt\"] + text { fill: #4b0082 !important; } "}}%%
+%%{init: {"theme": "base", "themeVariables": {"lineColor": "#0057D9", "signalColor": "#0057D9", "signalTextColor": "#111111", "actorLineColor": "#555555", "loopLineColor": "#555555", "actorBkg": "#555555", "actorBorder": "#111111", "actorTextColor": "#FFFFFF", "noteBkgColor": "#00CED1", "noteBorderColor": "#111111", "noteTextColor": "#111111", "labelBoxBkgColor": "#FFD700", "labelBoxBorderColor": "#111111", "labelTextColor": "#111111", "loopTextColor": "#111111"}, "themeCSS": "rect.actor[name=\"Cur\"] { fill: #008000 !important; stroke: #111111 !important; } rect.actor[name=\"Cur\"] + text { fill: #FFFFFF !important; } rect.actor[name=\"Tgt\"] { fill: #800080 !important; stroke: #111111 !important; } rect.actor[name=\"Tgt\"] + text { fill: #FFFFFF !important; } "}}%%
 sequenceDiagram
-    participant Cur as Current Q Network theta
-    participant Tgt as Target Q Network theta_minus
+    participant Cur as Online Network - Current Q theta
+    participant Tgt as Target Network - Frozen Q theta_minus
     participant L as Loss and Optimizer
 
     Note over Tgt: sync clone theta_minus = theta at start of outer iteration
-    rect rgb(226, 227, 229)
+    rect rgba(255, 255, 255, 0)
     Note right of Tgt: Target side is frozen, no gradient
     L->>Tgt: send next state s_next
     Tgt-->>L: y = reward + gamma times max Q of s_next
     end
-    rect rgb(209, 236, 241)
+    rect rgba(255, 255, 255, 0)
     Note right of Cur: Current side gets gradient
     L->>Cur: send state s and action a
     Cur-->>L: Q_pred

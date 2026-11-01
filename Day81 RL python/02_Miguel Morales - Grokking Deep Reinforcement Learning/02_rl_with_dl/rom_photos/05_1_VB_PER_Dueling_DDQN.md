@@ -32,24 +32,24 @@ Uniform replay မှာ လက်ရှိ transition `N` ခုရှိရင
 
 ### အရောင်အသုံးပြုပုံ (Color Rule)
 
-**အစိမ်း၊ လိမ္မော်၊ ခရမ်း ၃ ရောင်ကို network / trainable layer / head block များအတွက်သာ သီးသန့်သုံးပါတယ်။** သက်ဆိုင်ရာ network ပါသော diagram မှာသာ အဲဒီအရောင်ကို တွေ့ရပါမယ်။
+[အရောင် ၈ မျိုးနှင့် network label သတ်မှတ်ချက် — 00_1_color_define.md](./00_1_color_define.md)
 
-| အသုံးပြုပုံ | အရောင် | အရောင်နမူနာ | Fill | Border / text |
+| အသုံးပြုပုံ | အရောင် | နမူနာ | Fill | Text |
 |---|---|---|---|---|
-| Policy / actor network; Online / current Q-network | အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/green.svg) | `#d4edda` | `#155724` |
-| Value / baseline / critic network နှင့် trainable value head | လိမ္မော်နု | ![လိမ္မော်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/orange.svg) | `#ffe5cc` | `#8a3b00` |
-| Frozen target Q-network | ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | `#e2d9f3` | `#4b0082` |
-| State / environment / data / shared backbone | အပြာနု | ![အပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | `#cce5ff` | `#004085` |
-| Batch / sampling / advantage | အဝါနု | ![အဝါနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | `#fff3cd` | `#856404` |
-| Preprocessing / PER / action selection / synchronization | စိမ်းပြာနု | ![စိမ်းပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/cyan.svg) | `#d1ecf1` | `#0c5460` |
-| Outputs / probabilities / returns / target values / aggregation | မီးခိုးနု | ![မီးခိုးနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/gray.svg) | `#e2e3e5` | `#383d41` |
-| Loss / gradient / optimizer update | ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | `#f8d7da` | `#721c24` |
+| Policy Network / Actor; Online / Current Q Network | **Green / အစိမ်း** | ![Green / အစိမ်း](./color_swatches/green.svg) | `#008000` | `#FFFFFF` |
+| Value Network / Critic / Baseline; Dueling value head | **Orange / လိမ္မော်** | ![Orange / လိမ္မော်](./color_swatches/orange.svg) | `#FF8C00` | `#111111` |
+| Frozen Target Network | **Purple / ခရမ်း** | ![Purple / ခရမ်း](./color_swatches/purple.svg) | `#800080` | `#FFFFFF` |
+| State / environment / data / shared backbone | **Blue / အပြာ** | ![Blue / အပြာ](./color_swatches/blue.svg) | `#0057D9` | `#FFFFFF` |
+| Batch / sampling / advantage | **Yellow / အဝါ** | ![Yellow / အဝါ](./color_swatches/yellow.svg) | `#FFD700` | `#111111` |
+| Preprocessing / PER / action selection / synchronization | **Cyan / စိမ်းပြာ** | ![Cyan / စိမ်းပြာ](./color_swatches/cyan.svg) | `#00CED1` | `#111111` |
+| Loss / gradient / optimizer | **Red / အနီ** | ![Red / အနီ](./color_swatches/red.svg) | `#DC143C` | `#FFFFFF` |
+| Outputs / probabilities / returns / target values / aggregation | **Gray / မီးခိုး** | ![Gray / မီးခိုး](./color_swatches/gray.svg) | `#555555` | `#FFFFFF` |
 
-Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) **အပြာ `#218bff`**။
+**Green / orange / purple ကို network၊ trainable layer / head တွေအတွက်သာ သီးသန့်သုံးပါတယ်။** Network block ထဲမှာ `Policy Network`၊ `Value Network`၊ `Online Network` သို့မဟုတ် `Target Network` ဆိုပြီး အမျိုးအစားပါပါတယ်။ Neuron များကို စုပြထားသောပုံမှာ အမျိုးအစားကို enclosing network / layer ခေါင်းစဉ်မှာ ရေးထားပါတယ်။
 
-Network က ထုတ်သော Q / V တန်ဖိုး၊ action probability၊ sample လုပ်သော action၊ return၊ bootstrap target နဲ့ loss block တွေမှာ network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ **Target value / return က မီးခိုး၊ target network ကသာ ခရမ်း** ဖြစ်ပါတယ်။
+Shared actor-critic block မှာ **Policy Network + Value Network** နှစ်ခုလုံးကို ဖော်ပြပြီး shared backbone / copy ကို blue သုံးထားပါတယ်။ Shared heads ဖြစ်ရင် သီးခြား model နှစ်ခုရှိတယ်လို့ မဆိုလိုပါဘူး။ Dueling ရဲ့ value / advantage heads က Q Network ထဲက အစိတ်အပိုင်းများဖြစ်ပြီး သီးခြား policy network မဟုတ်ပါဘူး။
 
-Paper lineage / algorithm comparison နဲ့ အဆင့်များပါသော subgraph နောက်ခံတွေမှာလည်း network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ အုပ်စုခွဲပုံကို label နဲ့တွဲဖတ်ပါ။
+**Target value / return = gray၊ Target Network = purple** ဖြစ်ပါတယ်။ Network outputs၊ action sampling၊ loss နဲ့ paper-lineage block များကို network အရောင် ၃ ရောင်နဲ့ မပြပါဘူး။ Group နောက်ခံကို transparent ထားပြီး arrow ကို blue သုံးထားပါတယ်။
 
 ## Diagram 1 — Dueling၊ DDQN၊ PER တို့ရဲ့ တာဝန်ခွဲခြားပုံ
 
@@ -59,15 +59,15 @@ Paper lineage / algorithm comparison နဲ့ အဆင့်များပါ
 <summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
 
 ```text
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#555555", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#111111", "secondaryColor": "#555555", "tertiaryColor": "#FFFFFF", "lineColor": "#0057D9", "clusterBkg": "#FFFFFF", "clusterBorder": "#555555", "edgeLabelBackground": "#FFFFFF", "textColor": "#111111"}, "htmlLabels": false, "flowchart": {"htmlLabels": false}, "themeCSS": ".edgeLabel text, .edgeLabel tspan { fill: #111111 !important; } .edgeLabel { color: #111111 !important; } .cluster-label text, .cluster-label tspan { fill: #111111 !important; }"}}%%
 flowchart TD
-    S["State input"] --> F["Shared CNN / MLP backbone"]
-    F --> V["Value head: V(s), scalar"]
-    F --> A["Advantage head: A(s,a), action vector"]
+    S["State input"] --> F["Shared Q Network Backbone<br/>CNN / MLP features"]
+    F --> V["Value Head inside Q Network<br/>V(s): scalar"]
+    F --> A["Advantage Head inside Q Network<br/>A(s,a): action vector"]
     V --> Q["Dueling aggregation: Q = V + A - mean(A)"]
     A --> Q
-    Q --> D["DDQN: online network selects next action"]
-    D --> EV["DDQN: target network evaluates selected action"]
+    Q --> D["DDQN action selection<br/>Use Online Network next-state Q values"]
+    D --> EV["DDQN action evaluation<br/>Use Target Network at selected action"]
     EV --> E["TD error: target minus current Q"]
     B["Replay buffer with priorities"] --> P["PER: sample using P(i)"]
     P --> D
@@ -78,19 +78,20 @@ flowchart TD
     E --> U["Refresh sampled priorities using absolute TD error"]
     U --> B
 
-    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
-    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
-    classDef valueNetwork fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
+    classDef data fill:#0057D9,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef batch fill:#FFD700,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef process fill:#00CED1,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef result fill:#555555,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef train fill:#DC143C,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef valueNetwork fill:#FF8C00,stroke:#111111,stroke-width:2px,color:#111111;
 
     class S,F data;
     class A batch;
-    class E,L,O train;
     class B,P,W,U,D,EV process;
-    class Q result;
+    class E,Q result;
+    class L,O train;
     class V valueNetwork;
+
 ```
 
 </details>
@@ -200,16 +201,16 @@ L(θ) = mean_i [w̃_i × Huber_κ(δ_i)]
 <summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
 
 ```text
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#555555", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#111111", "secondaryColor": "#555555", "tertiaryColor": "#FFFFFF", "lineColor": "#0057D9", "clusterBkg": "#FFFFFF", "clusterBorder": "#555555", "edgeLabelBackground": "#FFFFFF", "textColor": "#111111"}, "htmlLabels": false, "flowchart": {"htmlLabels": false}, "themeCSS": ".edgeLabel text, .edgeLabel tspan { fill: #111111 !important; } .edgeLabel { color: #111111 !important; } .cluster-label text, .cluster-label tspan { fill: #111111 !important; }"}}%%
 flowchart TD
     E["Environment"] --> T["Collect transition: s, a, r, next state, terminal"]
     T --> B["Replay buffer: transition + priority"]
     B --> S["Sample indices using P(i); return transitions and IS weights"]
 
-    S --> CUR["Online Dueling on s: gather Q(s,a)"]
-    S --> ON["Online Dueling on next state"]
+    S --> CUR["Online Network (Dueling Q)<br/>State s: gather Q(s,a)"]
+    S --> ON["Online Network (Dueling Q)<br/>Same weights; next state"]
     ON --> SEL["argmax action: a*"]
-    S --> TAR["Target Dueling on next state: frozen"]
+    S --> TAR["Target Network (Dueling Q)<br/>Next state - FROZEN"]
     SEL --> EV["Gather target Q(next state, a*)"]
     TAR --> EV
     S --> Y["Target y: reward + discounted nonterminal bootstrap"]
@@ -228,19 +229,20 @@ flowchart TD
     TD --> PR["Detach absolute TD errors; add epsilon; refresh sampled priorities"]
     PR --> B
 
-    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
-    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
-    classDef onlineNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef targetNetwork fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef data fill:#0057D9,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef process fill:#00CED1,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef result fill:#555555,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef train fill:#DC143C,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef onlineNetwork fill:#008000,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef targetNetwork fill:#800080,stroke:#111111,stroke-width:2px,color:#FFFFFF;
 
-    class E,T,SYNC data;
-    class TD,LOSS,WL,OPT train;
-    class B,S,W,PR,SEL process;
-    class EV,Y result;
+    class E,T data;
+    class SYNC,B,S,W,PR,SEL process;
+    class TD,EV,Y result;
+    class LOSS,WL,OPT train;
     class CUR,ON onlineNetwork;
     class TAR targetNetwork;
+
 ```
 
 </details>
@@ -274,7 +276,7 @@ flowchart TD
 <summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
 
 ```text
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#555555", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#111111", "secondaryColor": "#555555", "tertiaryColor": "#FFFFFF", "lineColor": "#0057D9", "clusterBkg": "#FFFFFF", "clusterBorder": "#555555", "edgeLabelBackground": "#FFFFFF", "textColor": "#111111"}, "htmlLabels": false, "flowchart": {"htmlLabels": false}, "themeCSS": ".edgeLabel text, .edgeLabel tspan { fill: #111111 !important; } .edgeLabel { color: #111111 !important; } .cluster-label text, .cluster-label tspan { fill: #111111 !important; }"}}%%
 flowchart LR
     HIGH["High priority"] --> OFTEN["Sampled more often"]
     OFTEN --> SMALL["Smaller IS weight per occurrence"]
@@ -282,8 +284,7 @@ flowchart LR
     RARE --> LARGE["Larger IS weight per occurrence"]
     SMALL --> BAL["At beta = 1: balance expected sampling contribution"]
     LARGE --> BAL
-
-    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+    classDef process fill:#00CED1,stroke:#111111,stroke-width:2px,color:#111111;
 
     class HIGH,OFTEN,SMALL,LOW,RARE,LARGE,BAL process;
 ```
@@ -337,7 +338,7 @@ w̃_i  = (P_min / P(i))^β
 <summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
 
 ```text
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#555555", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#111111", "secondaryColor": "#555555", "tertiaryColor": "#FFFFFF", "lineColor": "#0057D9", "clusterBkg": "#FFFFFF", "clusterBorder": "#555555", "edgeLabelBackground": "#FFFFFF", "textColor": "#111111"}, "htmlLabels": false, "flowchart": {"htmlLabels": false}, "themeCSS": ".edgeLabel text, .edgeLabel tspan { fill: #111111 !important; } .edgeLabel { color: #111111 !important; } .cluster-label text, .cluster-label tspan { fill: #111111 !important; }"}}%%
 flowchart TD
     ROOT["Total mass = 15"] --> LEFT["Left sum = 3"]
     ROOT --> RIGHT["Right sum = 12"]
@@ -345,8 +346,7 @@ flowchart TD
     LEFT --> B["B: mass 2"]
     RIGHT --> C["C: mass 4"]
     RIGHT --> D["D: mass 8"]
-
-    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
+    classDef process fill:#00CED1,stroke:#111111,stroke-width:2px,color:#111111;
 
     class ROOT,LEFT,RIGHT,A,B,C,D process;
 ```
@@ -436,7 +436,7 @@ Hard target copy အစား soft update သုံးနိုင်ပေမ�
 <summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
 
 ```text
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#555555", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#111111", "secondaryColor": "#555555", "tertiaryColor": "#FFFFFF", "lineColor": "#0057D9", "clusterBkg": "#FFFFFF", "clusterBorder": "#555555", "edgeLabelBackground": "#FFFFFF", "textColor": "#111111"}, "htmlLabels": false, "flowchart": {"htmlLabels": false}, "themeCSS": ".edgeLabel text, .edgeLabel tspan { fill: #111111 !important; } .edgeLabel { color: #111111 !important; } .cluster-label text, .cluster-label tspan { fill: #111111 !important; }"}}%%
 flowchart TD
     DQN["DQN, 2015: uniform replay baseline"] --> PER["PER, 2015 preprint / ICLR 2016"]
     DDQN["Double DQN, AAAI 2016: decoupled target"] --> PER
@@ -448,12 +448,11 @@ flowchart TD
     PER -.->|"related replay-design analysis"| FEDUS["Fedus et al., ICML 2020: capacity and replay ratio"]
     RAIN -.->|"replay design context"| FEDUS
     PER -->|"revisit sampling theory and TD-error proxy"| LABER["LaBER, 2021 preprint / ICML 2022"]
-
-    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
-    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef data fill:#0057D9,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef batch fill:#FFD700,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef train fill:#DC143C,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef process fill:#00CED1,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef result fill:#555555,stroke:#111111,stroke-width:2px,color:#FFFFFF;
 
     class DQN data;
     class FEDUS batch;

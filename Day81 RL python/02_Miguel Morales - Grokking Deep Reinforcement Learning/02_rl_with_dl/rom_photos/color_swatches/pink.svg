@@ -1,5 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="140" height="32" viewBox="0 0 140 32">
-  <title>Light pink fill with dark red border and text</title>
-  <rect x="1" y="1" width="138" height="30" rx="5" fill="#f8d7da" stroke="#721c24" stroke-width="2"/>
-  <text x="70" y="22" text-anchor="middle" font-family="sans-serif" font-size="18" fill="#721c24">Aa</text>
-</svg>

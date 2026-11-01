@@ -16,24 +16,24 @@
 
 ### အရောင်အသုံးပြုပုံ (Color Rule)
 
-**အစိမ်း၊ လိမ္မော်၊ ခရမ်း ၃ ရောင်ကို network / trainable layer / head block များအတွက်သာ သီးသန့်သုံးပါတယ်။** သက်ဆိုင်ရာ network ပါသော diagram မှာသာ အဲဒီအရောင်ကို တွေ့ရပါမယ်။
+[အရောင် ၈ မျိုးနှင့် network label သတ်မှတ်ချက် — 00_1_color_define.md](./00_1_color_define.md)
 
-| အသုံးပြုပုံ | အရောင် | အရောင်နမူနာ | Fill | Border / text |
+| အသုံးပြုပုံ | အရောင် | နမူနာ | Fill | Text |
 |---|---|---|---|---|
-| Policy / actor network; Online / current Q-network | အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/green.svg) | `#d4edda` | `#155724` |
-| Value / baseline / critic network နှင့် trainable value head | လိမ္မော်နု | ![လိမ္မော်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/orange.svg) | `#ffe5cc` | `#8a3b00` |
-| Frozen target Q-network | ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | `#e2d9f3` | `#4b0082` |
-| State / environment / data / shared backbone | အပြာနု | ![အပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | `#cce5ff` | `#004085` |
-| Batch / sampling / advantage | အဝါနု | ![အဝါနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | `#fff3cd` | `#856404` |
-| Preprocessing / PER / action selection / synchronization | စိမ်းပြာနု | ![စိမ်းပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/cyan.svg) | `#d1ecf1` | `#0c5460` |
-| Outputs / probabilities / returns / target values / aggregation | မီးခိုးနု | ![မီးခိုးနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/gray.svg) | `#e2e3e5` | `#383d41` |
-| Loss / gradient / optimizer update | ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | `#f8d7da` | `#721c24` |
+| Policy Network / Actor; Online / Current Q Network | **Green / အစိမ်း** | ![Green / အစိမ်း](./color_swatches/green.svg) | `#008000` | `#FFFFFF` |
+| Value Network / Critic / Baseline; Dueling value head | **Orange / လိမ္မော်** | ![Orange / လိမ္မော်](./color_swatches/orange.svg) | `#FF8C00` | `#111111` |
+| Frozen Target Network | **Purple / ခရမ်း** | ![Purple / ခရမ်း](./color_swatches/purple.svg) | `#800080` | `#FFFFFF` |
+| State / environment / data / shared backbone | **Blue / အပြာ** | ![Blue / အပြာ](./color_swatches/blue.svg) | `#0057D9` | `#FFFFFF` |
+| Batch / sampling / advantage | **Yellow / အဝါ** | ![Yellow / အဝါ](./color_swatches/yellow.svg) | `#FFD700` | `#111111` |
+| Preprocessing / PER / action selection / synchronization | **Cyan / စိမ်းပြာ** | ![Cyan / စိမ်းပြာ](./color_swatches/cyan.svg) | `#00CED1` | `#111111` |
+| Loss / gradient / optimizer | **Red / အနီ** | ![Red / အနီ](./color_swatches/red.svg) | `#DC143C` | `#FFFFFF` |
+| Outputs / probabilities / returns / target values / aggregation | **Gray / မီးခိုး** | ![Gray / မီးခိုး](./color_swatches/gray.svg) | `#555555` | `#FFFFFF` |
 
-Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) **အပြာ `#218bff`**။
+**Green / orange / purple ကို network၊ trainable layer / head တွေအတွက်သာ သီးသန့်သုံးပါတယ်။** Network block ထဲမှာ `Policy Network`၊ `Value Network`၊ `Online Network` သို့မဟုတ် `Target Network` ဆိုပြီး အမျိုးအစားပါပါတယ်။ Neuron များကို စုပြထားသောပုံမှာ အမျိုးအစားကို enclosing network / layer ခေါင်းစဉ်မှာ ရေးထားပါတယ်။
 
-Network က ထုတ်သော Q / V တန်ဖိုး၊ action probability၊ sample လုပ်သော action၊ return၊ bootstrap target နဲ့ loss block တွေမှာ network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ **Target value / return က မီးခိုး၊ target network ကသာ ခရမ်း** ဖြစ်ပါတယ်။
+Shared actor-critic block မှာ **Policy Network + Value Network** နှစ်ခုလုံးကို ဖော်ပြပြီး shared backbone / copy ကို blue သုံးထားပါတယ်။ Shared heads ဖြစ်ရင် သီးခြား model နှစ်ခုရှိတယ်လို့ မဆိုလိုပါဘူး။ Dueling ရဲ့ value / advantage heads က Q Network ထဲက အစိတ်အပိုင်းများဖြစ်ပြီး သီးခြား policy network မဟုတ်ပါဘူး။
 
-Actor နဲ့ critic နှစ်ခုလုံးပါသော shared network / parameter-copy block ကို အပြာဖြင့်ပြပြီး သီးခြား actor / critic heads ကို အစိမ်း / လိမ္မော် ခွဲထားပါတယ်။
+**Target value / return = gray၊ Target Network = purple** ဖြစ်ပါတယ်။ Network outputs၊ action sampling၊ loss နဲ့ paper-lineage block များကို network အရောင် ၃ ရောင်နဲ့ မပြပါဘူး။ Group နောက်ခံကို transparent ထားပြီး arrow ကို blue သုံးထားပါတယ်။
 
 ## Diagram 1 — Shared Actor-Critic Network Architecture
 
@@ -43,11 +43,11 @@ Actor နဲ့ critic နှစ်ခုလုံးပါသော shared netw
 <summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
 
 ```text
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#555555", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#111111", "secondaryColor": "#555555", "tertiaryColor": "#FFFFFF", "lineColor": "#0057D9", "clusterBkg": "#FFFFFF", "clusterBorder": "#555555", "edgeLabelBackground": "#FFFFFF", "textColor": "#111111"}, "htmlLabels": false, "flowchart": {"htmlLabels": false}, "themeCSS": ".edgeLabel text, .edgeLabel tspan { fill: #111111 !important; } .edgeLabel { color: #111111 !important; } .cluster-label text, .cluster-label tspan { fill: #111111 !important; }"}}%%
 flowchart TD
-    S["State batch<br/>N observations at each acting step"] --> F["Shared MLP / CNN backbone"]
-    F --> P["Actor linear head<br/>K logits per state"]
-    F --> V["Critic linear head<br/>one scalar V per state"]
+    S["State batch<br/>N observations at each acting step"] --> F["Shared Network Backbone<br/>Policy Network + Value Network features<br/>MLP / CNN"]
+    F --> P["Policy Network (Actor Head)<br/>Linear: K logits per state"]
+    F --> V["Value Network (Critic Head)<br/>Linear: one scalar V per state"]
     P --> D["Categorical policy for each environment"]
     D --> A["Sample N actions"]
     A --> E["N parallel / vectorized environments"]
@@ -65,14 +65,13 @@ flowchart TD
     H --> L
     LV --> L
     L -.->|"one backward pass updates shared trunk and heads"| F
-
-    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
-    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
-    classDef policyNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef valueNetwork fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
+    classDef data fill:#0057D9,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef batch fill:#FFD700,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef train fill:#DC143C,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef process fill:#00CED1,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef result fill:#555555,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef policyNetwork fill:#008000,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef valueNetwork fill:#FF8C00,stroke:#111111,stroke-width:2px,color:#111111;
 
     class S,F,E data;
     class B,ADV batch;
@@ -97,9 +96,9 @@ flowchart TD
 <summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
 
 ```text
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#555555", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#111111", "secondaryColor": "#555555", "tertiaryColor": "#FFFFFF", "lineColor": "#0057D9", "clusterBkg": "#FFFFFF", "clusterBorder": "#555555", "edgeLabelBackground": "#FFFFFF", "textColor": "#111111"}, "htmlLabels": false, "flowchart": {"htmlLabels": false}, "themeCSS": ".edgeLabel text, .edgeLabel tspan { fill: #111111 !important; } .edgeLabel { color: #111111 !important; } .cluster-label text, .cluster-label tspan { fill: #111111 !important; }"}}%%
 flowchart TD
-    P["Current actor-critic parameters<br/>fixed during rollout collection"]
+    P["Current Actor-Critic Network<br/>Policy Network + Value Network<br/>Parameters fixed during rollout"]
     P --> E1["Environment 1: T steps"]
     P --> E2["Environment 2: T steps"]
     P --> EN["Environment N: T steps"]
@@ -108,22 +107,25 @@ flowchart TD
     EN --> B
     B --> R["Per-environment return recursion<br/>terminal masks and endpoint bootstrap"]
     R --> A["Compute detached advantages<br/>n-step baseline or GAE"]
-    B --> F["Forward pass on recorded states/actions<br/>log probabilities, values, entropy"]
+    B --> F["Policy Network + Value Network forward pass<br/>Recorded states/actions: log probabilities, values, entropy"]
     A --> L["Mean combined loss over B = T times N samples"]
     R --> L
     F --> L
     L --> O["Zero grad, backward, optional grad clipping<br/>one optimizer step"]
     O -->|"new weights for next rollout"| P
 
-    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef data fill:#0057D9,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef batch fill:#FFD700,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef process fill:#00CED1,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef result fill:#555555,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef train fill:#DC143C,stroke:#111111,stroke-width:2px,color:#FFFFFF;
 
-    class E1,E2,EN,P,F data;
+    class E1,E2,EN,P data;
     class B,A batch;
-    class L,O train;
+    class F process;
     class R result;
+    class L,O train;
+
 ```
 
 </details>
@@ -164,32 +166,29 @@ $$
 <summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
 
 ```text
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#555555", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#111111", "secondaryColor": "#555555", "tertiaryColor": "#FFFFFF", "lineColor": "#0057D9", "clusterBkg": "#FFFFFF", "clusterBorder": "#555555", "edgeLabelBackground": "#FFFFFF", "textColor": "#111111"}, "htmlLabels": false, "flowchart": {"htmlLabels": false}, "themeCSS": ".edgeLabel text, .edgeLabel tspan { fill: #111111 !important; } .edgeLabel { color: #111111 !important; } .cluster-label text, .cluster-label tspan { fill: #111111 !important; }"}}%%
 flowchart LR
     subgraph ASYNC [A3C - Asynchronous]
         W1["Worker 1 ready"] --> U1["Global update 1"]
         W2["Worker 2 ready later"] --> U2["Global update 2"]
-        U1 --> G["Shared global weights<br/>may change during other rollouts"]
+        U1 --> G["Global Actor-Critic Network Weights<br/>Policy Network + Value Network<br/>May change during other rollouts"]
         U2 --> G
     end
     subgraph SYNC [A2C - Synchronous]
         E1["Environment 1 segment"] --> B["Wait and combine all segments"]
         E2["Environment 2 segment"] --> B
         B --> U["One batched optimizer update"]
-        U --> P["Same new policy version<br/>for next collection"]
+        U --> P["Updated Actor-Critic Network<br/>Policy Network + Value Network<br/>Same version for next collection"]
     end
-
-    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
+    classDef data fill:#0057D9,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef batch fill:#FFD700,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef train fill:#DC143C,stroke:#111111,stroke-width:2px,color:#FFFFFF;
 
     class W1,W2,E1,E2,G,P data;
     class B batch;
     class U1,U2,U train;
-
-
-    style ASYNC fill:#e7f1ff,stroke:#004085,stroke-width:2px;
-    style SYNC fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
+    style ASYNC fill:none,stroke:#555555,stroke-width:2px,color:#111111;
+    style SYNC fill:none,stroke:#555555,stroke-width:2px,color:#111111;
 ```
 
 </details>

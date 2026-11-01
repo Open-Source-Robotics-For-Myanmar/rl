@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="140" height="32" viewBox="0 0 140 32">
-  <title>Light blue fill with dark blue border and text</title>
-  <rect x="1" y="1" width="138" height="30" rx="5" fill="#cce5ff" stroke="#004085" stroke-width="2"/>
-  <text x="70" y="22" text-anchor="middle" font-family="sans-serif" font-size="18" fill="#004085">Aa</text>
+<svg xmlns="http://www.w3.org/2000/svg" width="140" height="40" viewBox="0 0 140 40">
+  <title>Blue: #0057D9</title>
+  <rect x="1" y="1" width="138" height="38" rx="5" fill="#0057D9" stroke="#111111" stroke-width="2"/>
+  <text x="70" y="26" text-anchor="middle" font-family="sans-serif" font-size="18" font-weight="bold" fill="#FFFFFF">BLUE</text>
 </svg>

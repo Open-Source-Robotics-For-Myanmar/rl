@@ -14,24 +14,24 @@ Full DQN / Double DQN ရဲ့ single-stream network ဟာ `Q(s,a)` ကို 
 
 ### အရောင်အသုံးပြုပုံ (Color Rule)
 
-**အစိမ်း၊ လိမ္မော်၊ ခရမ်း ၃ ရောင်ကို network / trainable layer / head block များအတွက်သာ သီးသန့်သုံးပါတယ်။** သက်ဆိုင်ရာ network ပါသော diagram မှာသာ အဲဒီအရောင်ကို တွေ့ရပါမယ်။
+[အရောင် ၈ မျိုးနှင့် network label သတ်မှတ်ချက် — 00_1_color_define.md](./00_1_color_define.md)
 
-| အသုံးပြုပုံ | အရောင် | အရောင်နမူနာ | Fill | Border / text |
+| အသုံးပြုပုံ | အရောင် | နမူနာ | Fill | Text |
 |---|---|---|---|---|
-| Policy / actor network; Online / current Q-network | အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/green.svg) | `#d4edda` | `#155724` |
-| Value / baseline / critic network နှင့် trainable value head | လိမ္မော်နု | ![လိမ္မော်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/orange.svg) | `#ffe5cc` | `#8a3b00` |
-| Frozen target Q-network | ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | `#e2d9f3` | `#4b0082` |
-| State / environment / data / shared backbone | အပြာနု | ![အပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | `#cce5ff` | `#004085` |
-| Batch / sampling / advantage | အဝါနု | ![အဝါနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | `#fff3cd` | `#856404` |
-| Preprocessing / PER / action selection / synchronization | စိမ်းပြာနု | ![စိမ်းပြာနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/cyan.svg) | `#d1ecf1` | `#0c5460` |
-| Outputs / probabilities / returns / target values / aggregation | မီးခိုးနု | ![မီးခိုးနု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/gray.svg) | `#e2e3e5` | `#383d41` |
-| Loss / gradient / optimizer update | ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | `#f8d7da` | `#721c24` |
+| Policy Network / Actor; Online / Current Q Network | **Green / အစိမ်း** | ![Green / အစိမ်း](./color_swatches/green.svg) | `#008000` | `#FFFFFF` |
+| Value Network / Critic / Baseline; Dueling value head | **Orange / လိမ္မော်** | ![Orange / လိမ္မော်](./color_swatches/orange.svg) | `#FF8C00` | `#111111` |
+| Frozen Target Network | **Purple / ခရမ်း** | ![Purple / ခရမ်း](./color_swatches/purple.svg) | `#800080` | `#FFFFFF` |
+| State / environment / data / shared backbone | **Blue / အပြာ** | ![Blue / အပြာ](./color_swatches/blue.svg) | `#0057D9` | `#FFFFFF` |
+| Batch / sampling / advantage | **Yellow / အဝါ** | ![Yellow / အဝါ](./color_swatches/yellow.svg) | `#FFD700` | `#111111` |
+| Preprocessing / PER / action selection / synchronization | **Cyan / စိမ်းပြာ** | ![Cyan / စိမ်းပြာ](./color_swatches/cyan.svg) | `#00CED1` | `#111111` |
+| Loss / gradient / optimizer | **Red / အနီ** | ![Red / အနီ](./color_swatches/red.svg) | `#DC143C` | `#FFFFFF` |
+| Outputs / probabilities / returns / target values / aggregation | **Gray / မီးခိုး** | ![Gray / မီးခိုး](./color_swatches/gray.svg) | `#555555` | `#FFFFFF` |
 
-Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) **အပြာ `#218bff`**။
+**Green / orange / purple ကို network၊ trainable layer / head တွေအတွက်သာ သီးသန့်သုံးပါတယ်။** Network block ထဲမှာ `Policy Network`၊ `Value Network`၊ `Online Network` သို့မဟုတ် `Target Network` ဆိုပြီး အမျိုးအစားပါပါတယ်။ Neuron များကို စုပြထားသောပုံမှာ အမျိုးအစားကို enclosing network / layer ခေါင်းစဉ်မှာ ရေးထားပါတယ်။
 
-Network က ထုတ်သော Q / V တန်ဖိုး၊ action probability၊ sample လုပ်သော action၊ return၊ bootstrap target နဲ့ loss block တွေမှာ network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ **Target value / return က မီးခိုး၊ target network ကသာ ခရမ်း** ဖြစ်ပါတယ်။
+Shared actor-critic block မှာ **Policy Network + Value Network** နှစ်ခုလုံးကို ဖော်ပြပြီး shared backbone / copy ကို blue သုံးထားပါတယ်။ Shared heads ဖြစ်ရင် သီးခြား model နှစ်ခုရှိတယ်လို့ မဆိုလိုပါဘူး။ Dueling ရဲ့ value / advantage heads က Q Network ထဲက အစိတ်အပိုင်းများဖြစ်ပြီး သီးခြား policy network မဟုတ်ပါဘူး။
 
-Paper lineage / algorithm comparison နဲ့ အဆင့်များပါသော subgraph နောက်ခံတွေမှာလည်း network အရောင် ၃ ရောင်ကို မသုံးပါဘူး။ အုပ်စုခွဲပုံကို label နဲ့တွဲဖတ်ပါ။
+**Target value / return = gray၊ Target Network = purple** ဖြစ်ပါတယ်။ Network outputs၊ action sampling၊ loss နဲ့ paper-lineage block များကို network အရောင် ၃ ရောင်နဲ့ မပြပါဘူး။ Group နောက်ခံကို transparent ထားပြီး arrow ကို blue သုံးထားပါတယ်။
 
 ## Diagram 1 — Paper Lineage (ဘယ်ကလာတာလဲ)
 
@@ -41,7 +41,7 @@ Paper lineage / algorithm comparison နဲ့ အဆင့်များပါ
 <summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
 
 ```text
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#555555", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#111111", "secondaryColor": "#555555", "tertiaryColor": "#FFFFFF", "lineColor": "#0057D9", "clusterBkg": "#FFFFFF", "clusterBorder": "#555555", "edgeLabelBackground": "#FFFFFF", "textColor": "#111111"}, "htmlLabels": false, "flowchart": {"htmlLabels": false}, "themeCSS": ".edgeLabel text, .edgeLabel tspan { fill: #111111 !important; } .edgeLabel { color: #111111 !important; } .cluster-label text, .cluster-label tspan { fill: #111111 !important; }"}}%%
 graph TD
     P1[Mnih et al, 2015, Nature - DQN: single-stream CNN, one Q value output per action]
     P2[van Hasselt, 2010, NeurIPS - Double Q-learning: decouples selection and evaluation]
@@ -55,12 +55,11 @@ graph TD
     P3 -->|baseline target formula reused as-is| P5
     P4 -->|combined experimentally - Prioritized Dueling, new SOTA| P5
     P5 --> P6
-
-    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
-    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
+    classDef data fill:#0057D9,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef batch fill:#FFD700,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef train fill:#DC143C,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef process fill:#00CED1,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef result fill:#555555,stroke:#111111,stroke-width:2px,color:#FFFFFF;
 
     class P1 data;
     class P2 batch;
@@ -79,17 +78,17 @@ graph TD
 <summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
 
 ```text
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#555555", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#111111", "secondaryColor": "#555555", "tertiaryColor": "#FFFFFF", "lineColor": "#0057D9", "clusterBkg": "#FFFFFF", "clusterBorder": "#555555", "edgeLabelBackground": "#FFFFFF", "textColor": "#111111"}, "htmlLabels": false, "flowchart": {"htmlLabels": false}, "themeCSS": ".edgeLabel text, .edgeLabel tspan { fill: #111111 !important; } .edgeLabel { color: #111111 !important; } .cluster-label text, .cluster-label tspan { fill: #111111 !important; }"}}%%
 graph TD
     subgraph Phase1 [Shared Feature Extraction - unchanged from DQN]
-        Input[State s - stacked frames or feature vector] --> Conv[Shared Conv / FC Backbone theta]
+        Input[State s - stacked frames or feature vector] --> Conv["Shared Q Network Backbone<br/>Conv / FC features theta"]
     end
 
     subgraph Phase2 [Two Separate Streams - the Dueling fix]
-        Conv -->|stream beta| VStream[Value Stream FC layers]
+        Conv -->|stream beta| VStream["Value Head inside Q Network<br/>Trainable V-stream FC layers"]
         VStream --> Vs["V(s;theta,beta) -- ONE SCALAR per state, action-independent"]
 
-        Conv -->|stream alpha| AStream[Advantage Stream FC layers]
+        Conv -->|stream alpha| AStream["Advantage Head inside Q Network<br/>Trainable A-stream FC layers"]
         AStream --> As["A(s,a;theta,alpha) -- VECTOR, one entry per action"]
     end
 
@@ -100,22 +99,18 @@ graph TD
     end
 
     Qout -->|drives epsilon greedy acting AND is the regression target in Loss| Downstream[Used exactly like a normal Q vector downstream]
-
-    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
-    classDef valueNetwork fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
+    classDef data fill:#0057D9,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef batch fill:#FFD700,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef result fill:#555555,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef valueNetwork fill:#FF8C00,stroke:#111111,stroke-width:2px,color:#111111;
 
     class Input,Conv data;
     class AStream batch;
     class As,Vs,Agg,Qout,Downstream result;
     class VStream valueNetwork;
-
-
-
-    style Phase1 fill:#e7f1ff,stroke:#004085,stroke-width:2px;
-    style Phase2 fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
-    style Phase3 fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
+    style Phase1 fill:none,stroke:#555555,stroke-width:2px,color:#111111;
+    style Phase2 fill:none,stroke:#555555,stroke-width:2px,color:#111111;
+    style Phase3 fill:none,stroke:#555555,stroke-width:2px,color:#111111;
 ```
 
 </details>
@@ -130,44 +125,40 @@ graph TD
 <summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
 
 ```text
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#555555", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#111111", "secondaryColor": "#555555", "tertiaryColor": "#FFFFFF", "lineColor": "#0057D9", "clusterBkg": "#FFFFFF", "clusterBorder": "#555555", "edgeLabelBackground": "#FFFFFF", "textColor": "#111111"}, "htmlLabels": false, "flowchart": {"htmlLabels": false}, "themeCSS": ".edgeLabel text, .edgeLabel tspan { fill: #111111 !important; } .edgeLabel { color: #111111 !important; } .cluster-label text, .cluster-label tspan { fill: #111111 !important; }"}}%%
 graph LR
     subgraph SingleStream [Single Stream Q-Network - DQN / DDQN - learns each action separately]
-        S1[State s] --> B1[Conv or FC Backbone]
+        S1[State s] --> B1["Q Network Backbone<br/>Conv / FC features"]
         B1 --> Out1["Q(s,a) vector -- EVERY action node must independently learn its own value"]
     end
 
     subgraph DuelingStream [Dueling Network - decoupled generalization across actions]
-        S2[State s] --> B2[Conv or FC Backbone - SAME as single stream]
-        B2 --> V2["Value head V(s) -- how good is this state, regardless of action"]
-        B2 --> A2["A(s,a) -- how much better or worse is each action vs the state average"]
+        S2[State s] --> B2["Shared Q Network Backbone<br/>Same Conv / FC features"]
+        B2 --> V2["Value Head inside Q Network<br/>V(s): state-value stream"]
+        B2 --> A2["Advantage Head inside Q Network<br/>A(s,a): action-relative stream"]
         V2 --> Agg2[Aggregation Module]
         A2 --> Agg2
         Agg2 --> Out2["Q(s,a) = V(s) + centered A(s,a) -- V(s) updates on EVERY visit, independent of which action was taken"]
     end
 
-    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
-    classDef valueNetwork fill:#ffe5cc,stroke:#8a3b00,stroke-width:1px,color:#8a3b00;
+    classDef data fill:#0057D9,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef batch fill:#FFD700,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef result fill:#555555,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef valueNetwork fill:#FF8C00,stroke:#111111,stroke-width:2px,color:#111111;
 
-    class S2,B2 data;
+    class S2,B2,S1,B1 data;
     class A2 batch;
-    class S1,B1,Out1 train;
-    class Agg2,Out2 result;
+    class Out1,Agg2,Out2 result;
     class V2 valueNetwork;
 
-
-
-    style SingleStream fill:#fdecea,stroke:#721c24,stroke-width:2px;
-    style DuelingStream fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
+    style SingleStream fill:none,stroke:#555555,stroke-width:2px,color:#111111;
+    style DuelingStream fill:none,stroke:#555555,stroke-width:2px,color:#111111;
 ```
 
 </details>
 
-- **Single Stream** (ပန်းရောင် box) — action တစ်ခုချင်းစီက output node တစ်ခုစီကို **သီးခြား** regress လုပ်ရတယ်; state `s` ကောင်းတယ်ဆိုတဲ့ signal ကို action အားလုံး ကိုယ်စီ ပြန်သင်ရတယ်။
-- **Dueling** (မီးခိုးရောင် အုပ်စု box) — `V(s)` ကို action ဘယ်ဟာ ရွေးထားမိစေ **update တိုင်း** gradient ရတယ် (action ၁ ခုတည်းရွေးထားမိရင်တောင် `V(s)` stream ပါ update ဖြစ်သွားတယ်), `A(s,a)` ကတော့ action တစ်ခုချင်းစီက state average ထက် ဘယ်လောက်ကွာလဲဆိုတာပဲ learn လုပ်တယ် — ဒီ "shared `V(s)` signal" ကပဲ **sample efficiency** နဲ့ **generalization across actions** ကို တိုးစေတာ ဖြစ်ပါတယ်။
+- **Single Stream** (ဘယ်ဘက် အုပ်စု) — action တစ်ခုချင်းစီက output node တစ်ခုစီကို **သီးခြား** regress လုပ်ရတယ်; state `s` ကောင်းတယ်ဆိုတဲ့ signal ကို action အားလုံး ကိုယ်စီ ပြန်သင်ရတယ်။
+- **Dueling** (ညာဘက် အုပ်စု) — `V(s)` ကို action ဘယ်ဟာ ရွေးထားမိစေ **update တိုင်း** gradient ရတယ် (action ၁ ခုတည်းရွေးထားမိရင်တောင် `V(s)` stream ပါ update ဖြစ်သွားတယ်), `A(s,a)` ကတော့ action တစ်ခုချင်းစီက state average ထက် ဘယ်လောက်ကွာလဲဆိုတာပဲ learn လုပ်တယ် — ဒီ "shared `V(s)` signal" ကပဲ **sample efficiency** နဲ့ **generalization across actions** ကို တိုးစေတာ ဖြစ်ပါတယ်။
 
 ## Identifiability Problem နှင့် Aggregation Equation (Eq. 7 → 8 → 9)
 
@@ -205,7 +196,7 @@ Mean ကို နုတ်တာက `V(s)` ရဲ့ exact semantics ကို 
 <summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
 
 ```text
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#555555", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#111111", "secondaryColor": "#555555", "tertiaryColor": "#FFFFFF", "lineColor": "#0057D9", "clusterBkg": "#FFFFFF", "clusterBorder": "#555555", "edgeLabelBackground": "#FFFFFF", "textColor": "#111111"}, "htmlLabels": false, "flowchart": {"htmlLabels": false}, "themeCSS": ".edgeLabel text, .edgeLabel tspan { fill: #111111 !important; } .edgeLabel { color: #111111 !important; } .cluster-label text, .cluster-label tspan { fill: #111111 !important; }"}}%%
 graph TD
     subgraph Phase1 [Data Gathering - epsilon greedy Behavior Loop]
         Env[Environment] -->|Reward r_t and Next State s_t plus 1| Agent[Agent]
@@ -218,16 +209,16 @@ graph TD
     end
 
     subgraph Phase3 [Dueling Online Network - acts and predicts]
-        Batch -->|State s and Action a| OnlineDueling["Online Dueling Net theta: V(s) plus A(s,a) streams -> Q(s,.;theta)"]
+        Batch -->|State s and Action a| OnlineDueling["Online Network (Dueling Q)<br/>theta: V head + A head -> Q(s,.)"]
         OnlineDueling --> Q_pred["Q(s,a;theta) -- Predicted"]
         OnlineDueling -.->|also drives epsilon greedy acting on current state| Agent
 
-        Batch -->|Next State s'| OnlineNext["Online Dueling Net theta on s' -> Q(s',.;theta)"]
+        Batch -->|Next State s'| OnlineNext["Online Network (Dueling Q)<br/>Same theta; Q(s_next,.)"]
         OnlineNext --> Astar["a_star = argmax over a' of Q(s',a';theta) -- SELECTION via ONLINE dueling net"]
     end
 
     subgraph Phase4 [Dueling Target Network - frozen, evaluates only]
-        Batch -->|Next State s'| TargetDueling["Target Dueling Net theta minus: V plus A streams -> Q_hat(s',.;theta minus) - FROZEN"]
+        Batch -->|Next State s'| TargetDueling["Target Network (Dueling Q)<br/>V head + A head; theta_minus - FROZEN"]
         Astar -->|index a_star| TargetDueling
         TargetDueling --> Qeval["Q_hat(s',a_star;theta minus) -- EVALUATION via TARGET dueling net"]
         Batch -->|Reward r, done flag| Target_Y["y = r + gamma times Qeval -- same DDQN formula, unchanged"]
@@ -242,14 +233,13 @@ graph TD
     end
 
     OnlineDueling ==>|Hard Copy theta into theta minus EVERY C steps - unchanged from DQN/DDQN| TargetDueling
-
-    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
-    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
-    classDef onlineNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef targetNetwork fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef data fill:#0057D9,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef batch fill:#FFD700,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef train fill:#DC143C,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef process fill:#00CED1,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef result fill:#555555,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef onlineNetwork fill:#008000,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef targetNetwork fill:#800080,stroke:#111111,stroke-width:2px,color:#FFFFFF;
 
     class Env,Agent,Buffer data;
     class Batch batch;
@@ -258,14 +248,11 @@ graph TD
     class Q_pred,Qeval,Target_Y result;
     class OnlineDueling,OnlineNext onlineNetwork;
     class TargetDueling targetNetwork;
-
-
-
-    style Phase1 fill:#e7f1ff,stroke:#004085,stroke-width:2px;
-    style Phase2 fill:#fffbea,stroke:#856404,stroke-width:2px;
-    style Phase3 fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
-    style Phase4 fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
-    style Phase5 fill:#fdecea,stroke:#721c24,stroke-width:2px;
+    style Phase1 fill:none,stroke:#555555,stroke-width:2px,color:#111111;
+    style Phase2 fill:none,stroke:#555555,stroke-width:2px,color:#111111;
+    style Phase3 fill:none,stroke:#555555,stroke-width:2px,color:#111111;
+    style Phase4 fill:none,stroke:#555555,stroke-width:2px,color:#111111;
+    style Phase5 fill:none,stroke:#555555,stroke-width:2px,color:#111111;
 ```
 
 </details>
@@ -282,16 +269,16 @@ Diagram 4 ရဲ့ **Online → Target bold blue arrow** က target parameters 
 <summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
 
 ```text
-%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+%%{init: {"theme": "base", "themeVariables": {"primaryColor": "#555555", "primaryTextColor": "#FFFFFF", "primaryBorderColor": "#111111", "secondaryColor": "#555555", "tertiaryColor": "#FFFFFF", "lineColor": "#0057D9", "clusterBkg": "#FFFFFF", "clusterBorder": "#555555", "edgeLabelBackground": "#FFFFFF", "textColor": "#111111"}, "htmlLabels": false, "flowchart": {"htmlLabels": false}, "themeCSS": ".edgeLabel text, .edgeLabel tspan { fill: #111111 !important; } .edgeLabel { color: #111111 !important; } .cluster-label text, .cluster-label tspan { fill: #111111 !important; }"}}%%
 graph TD
     Init["Initialize once: theta_target = theta_online"]
-    Init --> Online["Online Dueling Network: backbone + V head + A head"]
-    Init --> Target["Target Dueling Network: backbone + V head + A head; no gradients"]
-    Batch["Replay minibatch: s, a, r, s_next, terminal"] --> Current["Online on s: gather Q(s,a)"]
+    Init --> Online["Online Network (Dueling Q)<br/>Backbone + V head + A head"]
+    Init --> Target["Target Network (Dueling Q)<br/>Backbone + V head + A head; no gradients"]
+    Batch["Replay minibatch: s, a, r, s_next, terminal"] --> Current["Online Network forward result<br/>Gather Q(s,a)"]
     Online --> Current
-    Batch --> Select["Online on s_next: a_star = argmax Q(s_next,a)"]
+    Batch --> Select["Action selection from Online Network<br/>a_star = argmax Q(s_next,a)"]
     Online --> Select
-    Batch --> Evaluate["Target on s_next: gather Q_target(s_next,a_star)"]
+    Batch --> Evaluate["Target Network forward result<br/>Gather Q_target(s_next,a_star)"]
     Target --> Evaluate
     Select --> Evaluate
     Evaluate --> Y["Detached DDQN target: y = r + gamma * (1 - terminal) * Q_target"]
@@ -305,21 +292,20 @@ graph TD
     Target -->|"Old target parameters; not a gradient path"| Polyak
     Polyak ==>|"Write averaged parameters; no backprop"| Target
 
-    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
-    classDef batch fill:#fff3cd,stroke:#856404,stroke-width:1px,color:#856404;
-    classDef train fill:#f8d7da,stroke:#721c24,stroke-width:1px,color:#721c24;
-    classDef process fill:#d1ecf1,stroke:#0c5460,stroke-width:1px,color:#0c5460;
-    classDef result fill:#e2e3e5,stroke:#383d41,stroke-width:1px,color:#383d41;
-    classDef onlineNetwork fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
-    classDef targetNetwork fill:#e2d9f3,stroke:#4b0082,stroke-width:1px,color:#4b0082;
+    classDef batch fill:#FFD700,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef process fill:#00CED1,stroke:#111111,stroke-width:2px,color:#111111;
+    classDef result fill:#555555,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef train fill:#DC143C,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef onlineNetwork fill:#008000,stroke:#111111,stroke-width:2px,color:#FFFFFF;
+    classDef targetNetwork fill:#800080,stroke:#111111,stroke-width:2px,color:#FFFFFF;
 
-    class Init,Polyak data;
     class Batch batch;
-    class Loss,Optimizer train;
-    class Select process;
+    class Init,Polyak,Select process;
     class Current,Evaluate,Y result;
+    class Loss,Optimizer train;
     class Online onlineNetwork;
     class Target targetNetwork;
+
 ```
 
 </details>
