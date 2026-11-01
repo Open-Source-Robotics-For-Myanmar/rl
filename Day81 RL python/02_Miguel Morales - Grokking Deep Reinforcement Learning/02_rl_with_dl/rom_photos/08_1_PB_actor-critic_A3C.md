@@ -36,7 +36,12 @@ Actor နဲ့ critic နှစ်ခုလုံးပါသော shared netw
 
 ## Diagram 1 — Worker တစ်ခု၏ Network Architecture
 
-```mermaid
+![Diagram 1 — Worker တစ်ခု၏ Network Architecture](./diagrams/08_1_PB_actor-critic_A3C_01.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     S["Worker i ၏ state s"] --> F["Shared feature extractor<br/>Pixels: CNN; vectors: MLP"]
@@ -74,13 +79,20 @@ flowchart TD
     class V valueNetwork;
 ```
 
+</details>
+
 **မူရင်း paper ရဲ့ အသုံးများသော architecture** က hidden layers ကို share ပြီး **policy softmax head + linear value head** ခွဲထားတာပါ။ Recurrent variant မှာ LSTM ပါနိုင်ပေမယ့် A3C အတွက် မဖြစ်မနေ မလိုပါဘူး။ **[Chapter 11 ဥပမာ](../chapter_11_summarized.md)** က policy/value MLP နှစ်ခု သီးခြားထားတဲ့ implementation ကို ပြထားပါတယ်; အဲဒါလည်း A3C ဖြစ်နိုင်ပါတယ်။
 
 **Actor head က action probability၊ critic head က scalar `V(s)`** ထုတ်ပါတယ်။ `Â` ကို return နဲ့ `V(s)` ကနေ တွက်တာဖြစ်ပြီး Dueling လို advantage head မရှိပါဘူး။
 
 ## Diagram 2 — Global Network နှင့် Asynchronous Workers
 
-```mermaid
+![Diagram 2 — Global Network နှင့် Asynchronous Workers](./diagrams/08_1_PB_actor-critic_A3C_02.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     G["Global trainable actor-critic parameters<br/>shared optimizer state"]
@@ -109,13 +121,20 @@ flowchart TD
     class U1,U2,UN train;
 ```
 
+</details>
+
 **Worker အားလုံးပြီးတဲ့အထိ မစောင့်ပါဘူး။** တစ်ခုအဆင်သင့်ဖြစ်ရင် သူ့ gradient နဲ့ global parameters ကို update လုပ်ပြီး global weights ပြန်ယူပါတယ်။ Local weights ကို global ဆီ တန်း overwrite လုပ်တာ မဟုတ်ပါဘူး။ ပြိုင်တူ workers ကြောင့် data correlation လျော့နိုင်ပေမယ့် data အားလုံး independent ဖြစ်သွားတယ်လို့ မဆိုလိုပါဘူး။
 
 Local copy က rollout အတွင်း acting / gradient တွက်ဖို့ပါ။ **DQN target network အဖြစ် သုံးတာ မဟုတ်ပါဘူး**။ အခြား workers က global ကို ပြင်နေချိန်မှာ local gradient က အနည်းငယ် **stale** ဖြစ်နိုင်ပါတယ်။
 
 ## Diagram 3 — Worker Algorithm: Sync → Rollout → Bootstrap → Global Update
 
-```mermaid
+![Diagram 3 — Worker Algorithm: Sync → Rollout → Bootstrap → Global Update](./diagrams/08_1_PB_actor-critic_A3C_03.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     SY["Global weights ကို local ဆီ copy"] --> C["Local policy ဖြင့် rollout စု"]
@@ -141,6 +160,8 @@ flowchart TD
     class LP,LV,GR,U train;
     class SY,END,R result;
 ```
+
+</details>
 
 `r_t` = action ပြီးနောက် reward၊ `n` = ဒီ state ကနေ rollout endpoint အထိ steps ဖြစ်ပါတယ်။ True terminal ရောက်ရင် endpoint value ကို သုညထားပြီး:
 

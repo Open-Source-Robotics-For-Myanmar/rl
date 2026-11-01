@@ -35,7 +35,12 @@ Paper lineage / algorithm comparison နဲ့ အဆင့်များပါ
 
 ## Diagram 1 — Paper Lineage (ဘယ်ကလာတာလဲ)
 
-```mermaid
+![Diagram 1 — Paper Lineage (ဘယ်ကလာတာလဲ)](./diagrams/04_1_VB_Dueling_DDQN_01.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph TD
     P1[Mnih et al, 2015, Nature - DQN: single-stream CNN, one Q value output per action]
@@ -64,9 +69,16 @@ graph TD
     class P3,P5 result;
 ```
 
+</details>
+
 ## Diagram 2 — Dueling Network Architecture (Single Stream vs Two Streams)
 
-```mermaid
+![Diagram 2 — Dueling Network Architecture (Single Stream vs Two Streams)](./diagrams/04_1_VB_Dueling_DDQN_02.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph TD
     subgraph Phase1 [Shared Feature Extraction - unchanged from DQN]
@@ -106,11 +118,18 @@ graph TD
     style Phase3 fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
 ```
 
+</details>
+
 > မှတ်ချက်: ဒီ diagram ကို ရေးဆွဲဖို့ book ထဲက hand-annotated diagrams ၂ ခုကို reference ထားပါတယ် — [04_3_dueling-architecture.png](</home/mr_robot/Desktop/Git/rl/Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/04_3_dueling-architecture.png>) (Dueling paper ရဲ့ original Figure 1 — single-stream vs dueling CNN diagram) နဲ့ [04_2_dueling.png](</home/mr_robot/Desktop/Git/rl/Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/04_2_dueling.png>) (`V(s)` node, `A(s,a)` nodes, နဲ့ stream merging node ကို label တပ်ထားတဲ့ CartPole-scale FC version)။
 
 ## Diagram 3 — Side-by-Side: Single-Stream DQN vs Dueling Network (ဘယ်နေရာမှာ ကွာသွားလဲ)
 
-```mermaid
+![Diagram 3 — Side-by-Side: Single-Stream DQN vs Dueling Network (ဘယ်နေရာမှာ ကွာသွားလဲ)](./diagrams/04_1_VB_Dueling_DDQN_03.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph LR
     subgraph SingleStream [Single Stream Q-Network - DQN / DDQN - learns each action separately]
@@ -145,6 +164,8 @@ graph LR
     style DuelingStream fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
 ```
 
+</details>
+
 - **Single Stream** (ပန်းရောင် box) — action တစ်ခုချင်းစီက output node တစ်ခုစီကို **သီးခြား** regress လုပ်ရတယ်; state `s` ကောင်းတယ်ဆိုတဲ့ signal ကို action အားလုံး ကိုယ်စီ ပြန်သင်ရတယ်။
 - **Dueling** (မီးခိုးရောင် အုပ်စု box) — `V(s)` ကို action ဘယ်ဟာ ရွေးထားမိစေ **update တိုင်း** gradient ရတယ် (action ၁ ခုတည်းရွေးထားမိရင်တောင် `V(s)` stream ပါ update ဖြစ်သွားတယ်), `A(s,a)` ကတော့ action တစ်ခုချင်းစီက state average ထက် ဘယ်လောက်ကွာလဲဆိုတာပဲ learn လုပ်တယ် — ဒီ "shared `V(s)` signal" ကပဲ **sample efficiency** နဲ့ **generalization across actions** ကို တိုးစေတာ ဖြစ်ပါတယ်။
 
@@ -178,7 +199,12 @@ Mean ကို နုတ်တာက `V(s)` ရဲ့ exact semantics ကို 
 
 ## Diagram 4 — Full Dueling DDQN Pipeline (Architecture + Target Formula ပေါင်းစပ်ပုံ)
 
-```mermaid
+![Diagram 4 — Full Dueling DDQN Pipeline (Architecture + Target Formula ပေါင်းစပ်ပုံ)](./diagrams/04_1_VB_Dueling_DDQN_04.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph TD
     subgraph Phase1 [Data Gathering - epsilon greedy Behavior Loop]
@@ -242,13 +268,20 @@ graph TD
     style Phase5 fill:#fdecea,stroke:#721c24,stroke-width:2px;
 ```
 
+</details>
+
 > မှတ်ချက်: ဒီ diagram ဟာ [03_1_DOUBLE_DQN.md](</home/mr_robot/Desktop/Git/rl/Day81 RL python/02_Miguel Morales - Grokking Deep Reinforcement Learning/02_rl_with_dl/rom_photos/03_1_DOUBLE_DQN.md>) ရဲ့ **Diagram 2 (Decoupled Selection and Evaluation)** အတိုင်းတည်း ဖြစ်ပါတယ် — ကွာတာက `Online`/`Target` node တစ်ခုစီဟာ ယခင်က single Q-vector output network အစား, Diagram 2/3 ထဲက **`V(s) + A(s,a)` dueling aggregation module ပါတဲ့ network** ဖြစ်သွားတာပါ။ `Loss` ကနေ backprop ဖြစ်တော့, gradient ဟာ `V` stream နဲ့ `A` stream **နှစ်ခုစလုံးကို တစ်ပြိုင်နက် update** လုပ်ပါတယ် — stream နှစ်ခု သီးခြား loss function မရှိပါဘူး, shared single scalar loss ကနေပဲ backprop ဖြစ်ပါတယ်။
 
 ## Diagram 5 — Polyak Averaging ဖြင့် Target Update (Optional Soft-update Alternative)
 
 Diagram 4 ရဲ့ **Online → Target bold blue arrow** က target parameters ကူးပေးတဲ့ လမ်းကြောင်းပါ။ အဲဒီနေရာမှာ hard copy အစား **soft update / Polyak averaging** ကို ရွေးသုံးနိုင်ပါတယ်။ အောက်က diagram ဟာ အဲဒီ alternative ကို သီးခြားပြထားတာဖြစ်ပြီး **original Dueling paper ရဲ့ hard-update setting ကို အစားထိုးဖော်ပြထားတာ မဟုတ်ပါဘူး**။
 
-```mermaid
+![Diagram 5 — Polyak Averaging ဖြင့် Target Update (Optional Soft-update Alternative)](./diagrams/04_1_VB_Dueling_DDQN_05.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph TD
     Init["Initialize once: theta_target = theta_online"]
@@ -288,6 +321,8 @@ graph TD
     class Online onlineNetwork;
     class Target targetNetwork;
 ```
+
+</details>
 
 ### Hard Copy နဲ့ Polyak Averaging ဘာကွာသလဲ?
 

@@ -41,7 +41,12 @@ Paper lineage / algorithm comparison နဲ့ အဆင့်များပါ
 
 **ဒီနေရာက policy network ဆိုတာ neural network (MLP) တစ်ခုပါပဲ။** State features တွေကို input အဖြစ်ယူပြီး hidden layers တွေကနေ action တစ်ခုစီအတွက် logit ထုတ်ပေးပါတယ်။ အောက်က စက်ဝိုင်းတစ်ခုစီက input feature သို့မဟုတ် neuron တစ်ခုကို ကိုယ်စားပြုပါတယ်။
 
-```mermaid
+![1A — Policy Network ကို Neuron များအဖြစ် ကြည့်မယ်](./diagrams/06_1_PB_REINFORCE_01.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart LR
     subgraph NN ["Policy network = Neural network pi_theta — 4 → 32 → 32 → 2"]
@@ -98,13 +103,20 @@ flowchart LR
     style Head fill:#ffffff,stroke:#155724,stroke-width:1px;
 ```
 
+</details>
+
 ပုံရှင်းအောင် hidden layer တစ်ခုစီမှာ **32 neurons ထဲက 3 ခုပဲ ကိုယ်စားပြုဆွဲထားပါတယ်**။ တကယ့် fully connected network မှာ ရှေ့ layer က neuron တိုင်းဟာ နောက် layer က neuron တိုင်းနဲ့ ဆက်ပါတယ်။ မြားတစ်ခုစီမှာ learn လုပ်မယ့် **weight** ရှိပြီး neuron တွေရဲ့ **bias** တွေနဲ့ပေါင်းပြီး `θ = {weights, biases}` ဖြစ်ပါတယ်။
 
 **“Neural network” က တည်ဆောက်ပုံကို ပြောတာ၊ “policy” က အဲဒီ network ရဲ့ အလုပ်ကို ပြောတာပါ** — state ပေးရင် ဘယ် action ကို probability ဘယ်လောက်နဲ့ ရွေးမလဲဆိုတာ သင်ယူပေးတာဖြစ်ပါတယ်။ ဥပမာ `[0.70, 0.30]` ဆိုရင် left ကို 70%၊ right ကို 30% နဲ့ sample လုပ်နိုင်ပါတယ်။ REINFORCE update က ဒီ network ရဲ့ `θ` ကို ပြင်ပြီး action probabilities တွေကို ပြောင်းပေးပါတယ်။
 
 ### 1B — Network၊ Action နှင့် Learning Signal ဆက်စပ်ပုံ
 
-```mermaid
+![1B — Network၊ Action နှင့် Learning Signal ဆက်စပ်ပုံ](./diagrams/06_1_PB_REINFORCE_02.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart LR
     S["State s<br/>CartPole ဥပမာ: 4 features"] --> H1["FC 32 + ReLU"]
@@ -134,13 +146,20 @@ flowchart LR
     class H1,H2,Z policyNetwork;
 ```
 
+</details>
+
 **Network တစ်ခုပဲရှိတယ် — policy network `θ`**။ Output က Q-values မဟုတ်ဘဲ action distribution အတွက် **logits** ပါ။ `Categorical(logits=...)` က normalization ကို ကိုယ်တိုင်လုပ်ပေးလို့ softmax ကို code မှာ ထပ်ထည့်စရာမလိုပါဘူး။ `32 → 32` က Chapter 11 မှတ်စုရဲ့ ဥပမာဖြစ်ပြီး algorithm ရဲ့ မဖြစ်မနေ architecture မဟုတ်ပါဘူး။
 
 Action sampling နဲ့ environment ကို backprop လုပ်ဖို့ မလိုပါဘူး။ Gradient က **ရွေးခဲ့တဲ့ action ရဲ့ `log πθ(a|s)`** ကနေ network ဆီ စီးပါတယ်။ Continuous action ဆိုရင် categorical head အစား Gaussian ရဲ့ `μ, σ` head မျိုး သုံးနိုင်ပါတယ်။
 
 ## Diagram 2 — Full Algorithm: Episode ပြီးမှ Policy Update
 
-```mermaid
+![Diagram 2 — Full Algorithm: Episode ပြီးမှ Policy Update](./diagrams/06_1_PB_REINFORCE_03.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     subgraph Phase1 [Data Gathering]
@@ -181,6 +200,8 @@ flowchart TD
     style Phase3 fill:#fdecea,stroke:#721c24,stroke-width:2px;
 ```
 
+</details>
+
 ဒီဖိုင်တွေမှာ **`r_t` = action `a_t` လုပ်ပြီး ရလာတဲ့ reward** လို့ သတ်မှတ်ထားပါတယ်။ စာအုပ် notation တချို့မှာ အဲဒီ reward ကို `R_{t+1}` လို့ ရေးပါတယ်။ `T` က episode length ပါ။
 
 $$
@@ -198,7 +219,12 @@ $$
 
 ## Diagram 3 — Paper / Idea ဆက်စပ်ပုံ
 
-```mermaid
+![Diagram 3 — Paper / Idea ဆက်စပ်ပုံ](./diagrams/06_1_PB_REINFORCE_04.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart LR
     W["Williams 1992<br/>REINFORCE family"] -->|"state-value baseline ဖြင့် variance လျှော့"| V["VPG / REINFORCE with baseline"]
@@ -212,6 +238,8 @@ flowchart LR
     class A data;
     class W,V,S result;
 ```
+
+</details>
 
 ဒါက **idea ဆက်စပ်ပုံ** ဖြစ်ပါတယ်။ Baseline idea ကို VPG ကမှ ပထမဆုံးမိတ်ဆက်တယ်လို့ ဆိုလိုတာ မဟုတ်ပါဘူး။ A3C စာတမ်းကို [နောက်မှတ်စု](./08_1_PB_actor-critic_A3C.md) မှာ ချိတ်ပေးထားပါတယ်။
 

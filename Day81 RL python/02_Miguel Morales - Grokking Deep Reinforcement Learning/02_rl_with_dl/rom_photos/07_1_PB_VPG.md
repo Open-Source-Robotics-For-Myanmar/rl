@@ -37,7 +37,12 @@ Paper lineage / algorithm comparison နဲ့ အဆင့်များပါ
 
 ## Diagram 1 — Network Architecture: Policy နှင့် Value Baseline သီးခြားနှစ်ခု
 
-```mermaid
+![Diagram 1 — Network Architecture: Policy နှင့် Value Baseline သီးခြားနှစ်ခု](./diagrams/07_1_PB_VPG_01.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     S["State s"] --> P["FCDAP policy network theta<br/>FC 32 - ReLU - FC 32 - ReLU"]
@@ -76,11 +81,18 @@ flowchart TD
     class V,VS valueNetwork;
 ```
 
+</details>
+
 ဒီ **Chapter 11 ဥပမာ**မှာ trainable networks နှစ်ခု၊ weight sets `θ` နဲ့ `φ` နှစ်ခုပါ။ Architecture တူဖို့မလိုဘဲ policy output က **action logits**၊ value output က **scalar expected return** ဖြစ်ပါတယ်။ `Vφ` က frozen target-network clone မဟုတ်ပါဘူး; regression loss နဲ့ သင်နေပါတယ်။ Shared trunk + heads နှစ်ခုလည်း ရွေးနိုင်ပေမယ့် VPG ရဲ့ မဖြစ်မနေ requirement မဟုတ်ပါဘူး။
 
 ## Diagram 2 — MC Baseline VPG Algorithm
 
-```mermaid
+![Diagram 2 — MC Baseline VPG Algorithm](./diagrams/07_1_PB_VPG_02.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     P["Current policy theta"] --> C["Collect fresh complete episodes"]
@@ -117,6 +129,8 @@ flowchart TD
     class V valueNetwork;
 ```
 
+</details>
+
 `r_t` = action `a_t` ပြီးနောက် reward၊ `sg` = stop-gradient၊ `β ≥ 0` = entropy coefficient လို့ သတ်မှတ်ပါ။ ဒီ MC version မှာ:
 
 $$
@@ -148,7 +162,12 @@ $$
 
 ## Diagram 3 — VPG၊ GAE၊ TRPO / PPO တို့၏ တာဝန်ကွာခြားပုံ
 
-```mermaid
+![Diagram 3 — VPG၊ GAE၊ TRPO / PPO တို့၏ တာဝန်ကွာခြားပုံ](./diagrams/07_1_PB_VPG_03.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart LR
     R["REINFORCE<br/>MC score G_t"] -->|"learned baseline"| V["ဒီစာ၏ VPG<br/>score G_t minus V"]
@@ -165,6 +184,8 @@ flowchart LR
     class T,P train;
     class R,V result;
 ```
+
+</details>
 
 **GAE က score တွက်ပုံ၊ TRPO/PPO က policy update ထိန်းပုံ** ဖြစ်လို့ အတူတွဲနိုင်ပါတယ်။ [PPO မူရင်း paper](https://arxiv.org/abs/1707.06347) နဲ့ [GAE မှတ်စု](./09_1_PB_GAE.md) ကို ဆက်ဖတ်နိုင်ပါတယ်။
 

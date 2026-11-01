@@ -25,7 +25,12 @@ Sequence diagram ရဲ့ network participant box များကိုလည�
 
 ## Diagram 1 — Basic Overview (Behavior Loop + Learning Loop)
 
-```mermaid
+![Diagram 1 — Basic Overview (Behavior Loop + Learning Loop)](./diagrams/02_1_VB_DQN_01.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph TD
     subgraph Phase1 [Data Gathering - epsilon greedy Behavior Loop]
@@ -80,11 +85,18 @@ graph TD
     style Phase4 fill:#fdecea,stroke:#721c24,stroke-width:2px;
 ```
 
+</details>
+
 > မှတ်ချက်: Online Network တစ်ခုတည်းက **"double-duty"** လုပ်ပါတယ် — (1) `Agent` ဆီ dashed arrow အတိုင်း, acting အချိန်မှာ Q-value ထုတ်ပေးပြီး ε-greedy action ရွေးဖို့ သုံးတယ်၊ (2) `Loss` ကနေ gradient ရလာပြီး weight update ဖြစ်နေတယ်။ Target Network ကတော့ **target y တွက်ရုံပဲ** သုံးတယ်, acting မှာ လုံးဝ မပါဝင်ဘူး (ဒီ bold `==>` arrow က hard-copy sync ကို ပြထားပါတယ်)။
 
 ## Diagram 2 — Detailed Full Atari Pipeline (Preprocessing → CNN → Hard Target Update)
 
-```mermaid
+![Diagram 2 — Detailed Full Atari Pipeline (Preprocessing → CNN → Hard Target Update)](./diagrams/02_1_VB_DQN_02.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph TD
     subgraph Phase0 [Raw Pixel Preprocessing]
@@ -150,6 +162,8 @@ graph TD
     style Phase4 fill:#fdecea,stroke:#721c24,stroke-width:2px;
 ```
 
+</details>
+
 ### Diagram 1 vs Diagram 2 ခြားနားချက်
 
 - Diagram 1 က general closed-loop (control-theory style) version ဖြစ်ပြီး, `Online` / `Target_Net` ဆိုတဲ့ node name အတိုချုပ်ပဲ သုံးထားပါတယ်။ Diagram 2 ကတော့ original Nature paper ရဲ့ **Atari pipeline အတိုင်း** — raw pixel `x_t` ကနေ grayscale + 84×84 downsample + 4-frame stack preprocessing (`φ`), CNN architecture (conv-conv-conv-FC), reward clipping `[-1, 1]`, RMSProp optimizer, နဲ့ `C` steps (ဥပမာ 10,000 steps) တိုင်း hard reset `θ⁻ ← θ` စတာတွေအထိ အသေးစိတ် ဖော်ပြထားပါတယ်။
@@ -183,7 +197,12 @@ graph TD
 
 **မှန်ပါတယ်, ဒါပေမယ့် NFQ နဲ့ မတူတာက "ပြီးတော့" ဆိုတဲ့ timing ကို episode/outer-loop အစား **fixed step counter `C`** နဲ့ တိတိကျကျ သတ်မှတ်ထားတာပါ။**
 
-```mermaid
+![မေး ၂။ Target ကို weight freeze လုပ်ပြီး, loop တစ်ခါပြီးမှ current အသစ်ယူကာ loss တွက်တာလား?](./diagrams/02_1_VB_DQN_03.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {"theme": "base", "themeVariables": {"lineColor": "#218bff", "signalColor": "#218bff", "actorLineColor": "#218bff", "loopLineColor": "#218bff", "actorBkg": "#e2e3e5", "actorBorder": "#383d41", "actorTextColor": "#383d41", "noteBkgColor": "#d1ecf1", "noteBorderColor": "#0c5460", "noteTextColor": "#0c5460", "labelBoxBkgColor": "#fff3cd", "labelBoxBorderColor": "#856404"}, "themeCSS": "rect.actor[name=\"Onl\"] { fill: #d4edda !important; stroke: #155724 !important; } rect.actor[name=\"Onl\"] + text { fill: #155724 !important; } rect.actor[name=\"Tgt\"] { fill: #e2d9f3 !important; stroke: #4b0082 !important; } rect.actor[name=\"Tgt\"] + text { fill: #4b0082 !important; } "}}%%
 sequenceDiagram
     participant Onl as Online Q Network theta
@@ -211,6 +230,8 @@ sequenceDiagram
     Cnt->>Tgt: when counter reaches C, HARD RESET theta_minus = theta
     Note over Cnt: counter resets to 0, next C-step window begins
 ```
+
+</details>
 
 - **Target (θ⁻)** ကို **`C` steps** (global environment-step counter, ဥပမာ original paper မှာ Atari game အများစုအတွက် `C = 10,000` steps) အတွင်းလုံး **freeze** ထားပြီး gradient **လုံးဝ မတွက်ဘူး**။
 - **Online (θ)** ကိုတော့ **step တိုင်း** (NFQ ရဲ့ "whole batch ကို Rprop နဲ့ epoch ကြီးတွေ fit" သည့် offline style မဟုတ်ဘဲ, online/incremental SGD style) gradient descent နဲ့ update လုပ်တယ်။

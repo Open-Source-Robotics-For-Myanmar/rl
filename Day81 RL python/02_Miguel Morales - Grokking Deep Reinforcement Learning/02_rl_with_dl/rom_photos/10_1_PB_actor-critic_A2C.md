@@ -37,7 +37,12 @@ Actor နဲ့ critic နှစ်ခုလုံးပါသော shared netw
 
 ## Diagram 1 — Shared Actor-Critic Network Architecture
 
-```mermaid
+![Diagram 1 — Shared Actor-Critic Network Architecture](./diagrams/10_1_PB_actor-critic_A2C_01.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     S["State batch<br/>N observations at each acting step"] --> F["Shared MLP / CNN backbone"]
@@ -78,13 +83,20 @@ flowchart TD
     class V valueNetwork;
 ```
 
+</details>
+
 ဒီပုံစံမှာ **logical actor-critic network တစ်ခု၊ heads နှစ်ခု** ပါပါတယ်။ [Chapter 11 ရဲ့ `FCAC`](../chapter_11_summarized.md) ကလည်း shared hidden layers နဲ့ scalar value / action-logits outputs ခွဲထားပါတယ်။ Vector state အတွက် MLP၊ pixels အတွက် CNN သုံးနိုင်ပြီး continuous action မှာ Gaussian policy head သုံးနိုင်ပါတယ်။
 
 **Synchronous updates က A2C ရဲ့ အဓိကဖြစ်ပြီး shared trunk က မဖြစ်မနေ မဟုတ်ပါဘူး။** Policy/value သီးခြား networks နဲ့လည်း ရနိုင်ပါတယ်။ Acting copies ရှိရင် rollout မစခင် တူညီတဲ့ weights ပေးထားရပြီး stale local gradients ကို အဆင်သင့်ဖြစ်သလို ပို့တာ မဟုတ်ပါဘူး။
 
 ## Diagram 2 — Full Algorithm: Collect Together → Batch → One Update
 
-```mermaid
+![Diagram 2 — Full Algorithm: Collect Together → Batch → One Update](./diagrams/10_1_PB_actor-critic_A2C_02.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     P["Current actor-critic parameters<br/>fixed during rollout collection"]
@@ -113,6 +125,8 @@ flowchart TD
     class L,O train;
     class R result;
 ```
+
+</details>
 
 Environment တစ်ခု episode ပြီးရင် reset ပြီး rollout ဆက်ဖြည့်နိုင်ပါတယ်။ **Terminal mask နဲ့ returns / traces ကို episode အကြား ဖြတ်**ရပါတယ်။ ပြိုင်တူ environment အားလုံး episode တစ်ပြိုင်နက်ပြီးဖို့ မလိုပါဘူး; စောင့်တာက သတ်မှတ်ထားတဲ့ rollout segments ပါ။
 
@@ -144,7 +158,12 @@ $$
 
 ## Diagram 3 — A3C vs A2C: Update Timing ကွာခြားပုံ
 
-```mermaid
+![Diagram 3 — A3C vs A2C: Update Timing ကွာခြားပုံ](./diagrams/10_1_PB_actor-critic_A2C_03.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart LR
     subgraph ASYNC [A3C - Asynchronous]
@@ -172,6 +191,8 @@ flowchart LR
     style ASYNC fill:#e7f1ff,stroke:#004085,stroke-width:2px;
     style SYNC fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
 ```
+
+</details>
 
 | အချက် | A3C | A2C |
 |---|---|---|

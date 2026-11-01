@@ -36,7 +36,12 @@ Sequence diagram ရဲ့ network participant box များကိုလည�
 
 ## Diagram 1 — Paper Lineage (ဘယ်ကလာတာလဲ)
 
-```mermaid
+![Diagram 1 — Paper Lineage (ဘယ်ကလာတာလဲ)](./diagrams/03_1_VB_DOUBLE_DQN_01.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph TD
     P1[Thrun and Schwartz, 1993 - identifies overestimation bias from max operator plus function approximation noise]
@@ -61,9 +66,16 @@ graph TD
     class P4,P5 result;
 ```
 
+</details>
+
 ## Diagram 2 — Double DQN Full Algorithm Overview (Decoupled Selection and Evaluation)
 
-```mermaid
+![Diagram 2 — Double DQN Full Algorithm Overview (Decoupled Selection and Evaluation)](./diagrams/03_1_VB_DOUBLE_DQN_02.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph TD
     subgraph Phase1 [Data Gathering - epsilon greedy Behavior Loop]
@@ -125,11 +137,18 @@ graph TD
     style Phase4 fill:#fdecea,stroke:#721c24,stroke-width:2px;
 ```
 
+</details>
+
 > မှတ်ချက်: `Astar` node ကနေ `Target_Net` ဆီ arrow က "action **ရွေးချယ်ခြင်း** (argmax) ကို Online Network ရဲ့ output ကနေ ယူပြီး, ရွေးချယ်ထားတဲ့ အဲဒီ action **တစ်ခုတည်း**ရဲ့ value ကိုပဲ Target Network ရဲ့ output vector ထဲက ထုတ်ယူ (index) တာ" ဖြစ်ကြောင်း ပြထားပါတယ် — ဒါက Double DQN ရဲ့ **core mechanism** အတိအကျ ဖြစ်ပါတယ်။
 
 ## Diagram 3 — Side-by-Side: Standard DQN Target vs Double DQN Target (ဘယ်နေရာမှာ ကွာသွားလဲ)
 
-```mermaid
+![Diagram 3 — Side-by-Side: Standard DQN Target vs Double DQN Target (ဘယ်နေရာမှာ ကွာသွားလဲ)](./diagrams/03_1_VB_DOUBLE_DQN_03.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph LR
     subgraph StandardDQN [Standard DQN Target - ONE network does BOTH jobs - bias prone]
@@ -168,6 +187,8 @@ graph LR
     style DoubleDQNTarget fill:#f3f4f6,stroke:#6b7280,stroke-width:2px;
 ```
 
+</details>
+
 ### Diagram 2 vs Diagram 3 ရဲ့ ဆက်စပ်မှု
 
 - Diagram 2 က Full DDQN algorithm ရဲ့ **closed loop** (acting + replay buffer + training + target sync) ကို ပြထားပြီး, Diagram 3 ကတော့ Diagram 2 ရဲ့ Phase 3 ထဲက **target `y` ဘယ်လိုတွက်လဲ** ဆိုတဲ့ အပိုင်းကိုပဲ **standard DQN နဲ့ side-by-side** ယှဉ်ပြထားတာပါ — ဒါက "Double DQN ဟာ DQN ကို architecture အသစ် ထပ်မထည့်ဘဲ, **target formula တစ်ကြောင်းတည်း** ပြောင်းလိုက်ရုံနဲ့ ရလာတဲ့ fix" ဆိုတာကို အထင်းသားဆုံး ပြသတဲ့ diagram ဖြစ်ပါတယ်။
@@ -204,7 +225,12 @@ graph LR
 
 **မှန်ပါတယ်, timing mechanism ကတော့ Full DQN နဲ့ အတူတူပါပဲ (hard copy, `C` steps) — Double DQN က ပြောင်းထားတာက "target `y` ကို ဘယ် network ၂ ခုနဲ့ ဘယ်လို တွက်လဲ" ဆိုတဲ့ **formula** ချည်းသာ ဖြစ်ပါတယ်။**
 
-```mermaid
+![မေး ၂။ Target ကို weight freeze လုပ်ပြီး, loop တစ်ခါပြီးမှ current အသစ်ယူကာ loss တွက်တာလား?](./diagrams/03_1_VB_DOUBLE_DQN_04.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {"theme": "base", "themeVariables": {"lineColor": "#218bff", "signalColor": "#218bff", "actorLineColor": "#218bff", "loopLineColor": "#218bff", "actorBkg": "#e2e3e5", "actorBorder": "#383d41", "actorTextColor": "#383d41", "noteBkgColor": "#d1ecf1", "noteBorderColor": "#0c5460", "noteTextColor": "#0c5460", "labelBoxBkgColor": "#fff3cd", "labelBoxBorderColor": "#856404"}, "themeCSS": "rect.actor[name=\"Onl\"] { fill: #d4edda !important; stroke: #155724 !important; } rect.actor[name=\"Onl\"] + text { fill: #155724 !important; } rect.actor[name=\"Tgt\"] { fill: #e2d9f3 !important; stroke: #4b0082 !important; } rect.actor[name=\"Tgt\"] + text { fill: #4b0082 !important; } "}}%%
 sequenceDiagram
     participant Onl as Online Q Network theta
@@ -237,6 +263,8 @@ sequenceDiagram
     Cnt->>Tgt: when counter reaches C, HARD RESET theta_minus = theta
     Note over Cnt: counter resets to 0, next C-step window begins - identical schedule to vanilla DQN
 ```
+
+</details>
 
 - **Freeze timing** — Full DQN အတိုင်းပဲ, `θ⁻` ကို `C` steps အတွင်းလုံး freeze ထားတယ်, `C` ပြည့်မှ hard copy `θ⁻ ← θ` ပြန်လုပ်တယ်။ ဒါက **ပြောင်းမထားပါ**။
 - **ပြောင်းထားတာက** — Target `y` ကို တွက်တဲ့အခါ, **STEP 1** မှာ Online Network ကို next state `s'` ပေးပြီး `argmax` (action `a_star`) ကို ရှာခိုင်းတယ်၊ **STEP 2** မှာမှ အဲဒီ `a_star` ကို Target Network ဆီ ပို့ပြီး, Target Network ရဲ့ (frozen) output vector ထဲက `a_star` index ရှိတဲ့ scalar value ကိုပဲ ထုတ်ယူတယ် — ဒါဟာ `maxₐ' Q̂(s',a';θ⁻)` လို Target Network တစ်ခုတည်းနဲ့ `max` ယူတာ **မဟုတ်တော့ပါ**။

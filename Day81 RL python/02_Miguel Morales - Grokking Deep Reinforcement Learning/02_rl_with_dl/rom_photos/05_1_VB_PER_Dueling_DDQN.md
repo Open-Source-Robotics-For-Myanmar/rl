@@ -53,7 +53,12 @@ Paper lineage / algorithm comparison နဲ့ အဆင့်များပါ
 
 ## Diagram 1 — Dueling၊ DDQN၊ PER တို့ရဲ့ တာဝန်ခွဲခြားပုံ
 
-```mermaid
+![Diagram 1 — Dueling၊ DDQN၊ PER တို့ရဲ့ တာဝန်ခွဲခြားပုံ](./diagrams/05_1_VB_PER_Dueling_DDQN_01.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     S["State input"] --> F["Shared CNN / MLP backbone"]
@@ -87,6 +92,8 @@ flowchart TD
     class Q result;
     class V valueNetwork;
 ```
+
+</details>
 
 | Component | ပြောင်းလဲတဲ့နေရာ | မပြောင်းလဲတဲ့နေရာ |
 |---|---|---|
@@ -187,7 +194,12 @@ L(θ) = mean_i [w̃_i × Huber_κ(δ_i)]
 
 ## Diagram 2 — Full Training Loop: Dueling DDQN + PER
 
-```mermaid
+![Diagram 2 — Full Training Loop: Dueling DDQN + PER](./diagrams/05_1_VB_PER_Dueling_DDQN_02.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     E["Environment"] --> T["Collect transition: s, a, r, next state, terminal"]
@@ -231,6 +243,8 @@ flowchart TD
     class TAR targetNetwork;
 ```
 
+</details>
+
 **Update တစ်ကြိမ်ရဲ့ အစီအစဉ်:**
 
 1. Transition အသစ်ကို buffer ထဲသိမ်းတယ်။ Original approach အရ maximum priority seen so far နဲ့ initialize လုပ်တယ်။ Empty buffer မှာ positive initial priority ဥပမာ `1` သုံးတယ်။
@@ -254,7 +268,12 @@ flowchart TD
 | C | 4 | `4/15 ≈ 0.2667` | 0.93750 | 0.250 | `1/15` |
 | D | 8 | `8/15 ≈ 0.5333` | 0.46875 | 0.125 | `1/15` |
 
-```mermaid
+![Diagram 3 — Priority ကြီးလေ Weight သေးလေ: ဘာကြောင့်လဲ?](./diagrams/05_1_VB_PER_Dueling_DDQN_03.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart LR
     HIGH["High priority"] --> OFTEN["Sampled more often"]
@@ -268,6 +287,8 @@ flowchart LR
 
     class HIGH,OFTEN,SMALL,LOW,RARE,LARGE,BAL process;
 ```
+
+</details>
 
 **D ကို မကြာခဏ သင်ပေးပေမယ့် တစ်ခါချင်းစီမှာ weight သေးသေးပေးတယ်။** A ကို ရှားရှားရွေးပေမယ့် ရွေးမိရင် weight ပိုကြီးပေးတယ်။ Weight က reward လည်း မဟုတ်၊ “ဒီ transition အရေးမကြီး” လို့ ဆုံးဖြတ်တာလည်း မဟုတ်ပါဘူး။
 
@@ -310,7 +331,12 @@ w̃_i  = (P_min / P(i))^β
 
 ဒီစာရဲ့ notation အရ **leaf တစ်ခုစီမှာ sampling mass `m_i = p_i^α`** ကို သိမ်းတယ်။ အပေါ်က `α = 1` ဥပမာအတွက်:
 
-```mermaid
+![Diagram 4 — Sum-tree က ဘာကို သိမ်းတာလဲ?](./diagrams/05_1_VB_PER_Dueling_DDQN_04.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     ROOT["Total mass = 15"] --> LEFT["Left sum = 3"]
@@ -324,6 +350,8 @@ flowchart TD
 
     class ROOT,LEFT,RIGHT,A,B,C,D process;
 ```
+
+</details>
 
 ```text
 u ~ Uniform[0, total_mass)
@@ -402,7 +430,12 @@ Hard target copy အစား soft update သုံးနိုင်ပေမ�
 
 ## Diagram 5 — Paper Lineage: ပေါင်းစပ်ခြင်း၊ Scale ချဲ့ခြင်း၊ ပြန်လည်ဆန်းစစ်ခြင်း
 
-```mermaid
+![Diagram 5 — Paper Lineage: ပေါင်းစပ်ခြင်း၊ Scale ချဲ့ခြင်း၊ ပြန်လည်ဆန်းစစ်ခြင်း](./diagrams/05_1_VB_PER_Dueling_DDQN_05.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     DQN["DQN, 2015: uniform replay baseline"] --> PER["PER, 2015 preprint / ICLR 2016"]
@@ -428,6 +461,8 @@ flowchart TD
     class PER,APEX,LABER process;
     class DDQN,DUEL result;
 ```
+
+</details>
 
 Arrow တွေက တစ်ခုကတစ်ခုကို အကုန်အစားထိုးသွားတဲ့ version history မဟုတ်ပါဘူး။ **ပေါင်းသုံးခြင်း၊ extension လုပ်ခြင်း၊ သက်ဆိုင်ရာ design ကို ပြန်လေ့လာခြင်း** တို့ကို ခွဲပြထားတာပါ။
 

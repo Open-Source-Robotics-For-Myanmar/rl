@@ -25,7 +25,12 @@ Sequence diagram ရဲ့ network participant box များကိုလည�
 
 ## Diagram 1 — Basic Overview
 
-```mermaid
+![Diagram 1 — Basic Overview](./diagrams/01_1_VB_NFQ_01.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph TD
     subgraph Phase1 [Data Gathering]
@@ -77,9 +82,16 @@ graph TD
     style Phase4 fill:#fdecea,stroke:#721c24,stroke-width:2px;
 ```
 
+</details>
+
 ## Diagram 2 — Detailed Version (Current Q-Network vs. Target Generation)
 
-```mermaid
+![Diagram 2 — Detailed Version (Current Q-Network vs. Target Generation)](./diagrams/01_1_VB_NFQ_02.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 graph TD
     subgraph Phase1 [Data Gathering]
@@ -131,6 +143,8 @@ graph TD
     style Phase4 fill:#fdecea,stroke:#721c24,stroke-width:2px;
 ```
 
+</details>
+
 ### Diagram 1 vs Diagram 2 ခြားနားချက်
 
 - Diagram 1 က `MLP` / `Target_Net` ဆိုပြီး node name အတိုချုပ်ပဲ သုံးထားပြီး၊ Diagram 2 ကတော့ `Current Q-Network` (gradient descent နဲ့ update လုပ်တဲ့ network) နဲ့ `Target Generation` (ယခင် iteration ရဲ့ fixed weights သုံးတဲ့ network) ဆိုပြီး ရှင်းလင်းစွာ label တပ်ထားပါတယ်။
@@ -151,7 +165,12 @@ graph TD
 
 **မှန်ပါတယ်, စဉ်းစားပုံအတိအကျ ဖြစ်ပါတယ်။** အဆင့်ဆင့် ဖြစ်စဉ်:
 
-```mermaid
+![မေး ၂။ Target ကို weight freeze လုပ်ပြီး, loop တစ်ခါပြီးမှ current အသစ်ယူကာ loss တွက်တာလား?](./diagrams/01_1_VB_NFQ_03.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {"theme": "base", "themeVariables": {"lineColor": "#218bff", "signalColor": "#218bff", "actorLineColor": "#218bff", "loopLineColor": "#218bff", "actorBkg": "#e2e3e5", "actorBorder": "#383d41", "actorTextColor": "#383d41", "noteBkgColor": "#d1ecf1", "noteBorderColor": "#0c5460", "noteTextColor": "#0c5460", "labelBoxBkgColor": "#fff3cd", "labelBoxBorderColor": "#856404"}, "themeCSS": "rect.actor[name=\"Cur\"] { fill: #d4edda !important; stroke: #155724 !important; } rect.actor[name=\"Cur\"] + text { fill: #155724 !important; } rect.actor[name=\"Tgt\"] { fill: #e2d9f3 !important; stroke: #4b0082 !important; } rect.actor[name=\"Tgt\"] + text { fill: #4b0082 !important; } "}}%%
 sequenceDiagram
     participant Cur as Current Q Network theta
@@ -174,6 +193,8 @@ sequenceDiagram
     Note over Cur,Tgt: repeat this for many batches or epochs, theta_minus unchanged
     Note over Tgt: next outer iteration starts, theta_minus = theta again
 ```
+
+</details>
 
 - **Target (θ⁻)** ကို ရေတိုမှာ **freeze** ထားပြီး gradient descent **မတွက်ဘူး** — y တွက်ဖို့ forward pass အတွက်ပဲ သုံးတယ် (PyTorch မှာဆိုရင် `.detach()` / `torch.no_grad()` သုံးတာနဲ့ အတူတူ)။
 - **Current (θ)** ကိုပဲ gradient descent နဲ့ update လုပ်တယ် — θ⁻ ကို ထိမထားဘူး။

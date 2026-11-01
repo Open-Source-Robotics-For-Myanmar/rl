@@ -35,7 +35,12 @@ Network က ထုတ်သော Q / V တန်ဖိုး၊ action probabil
 
 ## Diagram 1 — Network Architecture နှင့် GAE ထည့်ရသောနေရာ
 
-```mermaid
+![Diagram 1 — Network Architecture နှင့် GAE ထည့်ရသောနေရာ](./diagrams/09_1_PB_GAE_01.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     S["Observation s<br/>မူရင်း continuous control: kinematics"] --> P["Policy network theta<br/>MLP features"]
@@ -73,6 +78,8 @@ flowchart TD
     class V valueNetwork;
 ```
 
+</details>
+
 **Policy/value networks ရှိပြီးသားကို ဆက်သုံးတယ်။** GAE block မှာ trainable weights မရှိပါဘူး။ ဒီ diagram က မူရင်း paper နဲ့ ကိုက်သော separate-network layout ကို အကျဉ်းချုပ်ဆွဲထားတာဖြစ်ပြီး hidden widths အတိအကျကို မသတ်မှတ်ထားပါဘူး။ Discrete actions ဆို categorical head၊ shared actor-critic ဆို trunk တစ်ခုနဲ့ heads နှစ်ခုလည်း သုံးနိုင်ပါတယ်။
 
 ## ၂။ Core Equations — TD Error တွေကို Discount လုပ်ပြီးပေါင်းခြင်း
@@ -90,7 +97,12 @@ $$
 
 ### Diagram 2 — λ က One-step နှင့် Multi-step Signals ကို ချိတ်ပေးပုံ
 
-```mermaid
+![Diagram 2 — λ က One-step နှင့် Multi-step Signals ကို ချိတ်ပေးပုံ](./diagrams/09_1_PB_GAE_02.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart LR
     D0["delta_t<br/>weight 1"] --> SUM["Sum = GAE advantage at t"]
@@ -112,6 +124,8 @@ flowchart LR
     class D0,D1,D2,DN,SG result;
 ```
 
+</details>
+
 | `λ` | အဓိပ္ပာယ် | အကန့်အသတ် |
 |---|---|---|
 | `0` | `Â_t = δ_t` — one-step TD advantage | Value approximation error အပေါ် ပိုမှီခိုတယ် |
@@ -122,7 +136,12 @@ flowchart LR
 
 ## Diagram 3 — Practical Algorithm: Boundary-aware Backward Pass
 
-```mermaid
+![Diagram 3 — Practical Algorithm: Boundary-aware Backward Pass](./diagrams/09_1_PB_GAE_03.svg)
+
+<details>
+<summary>Mermaid source (ပြင်ဆင်ရန်)</summary>
+
+```text
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart TD
     C["Current policy ဖြင့် rollout စု"] --> B["Rewards, values, next values<br/>terminal and boundary flags"]
@@ -145,6 +164,8 @@ flowchart TD
     class P,V train;
     class M,D,I,T result;
 ```
+
+</details>
 
 **Bootstrap mask `b` နဲ့ trace-continuation mask `c` ကို ခွဲဖတ်ပါ။**
 
