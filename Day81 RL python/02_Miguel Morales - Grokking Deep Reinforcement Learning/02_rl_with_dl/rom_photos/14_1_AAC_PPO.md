@@ -89,7 +89,7 @@ $$
 $$
 L^{\mathrm{CLIP}}(\theta)=\mathbb{E}_t\!\left[
 \min\!\left(r_t(\theta)\hat A_t,
-\operatorname{clip}(r_t(\theta),1-\epsilon,1+\epsilon)\hat A_t\right)
+\mathrm{clip}(r_t(\theta),1-\epsilon,1+\epsilon)\hat A_t\right)
 \right].
 $$
 
@@ -114,7 +114,7 @@ True terminal မှာ `b=0, c=0`; environment reset үүсစေတဲ့ exte
 PPO actor update တစ်ခုတည်းနဲ့ မပြီးပါဘူး။ Critic ကို rollout target ဆီ regression လုပ်ပြီး policy entropy ကို ထိန်းပေးနိုင်ပါတယ်။ Advantage/return target များကို optimizer မစခင်တွက်ပြီး **detach** လုပ်ထားပါ။ ဥပမာ implementation တစ်ခုက:
 
 $$
-\hat R_t=\operatorname{sg}(\hat A_t+V_{\phi_{\mathrm{old}}}(s_t)),
+\hat R_t=\mathrm{sg}(\hat A_t+V_{\phi_{\mathrm{old}}}(s_t)),
 \quad
 L_V=\tfrac12\mathbb{E}_t[(V_\phi(s_t)-\hat R_t)^2],
 \quad
