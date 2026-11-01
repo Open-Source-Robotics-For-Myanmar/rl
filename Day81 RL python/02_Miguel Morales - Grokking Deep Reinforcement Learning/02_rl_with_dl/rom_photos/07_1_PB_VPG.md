@@ -16,7 +16,17 @@
 
 ### Color Rule
 
-ရှေ့ဖိုင်တွေရဲ့ **fill / border / text** palette အတိုင်း: အပြာ `#cce5ff / #004085` = state/data၊ အစိမ်း `#d4edda / #155724` = trainable policy/value networks၊ အဝါ `#fff3cd / #856404` = batch/advantage၊ ခရမ်း `#e2d9f3 / #4b0082` = return/target evaluation၊ ပန်းရောင် `#f8d7da / #721c24` = loss/update။ Arrow = `#218bff`။
+ရှေ့ဖိုင်တွေရဲ့ **fill / border / text** palette အတိုင်း သုံးထားပါတယ်။ အရောင်နမူနာတစ်ခုစီမှာ နောက်ခံက fill၊ ဘောင်နဲ့စာသားက border / text အရောင်ပါ။
+
+| အရောင် | အရောင်နမူနာ | Fill | Border / text | ဒီစာတွင် သုံးပုံ |
+|---|---|---|---|---|
+| အပြာနု | ![အပြာနု နောက်ခံ၊ အပြာရင့် ဘောင်နှင့်စာသား](./color_swatches/blue.svg) | `#cce5ff` | `#004085` | State / data၊ environment၊ episode စုခြင်း |
+| အစိမ်းနု | ![အစိမ်းနု နောက်ခံ၊ အစိမ်းရင့် ဘောင်နှင့်စာသား](./color_swatches/green.svg) | `#d4edda` | `#155724` | Trainable policy / value networks နှင့် outputs |
+| အဝါနု | ![အဝါနု နောက်ခံ၊ အညိုရင့် ဘောင်နှင့်စာသား](./color_swatches/yellow.svg) | `#fff3cd` | `#856404` | On-policy batch / advantage estimate |
+| ခရမ်းနု | ![ခရမ်းနု နောက်ခံ၊ ခရမ်းရင့် ဘောင်နှင့်စာသား](./color_swatches/purple.svg) | `#e2d9f3` | `#4b0082` | MC return / target evaluation |
+| ပန်းရောင်နု | ![ပန်းရောင်နု နောက်ခံ၊ အနီရင့် ဘောင်နှင့်စာသား](./color_swatches/pink.svg) | `#f8d7da` | `#721c24` | Policy / value loss နှင့် optimizer update |
+
+Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) **အပြာ `#218bff`**။
 
 ## Diagram 1 — Network Architecture: Policy နှင့် Value Baseline သီးခြားနှစ်ခု
 

@@ -26,6 +26,66 @@ Arrow = ![အပြာရောင် မြား](./color_swatches/arrow.svg) 
 
 ## Diagram 1 — Network Architecture: State → Policy → Action
 
+### 1A — Policy Network ကို Neuron များအဖြစ် ကြည့်မယ်
+
+**ဒီနေရာက policy network ဆိုတာ neural network (MLP) တစ်ခုပါပဲ။** State features တွေကို input အဖြစ်ယူပြီး hidden layers တွေကနေ action တစ်ခုစီအတွက် logit ထုတ်ပေးပါတယ်။ အောက်က စက်ဝိုင်းတစ်ခုစီက input feature သို့မဟုတ် neuron တစ်ခုကို ကိုယ်စားပြုပါတယ်။
+
+```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
+flowchart LR
+    subgraph NN ["Policy network = Neural network pi_theta — 4 → 32 → 32 → 2"]
+        subgraph Input ["Input: CartPole state"]
+            X1(("Cart<br/>position"))
+            X2(("Cart<br/>velocity"))
+            X3(("Pole<br/>angle"))
+            X4(("Pole angular<br/>velocity"))
+        end
+        subgraph Hidden1 ["Hidden layer 1: 32 neurons + ReLU"]
+            H11(("h1_1"))
+            H12(("h1_2"))
+            H132(("h1_32"))
+        end
+        subgraph Hidden2 ["Hidden layer 2: 32 neurons + ReLU"]
+            H21(("h2_1"))
+            H22(("h2_2"))
+            H232(("h2_32"))
+        end
+        subgraph Head ["Linear output: 2 logits"]
+            ZL(("z_left"))
+            ZR(("z_right"))
+        end
+        X1 --> H11 & H12 & H132
+        X2 --> H11 & H12 & H132
+        X3 --> H11 & H12 & H132
+        X4 --> H11 & H12 & H132
+        H11 --> H21 & H22 & H232
+        H12 --> H21 & H22 & H232
+        H132 --> H21 & H22 & H232
+        H21 --> ZL & ZR
+        H22 --> ZL & ZR
+        H232 --> ZL & ZR
+    end
+    ZL --> P["Softmax / Categorical<br/>ဥပမာ: P(left) = 0.70<br/>P(right) = 0.30"]
+    ZR --> P
+    P --> A["Sample action<br/>left သို့မဟုတ် right"]
+
+    classDef data fill:#cce5ff,stroke:#004085,stroke-width:1px,color:#004085;
+    classDef policy fill:#d4edda,stroke:#155724,stroke-width:1px,color:#155724;
+    class X1,X2,X3,X4 data;
+    class H11,H12,H132,H21,H22,H232,ZL,ZR,P,A policy;
+    style NN fill:#f1faf3,stroke:#155724,stroke-width:2px;
+    style Input fill:#e7f1ff,stroke:#004085,stroke-width:1px;
+    style Hidden1 fill:#ffffff,stroke:#155724,stroke-width:1px;
+    style Hidden2 fill:#ffffff,stroke:#155724,stroke-width:1px;
+    style Head fill:#ffffff,stroke:#155724,stroke-width:1px;
+```
+
+ပုံရှင်းအောင် hidden layer တစ်ခုစီမှာ **32 neurons ထဲက 3 ခုပဲ ကိုယ်စားပြုဆွဲထားပါတယ်**။ တကယ့် fully connected network မှာ ရှေ့ layer က neuron တိုင်းဟာ နောက် layer က neuron တိုင်းနဲ့ ဆက်ပါတယ်။ မြားတစ်ခုစီမှာ learn လုပ်မယ့် **weight** ရှိပြီး neuron တွေရဲ့ **bias** တွေနဲ့ပေါင်းပြီး `θ = {weights, biases}` ဖြစ်ပါတယ်။
+
+**“Neural network” က တည်ဆောက်ပုံကို ပြောတာ၊ “policy” က အဲဒီ network ရဲ့ အလုပ်ကို ပြောတာပါ** — state ပေးရင် ဘယ် action ကို probability ဘယ်လောက်နဲ့ ရွေးမလဲဆိုတာ သင်ယူပေးတာဖြစ်ပါတယ်။ ဥပမာ `[0.70, 0.30]` ဆိုရင် left ကို 70%၊ right ကို 30% နဲ့ sample လုပ်နိုင်ပါတယ်။ REINFORCE update က ဒီ network ရဲ့ `θ` ကို ပြင်ပြီး action probabilities တွေကို ပြောင်းပေးပါတယ်။
+
+### 1B — Network၊ Action နှင့် Learning Signal ဆက်စပ်ပုံ
+
 ```mermaid
 %%{init: {'theme': 'base', 'themeVariables': { 'primaryColor': '#ffffff', 'lineColor': '#218bff'}}}%%
 flowchart LR
